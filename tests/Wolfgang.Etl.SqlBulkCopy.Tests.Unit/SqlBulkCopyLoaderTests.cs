@@ -18,7 +18,7 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
     }
 
 
@@ -26,7 +26,7 @@ public class SqlBulkCopyLoaderTests
     private static SqlBulkCopyLoader<TestRecord> CreateSut(FakeSqlBulkCopyWrapperFactory factory)
     {
         var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
     }
 
 
@@ -267,7 +267,7 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, null, timer)
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
         {
             EnableDataValidation = true
         };
@@ -293,7 +293,7 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
         var capturedErrors = new List<ICollection<ValidationResult>>();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, null, timer)
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
         {
             EnableDataValidation = true,
             OnValidationFailed = (_, errors) => capturedErrors.Add(errors)
@@ -319,7 +319,7 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, null, timer);
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, timer);
 
         var items = new[]
         {
