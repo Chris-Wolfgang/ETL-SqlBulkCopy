@@ -136,7 +136,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     )
     {
         _wrapperFactory = wrapperFactory ?? throw new ArgumentNullException(nameof(wrapperFactory));
-        _logger = logger ?? (ILogger)NullLogger.Instance;
+        _logger = logger ?? NullLogger.Instance;
         _progressTimer = timer ?? throw new ArgumentNullException(nameof(timer));
         _options = SqlBulkCopyOptions.Default;
     }
@@ -244,14 +244,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <summary>
     /// Gets or sets the action to execute before loading begins.
     /// </summary>
-    /// <value>The default is <see cref="SqlBulkCopy.PreAction.None"/>.</value>
+    /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.None"/>.</value>
     public PreAction PreAction { get; set; }
 
 
 
     /// <summary>
     /// Gets or sets the custom delegate to invoke when
-    /// <see cref="PreAction"/> is <see cref="SqlBulkCopy.PreAction.CustomAction"/>.
+    /// <see cref="PreAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.CustomAction"/>.
     /// </summary>
     public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get; set; }
 
@@ -260,14 +260,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <summary>
     /// Gets or sets the action to execute after loading completes.
     /// </summary>
-    /// <value>The default is <see cref="SqlBulkCopy.PostAction.None"/>.</value>
+    /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.None"/>.</value>
     public PostAction PostAction { get; set; }
 
 
 
     /// <summary>
     /// Gets or sets the custom delegate to invoke when
-    /// <see cref="PostAction"/> is <see cref="SqlBulkCopy.PostAction.CustomAction"/>.
+    /// <see cref="PostAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.CustomAction"/>.
     /// </summary>
     public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get; set; }
 
@@ -462,6 +462,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
     private void ValidateActionConfiguration(TypeMap typeMap)
     {
+        ValidatePreActionConfiguration(typeMap);
+        ValidatePostActionConfiguration();
+    }
+
+
+
+    private void ValidatePreActionConfiguration(TypeMap typeMap)
+    {
         switch (PreAction)
         {
             case PreAction.None:
@@ -489,14 +497,21 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                 break;
 
             default:
+#pragma warning disable S3928, MA0015 // PreAction is a property, not a parameter
                 throw new ArgumentOutOfRangeException
                 (
                     nameof(PreAction),
                     PreAction,
                     "Unknown PreAction value."
                 );
+#pragma warning restore S3928, MA0015
         }
+    }
 
+
+
+    private void ValidatePostActionConfiguration()
+    {
         switch (PostAction)
         {
             case PostAction.None:
@@ -513,12 +528,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                 break;
 
             default:
+#pragma warning disable S3928, MA0015 // PostAction is a property, not a parameter
                 throw new ArgumentOutOfRangeException
                 (
                     nameof(PostAction),
                     PostAction,
                     "Unknown PostAction value."
                 );
+#pragma warning restore S3928, MA0015
         }
     }
 

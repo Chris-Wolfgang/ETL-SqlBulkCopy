@@ -125,7 +125,7 @@ internal sealed class TypeMapReader : DbDataReader
             return ordinal;
         }
 
-        throw new IndexOutOfRangeException($"Column '{name}' was not found.");
+        throw new ArgumentOutOfRangeException(nameof(name), name, $"Column '{name}' was not found.");
     }
 
 
@@ -261,8 +261,10 @@ internal sealed class TypeMapReader : DbDataReader
     {
         if (ordinal < 0 || ordinal >= _typeMap.Columns.Count)
         {
-            throw new IndexOutOfRangeException
+            throw new ArgumentOutOfRangeException
             (
+                nameof(ordinal),
+                ordinal,
                 $"Ordinal {ordinal} is out of range. Column count is {_typeMap.Columns.Count}."
             );
         }

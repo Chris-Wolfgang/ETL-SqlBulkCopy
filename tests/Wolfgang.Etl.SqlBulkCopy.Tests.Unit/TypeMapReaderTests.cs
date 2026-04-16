@@ -102,7 +102,7 @@ public class TypeMapReaderTests
 
 
     [Fact]
-    public void GetValue_when_ordinal_out_of_range_throws_IndexOutOfRangeException()
+    public void GetValue_when_ordinal_out_of_range_throws_ArgumentOutOfRangeException()
     {
         var batch = new object[]
         {
@@ -111,7 +111,7 @@ public class TypeMapReaderTests
         var reader = CreateReader(batch);
         reader.Read();
 
-        Assert.Throws<IndexOutOfRangeException>
+        Assert.Throws<ArgumentOutOfRangeException>
         (
             () => reader.GetValue(99)
         );
@@ -186,11 +186,11 @@ public class TypeMapReaderTests
 
 
     [Fact]
-    public void GetOrdinal_when_name_not_found_throws_IndexOutOfRangeException()
+    public void GetOrdinal_when_name_not_found_throws_ArgumentOutOfRangeException()
     {
         var reader = CreateReader(Array.Empty<object>());
 
-        Assert.Throws<IndexOutOfRangeException>
+        Assert.Throws<ArgumentOutOfRangeException>
         (
             () => reader.GetOrdinal("NonExistent")
         );

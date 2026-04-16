@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Xunit;
 
