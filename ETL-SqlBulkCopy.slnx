@@ -31,97 +31,6 @@
     <File Path="docs/RELEASE-WORKFLOW-SETUP.md" />
     <File Path="docs/SECURITY.md" />
   </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/">
-    <File Path="ETL-SqlBulkCopy/BannedSymbols.txt" />
-    <File Path="ETL-SqlBulkCopy/CODE_OF_CONDUCT.md" />
-    <File Path="ETL-SqlBulkCopy/CONTRIBUTING.md" />
-    <File Path="ETL-SqlBulkCopy/Directory.Build.props" />
-    <File Path="ETL-SqlBulkCopy/LICENSE" />
-    <File Path="ETL-SqlBulkCopy/LICENSE-APACHE-2.0.txt" />
-    <File Path="ETL-SqlBulkCopy/LICENSE-MIT.txt" />
-    <File Path="ETL-SqlBulkCopy/LICENSE-MPL-2.0.txt" />
-    <File Path="ETL-SqlBulkCopy/README-TEMPLATE.md" />
-    <File Path="ETL-SqlBulkCopy/README.md" />
-    <File Path="ETL-SqlBulkCopy/REPO-INSTRUCTIONS.md" />
-    <File Path="ETL-SqlBulkCopy/SECURITY.md" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/">
-    <File Path="ETL-SqlBulkCopy/.git/config" />
-    <File Path="ETL-SqlBulkCopy/.git/description" />
-    <File Path="ETL-SqlBulkCopy/.git/HEAD" />
-    <File Path="ETL-SqlBulkCopy/.git/index" />
-    <File Path="ETL-SqlBulkCopy/.git/packed-refs" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/hooks/">
-    <File Path="ETL-SqlBulkCopy/.git/hooks/applypatch-msg.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/commit-msg.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/fsmonitor-watchman.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/post-update.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/pre-applypatch.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/pre-commit.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/pre-merge-commit.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/pre-push.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/pre-rebase.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/pre-receive.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/prepare-commit-msg.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/push-to-checkout.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/sendemail-validate.sample" />
-    <File Path="ETL-SqlBulkCopy/.git/hooks/update.sample" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/info/">
-    <File Path="ETL-SqlBulkCopy/.git/info/exclude" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/logs/">
-    <File Path="ETL-SqlBulkCopy/.git/logs/HEAD" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/logs/refs/heads/">
-    <File Path="ETL-SqlBulkCopy/.git/logs/refs/heads/main" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/logs/refs/remotes/origin/">
-    <File Path="ETL-SqlBulkCopy/.git/logs/refs/remotes/origin/HEAD" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/objects/pack/">
-    <File Path="ETL-SqlBulkCopy/.git/objects/pack/pack-11a5dc7ae2402e8c3fc17ccc147dfd5438139fcd.idx" />
-    <File Path="ETL-SqlBulkCopy/.git/objects/pack/pack-11a5dc7ae2402e8c3fc17ccc147dfd5438139fcd.pack" />
-    <File Path="ETL-SqlBulkCopy/.git/objects/pack/pack-11a5dc7ae2402e8c3fc17ccc147dfd5438139fcd.rev" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/refs/heads/">
-    <File Path="ETL-SqlBulkCopy/.git/refs/heads/main" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.git/refs/remotes/origin/">
-    <File Path="ETL-SqlBulkCopy/.git/refs/remotes/origin/HEAD" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.github/">
-    <File Path="ETL-SqlBulkCopy/.github/CODEOWNERS" />
-    <File Path="ETL-SqlBulkCopy/.github/copilot-instructions.md" />
-    <File Path="ETL-SqlBulkCopy/.github/dependabot.yml" />
-    <File Path="ETL-SqlBulkCopy/.github/pull_request_template.md" />
-    <File Path="ETL-SqlBulkCopy/.github/version-picker-template.html" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.github/ISSUE_TEMPLATE/">
-    <File Path="ETL-SqlBulkCopy/.github/ISSUE_TEMPLATE/BUG_REPORT.yaml" />
-    <File Path="ETL-SqlBulkCopy/.github/ISSUE_TEMPLATE/feature_request.yaml" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/.github/workflows/">
-    <File Path="ETL-SqlBulkCopy/.github/workflows/build-all-versions.yaml" />
-    <File Path="ETL-SqlBulkCopy/.github/workflows/codeql.yaml" />
-    <File Path="ETL-SqlBulkCopy/.github/workflows/docfx.yaml" />
-    <File Path="ETL-SqlBulkCopy/.github/workflows/pr.yaml" />
-    <File Path="ETL-SqlBulkCopy/.github/workflows/release.yaml" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/docs/">
-    <File Path="ETL-SqlBulkCopy/docs/RELEASE-WORKFLOW-SETUP.md" />
-    <File Path="ETL-SqlBulkCopy/docs/SECURITY.md" />
-  </Folder>
-  <Folder Name="/.root/ETL-SqlBulkCopy/scripts/">
-    <File Path="ETL-SqlBulkCopy/scripts/build-pr.ps1" />
-    <File Path="ETL-SqlBulkCopy/scripts/Fix-BranchRuleset.ps1" />
-    <File Path="ETL-SqlBulkCopy/scripts/format.ps1" />
-    <File Path="ETL-SqlBulkCopy/scripts/Setup-BranchRuleset.ps1" />
-    <File Path="ETL-SqlBulkCopy/scripts/Setup-GitHubPages.ps1" />
-    <File Path="ETL-SqlBulkCopy/scripts/Setup-Labels.ps1" />
-    <File Path="ETL-SqlBulkCopy/scripts/setup.ps1" />
-  </Folder>
   <Folder Name="/.root/scripts/">
     <File Path="scripts/build-pr.ps1" />
     <File Path="scripts/Fix-BranchRuleset.ps1" />
@@ -133,7 +42,10 @@
   </Folder>
   <Folder Name="/benchmarks/" />
   <Folder Name="/examples/" />
-  <Folder Name="/src/" />
-  <Folder Name="/tests/" />
+  <Folder Name="/src/">
+    <Project Path="src/Wolfgang.Etl.SqlBulkCopy/Wolfgang.Etl.SqlBulkCopy.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj" />
+  </Folder>
 </Solution>
-
