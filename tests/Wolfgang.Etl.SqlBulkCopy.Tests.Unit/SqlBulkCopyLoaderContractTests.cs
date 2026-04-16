@@ -30,7 +30,7 @@ public class SqlBulkCopyLoaderContractTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
     }
 
 
@@ -42,6 +42,6 @@ public class SqlBulkCopyLoaderContractTests
     protected override SqlBulkCopyLoader<TestRecord> CreateSutWithTimer(IProgressTimer timer)
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        return new SqlBulkCopyLoader<TestRecord>(factory, null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
     }
 }
