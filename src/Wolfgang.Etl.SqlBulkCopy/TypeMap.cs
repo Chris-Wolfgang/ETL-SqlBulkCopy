@@ -19,7 +19,7 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// </remarks>
 internal sealed class TypeMap
 {
-    private static readonly ConcurrentDictionary<string, TypeMap> Cache = new();
+    private static readonly ConcurrentDictionary<(Type Type, string? SchemaName, string? TableName), TypeMap> Cache = new();
 
     /// <summary>
     /// The set of CLR types that can be mapped directly to SQL Server columns.
@@ -150,7 +150,7 @@ internal sealed class TypeMap
             throw new ArgumentNullException(nameof(type));
         }
 
-        var cacheKey = $"{type.FullName}|{schemaName ?? ""}|{tableName ?? ""}";
+        var cacheKey = (type, schemaName, tableName);
 
         return Cache.GetOrAdd(cacheKey, _ => BuildTypeMap(type, schemaName, tableName));
     }

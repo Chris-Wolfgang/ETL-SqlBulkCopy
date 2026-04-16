@@ -20,6 +20,7 @@ internal sealed class TypeMapReader : DbDataReader
 {
     private readonly IReadOnlyList<object> _batch;
     private readonly TypeMap _typeMap;
+    private readonly Dictionary<string, int> _ordinalLookup;
     private int _currentIndex = -1;
 
 
@@ -40,6 +41,13 @@ internal sealed class TypeMapReader : DbDataReader
     {
         _batch = batch ?? throw new ArgumentNullException(nameof(batch));
         _typeMap = typeMap ?? throw new ArgumentNullException(nameof(typeMap));
+
+        _ordinalLookup = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        for (var i = 0; i < _typeMap.Columns.Count; i++)
+        {
+            _ordinalLookup[_typeMap.Columns[i].ColumnName] = i;
+        }
     }
 
 
@@ -112,12 +120,9 @@ internal sealed class TypeMapReader : DbDataReader
             throw new ArgumentNullException(nameof(name));
         }
 
-        for (var i = 0; i < _typeMap.Columns.Count; i++)
+        if (_ordinalLookup.TryGetValue(name, out var ordinal))
         {
-            if (string.Equals(_typeMap.Columns[i].ColumnName, name, StringComparison.OrdinalIgnoreCase))
-            {
-                return i;
-            }
+            return ordinal;
         }
 
         throw new IndexOutOfRangeException($"Column '{name}' was not found.");
