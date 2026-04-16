@@ -434,3 +434,4 @@ docfx_project/obj/
 .claude/
 coverage-report/
 coverage-results/
+resharper-report.xml
