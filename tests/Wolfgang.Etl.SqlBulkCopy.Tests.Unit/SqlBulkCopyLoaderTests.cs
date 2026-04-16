@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging.Abstractions;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Wolfgang.Etl.TestKit.Xunit;
@@ -197,9 +195,9 @@ public class SqlBulkCopyLoaderTests
         await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
 
         var wrapper = factory.CreatedWrappers[0];
-        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Id", System.StringComparison.Ordinal) && string.Equals(m.Destination, "Id", System.StringComparison.Ordinal));
-        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "FullName", System.StringComparison.Ordinal) && string.Equals(m.Destination, "FullName", System.StringComparison.Ordinal));
-        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Amount", System.StringComparison.Ordinal) && string.Equals(m.Destination, "Amount", System.StringComparison.Ordinal));
+        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Id", StringComparison.Ordinal) && string.Equals(m.Destination, "Id", StringComparison.Ordinal));
+        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "FullName", StringComparison.Ordinal) && string.Equals(m.Destination, "FullName", StringComparison.Ordinal));
+        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Amount", StringComparison.Ordinal) && string.Equals(m.Destination, "Amount", StringComparison.Ordinal));
     }
 
 

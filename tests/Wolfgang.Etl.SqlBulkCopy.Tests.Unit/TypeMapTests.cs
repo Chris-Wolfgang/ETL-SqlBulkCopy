@@ -76,7 +76,7 @@ public class TypeMapTests
         Assert.DoesNotContain
         (
             map.Columns,
-            c => string.Equals(c.PropertyName, "Ignored", System.StringComparison.Ordinal)
+            c => string.Equals(c.PropertyName, "Ignored", StringComparison.Ordinal)
         );
     }
 
@@ -87,7 +87,7 @@ public class TypeMapTests
     {
         var map = TypeMap.Create(typeof(TestRecord));
 
-        var nameColumn = map.Columns.Single(c => string.Equals(c.PropertyName, "Name", System.StringComparison.Ordinal));
+        var nameColumn = map.Columns.Single(c => string.Equals(c.PropertyName, "Name", StringComparison.Ordinal));
         Assert.Equal("FullName", nameColumn.ColumnName);
     }
 
@@ -186,7 +186,7 @@ public class TypeMapTests
     {
         var map = TypeMap.Create(typeof(NullablePropertiesRecord));
 
-        var nullableIntCol = map.Columns.Single(c => string.Equals(c.PropertyName, "NullableInt", System.StringComparison.Ordinal));
+        var nullableIntCol = map.Columns.Single(c => string.Equals(c.PropertyName, "NullableInt", StringComparison.Ordinal));
         Assert.Equal(typeof(int), nullableIntCol.ClrType);
         Assert.True(nullableIntCol.IsNullable);
     }
