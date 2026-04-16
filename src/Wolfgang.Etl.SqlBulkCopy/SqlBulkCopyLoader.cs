@@ -294,6 +294,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         await ExecutePreActionAsync(typeMap, token).ConfigureAwait(false);
 
         _batchCount = 0;
+        var skipCounter = 0;
         var batch = new List<TRecord>(_batchSize);
         var factory = _wrapperFactory ?? CreateFactory();
 
@@ -301,10 +302,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         {
             token.ThrowIfCancellationRequested();
 
-            if (CurrentSkippedItemCount < SkipItemCount)
+            if (skipCounter < SkipItemCount)
             {
+                skipCounter++;
                 IncrementCurrentSkippedItemCount();
-                SqlBulkCopyLogMessages.SkippedItem(_logger, CurrentSkippedItemCount, SkipItemCount, exception: null);
+                SqlBulkCopyLogMessages.SkippedItem(_logger, skipCounter, SkipItemCount, exception: null);
                 continue;
             }
 
@@ -428,7 +430,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
         foreach (var column in typeMap.Columns)
         {
-            wrapper.AddColumnMapping(column.PropertyName, column.ColumnName);
+            wrapper.AddColumnMapping(column.ColumnName, column.ColumnName);
         }
 
         using var reader = new TypeMapReader(items, typeMap);
@@ -447,7 +449,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             return true;
         }
 
-        var position = (CurrentItemCount + CurrentSkippedItemCount + SkipItemCount).ToString();
+        var position = (CurrentItemCount + CurrentSkippedItemCount).ToString();
         SqlBulkCopyLogMessages.ValidationFailed(_logger, position, results.Count, exception: null);
 
         OnValidationFailed?.Invoke(item, results);
@@ -550,6 +552,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                 break;
 
             case PreAction.CustomAction:
+                EnsureConnectionAvailable("PreAction.CustomAction");
                 var parameters = new PreLoadActionParameters
                 (
                     _connection!,
@@ -580,6 +583,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         switch (PostAction)
         {
             case PostAction.CustomAction:
+                EnsureConnectionAvailable("PostAction.CustomAction");
                 var parameters = new PostLoadActionParameters
                 (
                     _connection!,
@@ -600,16 +604,9 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
     private async Task ExecuteSqlCommandAsync(string commandText, CancellationToken token)
     {
-        if (_connection is null)
-        {
-            throw new InvalidOperationException
-            (
-                "Cannot execute SQL commands without a SqlConnection. " +
-                "Pre/post actions are not available when using the test constructor."
-            );
-        }
+        EnsureConnectionAvailable("SQL command execution");
 
-        using var command = _connection.CreateCommand();
+        using var command = _connection!.CreateCommand();
         command.CommandText = commandText;
         command.CommandTimeout = _bulkCopyTimeout;
 
@@ -623,16 +620,24 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    private ISqlBulkCopyWrapperFactory CreateFactory()
+    private void EnsureConnectionAvailable(string operation)
     {
         if (_connection is null)
         {
             throw new InvalidOperationException
             (
-                "No SqlConnection was provided. Use a constructor that accepts a SqlConnection."
+                $"Cannot perform '{operation}' without a SqlConnection. " +
+                "Use a constructor that accepts a SqlConnection."
             );
         }
+    }
 
-        return new SqlBulkCopyWrapperFactory(_connection, _options, _transaction);
+
+
+    private ISqlBulkCopyWrapperFactory CreateFactory()
+    {
+        EnsureConnectionAvailable("bulk copy");
+
+        return new SqlBulkCopyWrapperFactory(_connection!, _options, _transaction);
     }
 }

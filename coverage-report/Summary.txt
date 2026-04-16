@@ -1,0 +1,29 @@
+Summary
+  Generated on: 4/15/2026 - 10:38:20 PM
+  Coverage date: 4/15/2026 - 10:38:04 PM
+  Parser: Cobertura
+  Assemblies: 1
+  Classes: 7
+  Files: 7
+  Line coverage: 74.7%
+  Covered lines: 530
+  Uncovered lines: 179
+  Coverable lines: 709
+  Total lines: 1643
+  Branch coverage: 67.9% (127 of 187)
+  Covered branches: 127
+  Total branches: 187
+  Method coverage: 84.3% (70 of 83)
+  Full method coverage: 66.2% (55 of 83)
+  Covered methods: 70
+  Fully covered methods: 55
+  Total methods: 83
+
+Wolfgang.Etl.SqlBulkCopy                            74.7%
+  Wolfgang.Etl.SqlBulkCopy.ColumnMap                 100%
+  Wolfgang.Etl.SqlBulkCopy.NestedTableMap             66%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<T>     57.5%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLogMessages   97.2%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport         100%
+  Wolfgang.Etl.SqlBulkCopy.TypeMap                  88.7%
+  Wolfgang.Etl.SqlBulkCopy.TypeMapReader            85.4%
