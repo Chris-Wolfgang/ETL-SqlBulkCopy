@@ -61,6 +61,7 @@ internal sealed class TypeMapReader : DbDataReader
     /// <inheritdoc />
     public override object GetValue(int ordinal)
     {
+        ValidateReaderState();
         ValidateOrdinal(ordinal);
 
         var column = _typeMap.Columns[ordinal];
@@ -85,6 +86,7 @@ internal sealed class TypeMapReader : DbDataReader
     /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
     {
+        ValidateReaderState();
         ValidateOrdinal(ordinal);
 
         var column = _typeMap.Columns[ordinal];
@@ -226,6 +228,27 @@ internal sealed class TypeMapReader : DbDataReader
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public override bool NextResult() => false;
+
+
+
+    private void ValidateReaderState()
+    {
+        if (_currentIndex < 0)
+        {
+            throw new InvalidOperationException
+            (
+                "No current row. Call Read() before accessing data."
+            );
+        }
+
+        if (_currentIndex >= _batch.Count)
+        {
+            throw new InvalidOperationException
+            (
+                "Reader has been exhausted. Read() returned false."
+            );
+        }
+    }
 
 
 

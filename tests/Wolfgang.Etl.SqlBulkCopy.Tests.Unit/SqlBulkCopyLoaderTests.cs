@@ -198,7 +198,7 @@ public class SqlBulkCopyLoaderTests
 
         var wrapper = factory.CreatedWrappers[0];
         Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Id", System.StringComparison.Ordinal) && string.Equals(m.Destination, "Id", System.StringComparison.Ordinal));
-        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Name", System.StringComparison.Ordinal) && string.Equals(m.Destination, "FullName", System.StringComparison.Ordinal));
+        Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "FullName", System.StringComparison.Ordinal) && string.Equals(m.Destination, "FullName", System.StringComparison.Ordinal));
         Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Amount", System.StringComparison.Ordinal) && string.Equals(m.Destination, "Amount", System.StringComparison.Ordinal));
     }
 

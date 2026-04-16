@@ -100,8 +100,8 @@ internal sealed class TypeMap
             }
 
             return SchemaName is not null
-                ? $"[{SchemaName}].[{TableName}]"
-                : $"[{TableName}]";
+                ? $"[{EscapeIdentifier(SchemaName)}].[{EscapeIdentifier(TableName)}]"
+                : $"[{EscapeIdentifier(TableName)}]";
         }
     }
 
@@ -245,11 +245,15 @@ internal sealed class TypeMap
             return (null, type.Name);
         }
 
-        return
-        (
-            schemaName ?? tableAttribute?.Schema,
-            tableName ?? tableAttribute?.Name ?? type.Name
-        );
+        var resolvedSchemaName = string.IsNullOrWhiteSpace(schemaName)
+            ? tableAttribute?.Schema
+            : schemaName;
+
+        var resolvedTableName = !string.IsNullOrWhiteSpace(tableName)
+            ? tableName!
+            : tableAttribute?.Name ?? type.Name;
+
+        return (resolvedSchemaName, resolvedTableName);
     }
 
 
@@ -307,8 +311,7 @@ internal sealed class TypeMap
                 p => new
                 {
                     PropertyInfo = p,
-                    ElementType = p.PropertyType.GenericTypeArguments.FirstOrDefault()
-                                  ?? p.PropertyType.GetElementType()
+                    ElementType = GetEnumerableElementType(p.PropertyType)
                 }
             )
             .Where
@@ -346,5 +349,34 @@ internal sealed class TypeMap
         }
 
         return false;
+    }
+
+
+
+    private static Type? GetEnumerableElementType(Type type)
+    {
+        // Check for array element type first
+        if (type.IsArray)
+        {
+            return type.GetElementType();
+        }
+
+        // Find the IEnumerable<T> interface and return T
+        var enumerableInterface = type
+            .GetInterfaces()
+            .FirstOrDefault
+            (
+                i => i.IsGenericType
+                     && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+            );
+
+        return enumerableInterface?.GenericTypeArguments.FirstOrDefault();
+    }
+
+
+
+    private static string EscapeIdentifier(string identifier)
+    {
+        return identifier.Replace("]", "]]");
     }
 }
