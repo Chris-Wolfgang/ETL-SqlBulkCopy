@@ -109,15 +109,6 @@ public sealed class ColumnMap
     [ExcludeFromCodeCoverage]
     private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo)
     {
-        var getMethod = propertyInfo.GetGetMethod(nonPublic: true);
-        if (getMethod is null)
-        {
-            throw new InvalidOperationException
-            (
-                $"Property '{propertyInfo.Name}' on '{propertyInfo.DeclaringType?.Name}' does not have a getter."
-            );
-        }
-
         return instance => propertyInfo.GetValue(obj: instance);
     }
 }
