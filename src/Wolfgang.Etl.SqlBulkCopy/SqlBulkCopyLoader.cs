@@ -429,10 +429,12 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         wrapper.BatchSize = items.Count;
         wrapper.BulkCopyTimeout = _bulkCopyTimeout;
 
+#pragma warning disable S3267 // Side-effecting loop is clearer than LINQ for void methods
         foreach (var column in typeMap.Columns)
         {
             wrapper.AddColumnMapping(column.ColumnName, column.ColumnName);
         }
+#pragma warning restore S3267
 
         using var reader = new TypeMapReader(items, typeMap);
         await wrapper.WriteToServerAsync(reader, token).ConfigureAwait(false);
@@ -450,7 +452,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             return true;
         }
 
-        var position = (CurrentItemCount + CurrentSkippedItemCount).ToString();
+        var position = (CurrentItemCount + CurrentSkippedItemCount).ToString(System.Globalization.CultureInfo.InvariantCulture);
         SqlBulkCopyLogMessages.ValidationFailed(_logger, position, results.Count, exception: null);
 
         OnValidationFailed?.Invoke(item, results);
