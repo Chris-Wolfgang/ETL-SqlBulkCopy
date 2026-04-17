@@ -83,7 +83,7 @@ internal sealed class TypeMapReader : DbDataReader
         // Convert enum values to their underlying integral type
         if (rawValue.GetType().IsEnum)
         {
-            return Convert.ChangeType(rawValue, Enum.GetUnderlyingType(rawValue.GetType()));
+            return Convert.ChangeType(rawValue, Enum.GetUnderlyingType(rawValue.GetType()), provider: System.Globalization.CultureInfo.InvariantCulture);
         }
 
         return rawValue;
