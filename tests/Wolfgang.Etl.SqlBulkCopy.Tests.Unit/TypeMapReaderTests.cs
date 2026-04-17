@@ -219,4 +219,177 @@ public class TypeMapReaderTests
 
         Assert.False(reader.HasRows);
     }
+
+
+
+    [Fact]
+    public void GetValue_before_Read_throws_InvalidOperationException()
+    {
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+
+        Assert.Throws<InvalidOperationException>
+        (
+            () => reader.GetValue(0)
+        );
+    }
+
+
+
+    [Fact]
+    public void GetValue_after_Read_returns_false_throws_InvalidOperationException()
+    {
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+        reader.Read(); // past end
+
+        Assert.Throws<InvalidOperationException>
+        (
+            () => reader.GetValue(0)
+        );
+    }
+
+
+
+    [Fact]
+    public void IsDBNull_before_Read_throws_InvalidOperationException()
+    {
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+
+        Assert.Throws<InvalidOperationException>
+        (
+            () => reader.IsDBNull(0)
+        );
+    }
+
+
+
+    [Fact]
+    public void GetValue_with_enum_returns_underlying_int()
+    {
+        var typeMap = TypeMap.Create(typeof(EnumRecord));
+        var batch = new object[]
+        {
+            new EnumRecord { Id = 1, Status = Status.Active }
+        };
+        var reader = new TypeMapReader(batch, typeMap);
+        reader.Read();
+
+        // Status is the second column (ordinal 1)
+        var value = reader.GetValue(1);
+
+        Assert.Equal(1, value);
+    }
+
+
+
+    [Fact]
+    public void GetValue_with_negative_ordinal_throws_ArgumentOutOfRangeException()
+    {
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.GetValue(-1)
+        );
+    }
+
+
+
+    [Fact]
+    public void Indexer_by_ordinal_returns_value()
+    {
+        var batch = new object[]
+        {
+            new TestRecord { Id = 42, Name = "Test", Amount = 99.5m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        Assert.Equal(42, reader[0]);
+    }
+
+
+
+    [Fact]
+    public void Indexer_by_name_returns_value()
+    {
+        var batch = new object[]
+        {
+            new TestRecord { Id = 42, Name = "Test", Amount = 99.5m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        Assert.Equal(42, reader["Id"]);
+    }
+
+
+
+    [Fact]
+    public void Depth_returns_zero()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+
+        Assert.Equal(0, reader.Depth);
+    }
+
+
+
+    [Fact]
+    public void IsClosed_returns_false()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+
+        Assert.False(reader.IsClosed);
+    }
+
+
+
+    [Fact]
+    public void RecordsAffected_returns_negative_one()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+
+        Assert.Equal(-1, reader.RecordsAffected);
+    }
+
+
+
+    [Fact]
+    public void NextResult_returns_false()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+
+        Assert.False(reader.NextResult());
+    }
+
+
+
+    [Fact]
+    public void GetOrdinal_when_name_is_null_throws_ArgumentNullException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+
+        Assert.Throws<ArgumentNullException>
+        (
+            () => reader.GetOrdinal(null!)
+        );
+    }
 }

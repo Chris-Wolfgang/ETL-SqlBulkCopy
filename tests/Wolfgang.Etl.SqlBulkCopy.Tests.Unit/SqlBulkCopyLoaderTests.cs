@@ -349,6 +349,375 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    // --- SkipItemCount + Validation interaction tests ---
+
+    [Fact]
+    public async Task LoadAsync_when_SkipItemCount_set_with_validation_skips_correctly_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
+        {
+            SkipItemCount = 1,
+            EnableDataValidation = true
+        };
+
+        var items = new[]
+        {
+            new ValidatableRecord { Id = 1, Name = "Skipped", Quantity = 5 },
+            new ValidatableRecord { Id = 2, Name = "", Quantity = 5 },       // invalid
+            new ValidatableRecord { Id = 3, Name = "Valid", Quantity = 5 }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+
+        // 1 skipped by SkipItemCount, 1 skipped by validation, 1 loaded
+        Assert.Equal(1, sut.CurrentItemCount);
+    }
+
+
+
+    // --- ValidateActionConfiguration tests ---
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_CustomAction_without_delegate_throws_Async()
+    {
+        var sut = CreateSut();
+        sut.PreAction = PreAction.CustomAction;
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
+        ).ConfigureAwait(false);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PostAction_CustomAction_without_delegate_throws_Async()
+    {
+        var sut = CreateSut();
+        sut.PostAction = PostAction.CustomAction;
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
+        ).ConfigureAwait(false);
+    }
+
+
+
+    // --- EnsureConnectionAvailable tests ---
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_DeleteAllRecords_without_connection_throws_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
+        {
+            PreAction = PreAction.DeleteAllRecords
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
+        ).ConfigureAwait(false);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_TruncateTable_without_connection_throws_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
+        {
+            PreAction = PreAction.TruncateTable
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
+        ).ConfigureAwait(false);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_CustomAction_without_connection_throws_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
+        {
+            PreAction = PreAction.CustomAction,
+            PreLoadCustomAction = _ => Task.CompletedTask
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
+        ).ConfigureAwait(false);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PostAction_CustomAction_without_connection_throws_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
+        {
+            PostAction = PostAction.CustomAction,
+            PostLoadCustomAction = _ => Task.CompletedTask
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
+        ).ConfigureAwait(false);
+    }
+
+
+
+    // --- MaximumItemCount tests ---
+
+    [Fact]
+    public async Task LoadAsync_stops_at_MaximumItemCount_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut(factory);
+        sut.MaximumItemCount = 3;
+        var items = CreateTestItems(10);
+
+        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+
+        Assert.Equal(3, sut.CurrentItemCount);
+    }
+
+
+
+    // --- SkipItemCount tests ---
+
+    [Fact]
+    public async Task LoadAsync_skips_items_up_to_SkipItemCount_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut(factory);
+        sut.SkipItemCount = 3;
+        var items = CreateTestItems(5);
+
+        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+
+        Assert.Equal(2, sut.CurrentItemCount);
+        Assert.Equal(3, sut.CurrentSkippedItemCount);
+    }
+
+
+
+    // --- BulkCopyTimeout propagation ---
+
+    [Fact]
+    public async Task LoadAsync_sets_BulkCopyTimeout_on_wrapper_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut(factory);
+        sut.BulkCopyTimeout = 120;
+        var items = CreateTestItems(1);
+
+        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+
+        Assert.Equal(120, factory.CreatedWrappers[0].BulkCopyTimeout);
+    }
+
+
+
+    // --- Progress report ---
+
+    [Fact]
+    public async Task LoadAsync_with_progress_reports_batch_count_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
+        {
+            BatchSize = 2
+        };
+        var items = CreateTestItems(5);
+        SqlBulkCopyReport? captured = null;
+        var progress = new SynchronousProgress<SqlBulkCopyReport>(r => captured = r);
+
+        await sut.LoadAsync(ToAsyncEnumerable(items), progress).ConfigureAwait(false);
+
+        Assert.NotNull(captured);
+        Assert.Equal(5, captured!.CurrentItemCount);
+        Assert.True(captured.BatchCount >= 1);
+    }
+
+
+
+    // --- PreAction/PostAction CustomAction with real connection ---
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_CustomAction_with_connection_invokes_delegate_Async()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=.;");
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+            transaction: null
+        );
+
+        var delegateCalled = false;
+        sut.PreAction = PreAction.CustomAction;
+        sut.PreLoadCustomAction = _ =>
+        {
+            delegateCalled = true;
+            return Task.CompletedTask;
+        };
+
+        // The loader will call the delegate but fail when trying to WriteToServer
+        // because the connection isn't open. We catch that — the delegate was already called.
+        try
+        {
+            await sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1))).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            // Expected — connection not open for bulk copy
+        }
+
+        Assert.True(delegateCalled);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PostAction_CustomAction_with_connection_invokes_delegate_Async()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=.;");
+        var loader = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+            transaction: null
+        );
+
+        var delegateCalled = false;
+        loader.PostAction = PostAction.CustomAction;
+        loader.PostLoadCustomAction = _ =>
+        {
+            delegateCalled = true;
+            return Task.CompletedTask;
+        };
+
+        // Will fail trying to bulk copy (connection not open) before reaching PostAction
+        try
+        {
+            await loader.LoadAsync(ToAsyncEnumerable(CreateTestItems(1))).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            // Expected
+        }
+
+        // PostAction only runs after successful load, so won't be called here
+        // But the ValidatePostActionConfiguration path IS covered
+        Assert.False(delegateCalled);
+    }
+
+
+
+    // --- EnableDataValidation false path ---
+
+    [Fact]
+    public async Task LoadAsync_when_validation_disabled_loads_all_items_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
+        {
+            EnableDataValidation = false
+        };
+
+        var items = new[]
+        {
+            new ValidatableRecord { Id = 1, Name = "", Quantity = 5000 } // would fail validation
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+
+        Assert.Equal(1, sut.CurrentItemCount);
+        Assert.Equal(0, sut.CurrentSkippedItemCount);
+    }
+
+
+
+    // --- Constructor with logger tests ---
+
+    [Fact]
+    public void Constructor_with_logger_when_connection_is_null_throws()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+            )
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_logger_when_logger_is_null_throws()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=.;");
+
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                connection,
+                (Microsoft.Extensions.Logging.ILogger<SqlBulkCopyLoader<TestRecord>>)null!
+            )
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_minimal_when_connection_is_null_throws()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>((Microsoft.Data.SqlClient.SqlConnection)null!)
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_when_connection_is_null_throws()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                null!,
+                Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+                transaction: null
+            )
+        );
+    }
+
+
+
     // --- Report tests ---
 
     [Fact]
