@@ -1,0 +1,323 @@
+using System;
+using System.Linq;
+using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
+using Xunit;
+
+namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
+
+public class TypeMapTests
+{
+    [Fact]
+    public void Create_when_type_is_null_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => TypeMap.Create(null!)
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_when_Table_attribute_present_uses_attribute_name()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        Assert.Equal("TestRecords", map.TableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_Table_attribute_has_schema_uses_attribute_schema()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        Assert.Equal("dbo", map.SchemaName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_no_Table_attribute_uses_type_name()
+    {
+        var map = TypeMap.Create(typeof(SimpleRecord));
+
+        Assert.Equal("SimpleRecord", map.TableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_tableName_override_provided_uses_override()
+    {
+        var map = TypeMap.Create(typeof(TestRecord), tableName: "OverriddenTable");
+
+        Assert.Equal("OverriddenTable", map.TableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_schemaName_override_provided_uses_override()
+    {
+        var map = TypeMap.Create(typeof(TestRecord), schemaName: "custom");
+
+        Assert.Equal("custom", map.SchemaName);
+    }
+
+
+
+    [Fact]
+    public void Create_excludes_NotMapped_properties()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        Assert.DoesNotContain
+        (
+            map.Columns,
+            c => string.Equals(c.PropertyName, "Ignored", StringComparison.Ordinal)
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_maps_Column_attribute_to_column_name()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        var nameColumn = map.Columns.Single(c => string.Equals(c.PropertyName, "Name", StringComparison.Ordinal));
+        Assert.Equal("FullName", nameColumn.ColumnName);
+    }
+
+
+
+    [Fact]
+    public void Create_assigns_sequential_ordinals()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        for (var i = 0; i < map.Columns.Count; i++)
+        {
+            Assert.Equal(i, map.Columns[i].Ordinal);
+        }
+    }
+
+
+
+    [Fact]
+    public void IsMappedToTable_when_type_is_mapped_returns_true()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        Assert.True(map.IsMappedToTable);
+    }
+
+
+
+    [Fact]
+    public void QualifiedTableName_when_schema_present_returns_bracketed_format()
+    {
+        var map = TypeMap.Create(typeof(TestRecord));
+
+        Assert.Equal("[dbo].[TestRecords]", map.QualifiedTableName);
+    }
+
+
+
+    [Fact]
+    public void QualifiedTableName_when_no_schema_returns_table_only()
+    {
+        var map = TypeMap.Create(typeof(SimpleRecord));
+
+        Assert.Equal("[SimpleRecord]", map.QualifiedTableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_type_has_both_Table_and_NotMapped_throws()
+    {
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(InvalidDualAttributeRecord))
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_when_property_has_both_NotMapped_and_Column_throws()
+    {
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(InvalidPropertyDualAttributeRecord))
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_detects_nested_table_mappings()
+    {
+        var map = TypeMap.Create(typeof(ParentRecord));
+
+        Assert.Single(map.NestedTables);
+        Assert.Equal("Children", map.NestedTables[0].PropertyName);
+    }
+
+
+
+    [Fact]
+    public void Create_nested_table_child_type_map_is_correct()
+    {
+        var map = TypeMap.Create(typeof(ParentRecord));
+
+        var childMap = map.NestedTables[0].ChildTypeMap;
+        Assert.Equal("ChildRecords", childMap.TableName);
+        Assert.Equal(2, childMap.Columns.Count);
+    }
+
+
+
+    [Fact]
+    public void Create_when_nullable_properties_maps_underlying_type()
+    {
+        var map = TypeMap.Create(typeof(NullablePropertiesRecord));
+
+        var nullableIntCol = map.Columns.Single(c => string.Equals(c.PropertyName, "NullableInt", StringComparison.Ordinal));
+        Assert.Equal(typeof(int), nullableIntCol.ClrType);
+        Assert.True(nullableIntCol.IsNullable);
+    }
+
+
+
+    [Fact]
+    public void Create_with_array_collection_detects_nested_table()
+    {
+        var map = TypeMap.Create(typeof(ParentWithArrayChildren));
+
+        Assert.Single(map.NestedTables);
+        Assert.Equal("Children", map.NestedTables[0].PropertyName);
+    }
+
+
+
+    [Fact]
+    public void Create_with_enum_property_maps_as_column()
+    {
+        var map = TypeMap.Create(typeof(EnumRecord));
+
+        Assert.Equal(2, map.Columns.Count);
+        var statusCol = map.Columns.Single(c => string.Equals(c.PropertyName, "Status", StringComparison.Ordinal));
+        Assert.NotNull(statusCol);
+    }
+
+
+
+    [Fact]
+    public void QualifiedTableName_when_not_mapped_throws_InvalidOperationException()
+    {
+        var map = TypeMap.Create(typeof(NotMappedTypeRecord));
+
+        Assert.Throws<InvalidOperationException>
+        (
+            () => _ = map.QualifiedTableName
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_when_NotMapped_type_with_schemaName_throws()
+    {
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(NotMappedTypeRecord), schemaName: "dbo")
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_when_NotMapped_type_with_tableName_throws()
+    {
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(NotMappedTypeRecord), tableName: "Override")
+        );
+    }
+
+
+
+    [Fact]
+    public void QualifiedTableName_escapes_brackets_in_names()
+    {
+        var map = TypeMap.Create(typeof(SimpleRecord), schemaName: "dbo]x", tableName: "Table]y");
+
+        Assert.Equal("[dbo]]x].[Table]]y]", map.QualifiedTableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_whitespace_tableName_override_uses_attribute()
+    {
+        var map = TypeMap.Create(typeof(TestRecord), tableName: "   ");
+
+        Assert.Equal("TestRecords", map.TableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_whitespace_schemaName_override_uses_attribute()
+    {
+        var map = TypeMap.Create(typeof(TestRecord), schemaName: "   ");
+
+        Assert.Equal("dbo", map.SchemaName);
+    }
+
+
+
+    [Fact]
+    public void Create_caches_same_type_with_same_overrides()
+    {
+        var map1 = TypeMap.Create(typeof(SimpleRecord), schemaName: "test_cache_s", tableName: "test_cache_t");
+        var map2 = TypeMap.Create(typeof(SimpleRecord), schemaName: "test_cache_s", tableName: "test_cache_t");
+
+        Assert.Same(map1, map2);
+    }
+
+
+
+    [Fact]
+    public void Create_when_mapped_type_has_no_mappable_properties_throws()
+    {
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(NoMappablePropertiesRecord))
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_when_NotMapped_type_IsMappedToTable_is_false()
+    {
+        var map = TypeMap.Create(typeof(NotMappedTypeRecord));
+
+        Assert.False(map.IsMappedToTable);
+    }
+
+
+
+    [Fact]
+    public void Create_when_no_schema_SchemaName_is_null()
+    {
+        var map = TypeMap.Create(typeof(SimpleRecord));
+
+        Assert.Null(map.SchemaName);
+    }
+}
