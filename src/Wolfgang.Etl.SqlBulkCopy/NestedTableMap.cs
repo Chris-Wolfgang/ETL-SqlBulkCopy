@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -85,6 +86,7 @@ internal sealed class NestedTableMap
 
 
 
+    [ExcludeFromCodeCoverage]
     private static Func<object, IEnumerable<object>> CreateValuesGetter(PropertyInfo propertyInfo)
     {
         return obj =>
