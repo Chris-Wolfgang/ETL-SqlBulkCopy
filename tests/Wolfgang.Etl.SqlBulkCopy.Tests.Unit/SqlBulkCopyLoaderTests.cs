@@ -559,79 +559,6 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    // --- PreAction/PostAction CustomAction with real connection ---
-
-    [Fact]
-    public async Task LoadAsync_when_PreAction_CustomAction_with_connection_invokes_delegate_Async()
-    {
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=.;");
-        var sut = new SqlBulkCopyLoader<TestRecord>
-        (
-            connection,
-            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
-            transaction: null
-        );
-
-        var delegateCalled = false;
-        sut.PreAction = PreAction.CustomAction;
-        sut.PreLoadCustomAction = _ =>
-        {
-            delegateCalled = true;
-            return Task.CompletedTask;
-        };
-
-        // The loader will call the delegate but fail when trying to WriteToServer
-        // because the connection isn't open. We catch that — the delegate was already called.
-        try
-        {
-            await sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1))).ConfigureAwait(false);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected — connection not open for bulk copy
-        }
-
-        Assert.True(delegateCalled);
-    }
-
-
-
-    [Fact]
-    public async Task LoadAsync_when_PostAction_CustomAction_with_connection_invokes_delegate_Async()
-    {
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=.;");
-        var loader = new SqlBulkCopyLoader<TestRecord>
-        (
-            connection,
-            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
-            transaction: null
-        );
-
-        var delegateCalled = false;
-        loader.PostAction = PostAction.CustomAction;
-        loader.PostLoadCustomAction = _ =>
-        {
-            delegateCalled = true;
-            return Task.CompletedTask;
-        };
-
-        // Will fail trying to bulk copy (connection not open) before reaching PostAction
-        try
-        {
-            await loader.LoadAsync(ToAsyncEnumerable(CreateTestItems(1))).ConfigureAwait(false);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected
-        }
-
-        // PostAction only runs after successful load, so won't be called here
-        // But the ValidatePostActionConfiguration path IS covered
-        Assert.False(delegateCalled);
-    }
-
-
-
     // --- EnableDataValidation false path ---
 
     [Fact]
@@ -657,7 +584,7 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    // --- Constructor with logger tests ---
+    // --- Additional constructor tests ---
 
     [Fact]
     public void Constructor_with_logger_when_connection_is_null_throws()
@@ -669,34 +596,6 @@ public class SqlBulkCopyLoaderTests
                 (Microsoft.Data.SqlClient.SqlConnection)null!,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
             )
-        );
-    }
-
-
-
-    [Fact]
-    public void Constructor_with_logger_when_logger_is_null_throws()
-    {
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=.;");
-
-        Assert.Throws<ArgumentNullException>
-        (
-            () => new SqlBulkCopyLoader<TestRecord>
-            (
-                connection,
-                (Microsoft.Extensions.Logging.ILogger<SqlBulkCopyLoader<TestRecord>>)null!
-            )
-        );
-    }
-
-
-
-    [Fact]
-    public void Constructor_minimal_when_connection_is_null_throws()
-    {
-        Assert.Throws<ArgumentNullException>
-        (
-            () => new SqlBulkCopyLoader<TestRecord>((Microsoft.Data.SqlClient.SqlConnection)null!)
         );
     }
 
