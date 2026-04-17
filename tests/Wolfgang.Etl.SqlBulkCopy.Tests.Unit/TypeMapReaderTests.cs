@@ -95,8 +95,8 @@ public class TypeMapReaderTests
         var reader = new TypeMapReader(batch, typeMap);
         reader.Read();
 
-        // NullableInt is the second column (ordinal 1)
-        Assert.Equal(DBNull.Value, reader.GetValue(1));
+        var ordinal = reader.GetOrdinal("NullableInt");
+        Assert.Equal(DBNull.Value, reader.GetValue(ordinal));
     }
 
 
@@ -130,8 +130,8 @@ public class TypeMapReaderTests
         var reader = new TypeMapReader(batch, typeMap);
         reader.Read();
 
-        // NullableString is the last column (ordinal 3)
-        Assert.True(reader.IsDBNull(3));
+        var ordinal = reader.GetOrdinal("NullableString");
+        Assert.True(reader.IsDBNull(ordinal));
     }
 
 
