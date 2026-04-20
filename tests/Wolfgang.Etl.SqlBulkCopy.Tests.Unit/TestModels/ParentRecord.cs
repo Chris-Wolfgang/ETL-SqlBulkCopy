@@ -12,5 +12,5 @@ public record ParentRecord
 
     public string Name { get; init; } = string.Empty;
 
-    public List<ChildRecord> Children { get; init; } = new();
+    public IList<ChildRecord> Children { get; init; } = new List<ChildRecord>();
 }

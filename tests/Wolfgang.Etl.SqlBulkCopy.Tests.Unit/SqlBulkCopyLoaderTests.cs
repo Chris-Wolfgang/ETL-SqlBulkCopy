@@ -29,14 +29,14 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(IEnumerable<T> items)
+    private static async IAsyncEnumerable<T> ToAsyncEnumerableAsync<T>(IEnumerable<T> items)
     {
         foreach (var item in items)
         {
             yield return item;
         }
 
-        await Task.CompletedTask.ConfigureAwait(false);
+        await Task.CompletedTask;
     }
 
 
@@ -157,7 +157,7 @@ public class SqlBulkCopyLoaderTests
         var sut = CreateSut(factory);
         var items = CreateTestItems(5);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Single(factory.CreatedWrappers);
         Assert.Equal(5, factory.CreatedWrappers[0].BatchRowCounts[0]);
@@ -173,7 +173,7 @@ public class SqlBulkCopyLoaderTests
         sut.BatchSize = 3;
         var items = CreateTestItems(7);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         // 7 items / batch size 3 = 3 batches (3+3+1)
         // Each batch creates a wrapper for main table
@@ -192,7 +192,7 @@ public class SqlBulkCopyLoaderTests
         var sut = CreateSut(factory);
         var items = CreateTestItems(1);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         var wrapper = factory.CreatedWrappers[0];
         Assert.Contains(wrapper.ColumnMappings, m => string.Equals(m.Source, "Id", StringComparison.Ordinal) && string.Equals(m.Destination, "Id", StringComparison.Ordinal));
@@ -209,7 +209,7 @@ public class SqlBulkCopyLoaderTests
         var sut = CreateSut(factory);
         var items = CreateTestItems(1);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal("[dbo].[TestRecords]", factory.CreatedWrappers[0].DestinationTableName);
     }
@@ -225,7 +225,7 @@ public class SqlBulkCopyLoaderTests
         sut.DestinationSchemaName = "custom";
         var items = CreateTestItems(1);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal("[custom].[CustomTable]", factory.CreatedWrappers[0].DestinationTableName);
     }
@@ -238,7 +238,7 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
 
-        await sut.LoadAsync(ToAsyncEnumerable(Array.Empty<TestRecord>())).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(Array.Empty<TestRecord>()));
 
         Assert.Empty(factory.CreatedWrappers);
     }
@@ -251,7 +251,7 @@ public class SqlBulkCopyLoaderTests
         var sut = CreateSut();
         var items = CreateTestItems(5);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal(5, sut.CurrentItemCount);
     }
@@ -277,7 +277,7 @@ public class SqlBulkCopyLoaderTests
             new ValidatableRecord { Id = 3, Name = "Valid", Quantity = 5000 } // Range fails
         };
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal(1, sut.CurrentItemCount);
         Assert.Equal(2, sut.CurrentSkippedItemCount);
@@ -302,7 +302,7 @@ public class SqlBulkCopyLoaderTests
             new ValidatableRecord { Id = 1, Name = "", Quantity = 5 } // Required fails
         };
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Single(capturedErrors);
         Assert.NotEmpty(capturedErrors[0]);
@@ -333,7 +333,7 @@ public class SqlBulkCopyLoaderTests
             }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         // Should create 2 wrappers: one for parent table, one for child table
         Assert.Equal(2, factory.CreatedWrappers.Count);
@@ -369,7 +369,7 @@ public class SqlBulkCopyLoaderTests
             new ValidatableRecord { Id = 3, Name = "Valid", Quantity = 5 }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         // 1 skipped by SkipItemCount, 1 skipped by validation, 1 loaded
         Assert.Equal(1, sut.CurrentItemCount);
@@ -380,29 +380,29 @@ public class SqlBulkCopyLoaderTests
     // --- ValidateActionConfiguration tests ---
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_CustomAction_without_delegate_throws_Async()
+    public Task LoadAsync_when_PreAction_CustomAction_without_delegate_throws_Async()
     {
         var sut = CreateSut();
         sut.PreAction = PreAction.CustomAction;
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
-            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
-        ).ConfigureAwait(false);
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
     }
 
 
 
     [Fact]
-    public async Task LoadAsync_when_PostAction_CustomAction_without_delegate_throws_Async()
+    public Task LoadAsync_when_PostAction_CustomAction_without_delegate_throws_Async()
     {
         var sut = CreateSut();
         sut.PostAction = PostAction.CustomAction;
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
-            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
-        ).ConfigureAwait(false);
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
     }
 
 
@@ -410,7 +410,7 @@ public class SqlBulkCopyLoaderTests
     // --- EnsureConnectionAvailable tests ---
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_DeleteAllRecords_without_connection_throws_Async()
+    public Task LoadAsync_when_PreAction_DeleteAllRecords_without_connection_throws_Async()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -419,16 +419,16 @@ public class SqlBulkCopyLoaderTests
             PreAction = PreAction.DeleteAllRecords
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
-            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
-        ).ConfigureAwait(false);
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
     }
 
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_TruncateTable_without_connection_throws_Async()
+    public Task LoadAsync_when_PreAction_TruncateTable_without_connection_throws_Async()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -437,16 +437,16 @@ public class SqlBulkCopyLoaderTests
             PreAction = PreAction.TruncateTable
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
-            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
-        ).ConfigureAwait(false);
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
     }
 
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_CustomAction_without_connection_throws_Async()
+    public Task LoadAsync_when_PreAction_CustomAction_without_connection_throws_Async()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -456,16 +456,16 @@ public class SqlBulkCopyLoaderTests
             PreLoadCustomAction = _ => Task.CompletedTask
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
-            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
-        ).ConfigureAwait(false);
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
     }
 
 
 
     [Fact]
-    public async Task LoadAsync_when_PostAction_CustomAction_without_connection_throws_Async()
+    public Task LoadAsync_when_PostAction_CustomAction_without_connection_throws_Async()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -475,10 +475,10 @@ public class SqlBulkCopyLoaderTests
             PostLoadCustomAction = _ => Task.CompletedTask
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
-            () => sut.LoadAsync(ToAsyncEnumerable(CreateTestItems(1)))
-        ).ConfigureAwait(false);
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
     }
 
 
@@ -493,7 +493,7 @@ public class SqlBulkCopyLoaderTests
         sut.MaximumItemCount = 3;
         var items = CreateTestItems(10);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal(3, sut.CurrentItemCount);
     }
@@ -510,7 +510,7 @@ public class SqlBulkCopyLoaderTests
         sut.SkipItemCount = 3;
         var items = CreateTestItems(5);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal(2, sut.CurrentItemCount);
         Assert.Equal(3, sut.CurrentSkippedItemCount);
@@ -528,7 +528,7 @@ public class SqlBulkCopyLoaderTests
         sut.BulkCopyTimeout = 120;
         var items = CreateTestItems(1);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal(120, factory.CreatedWrappers[0].BulkCopyTimeout);
     }
@@ -550,7 +550,7 @@ public class SqlBulkCopyLoaderTests
         SqlBulkCopyReport? captured = null;
         var progress = new SynchronousProgress<SqlBulkCopyReport>(r => captured = r);
 
-        await sut.LoadAsync(ToAsyncEnumerable(items), progress).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items), progress);
 
         Assert.NotNull(captured);
         Assert.Equal(5, captured!.CurrentItemCount);
@@ -576,7 +576,7 @@ public class SqlBulkCopyLoaderTests
             new ValidatableRecord { Id = 1, Name = "", Quantity = 5000 } // would fail validation
         };
 
-        await sut.LoadAsync(ToAsyncEnumerable(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         Assert.Equal(1, sut.CurrentItemCount);
         Assert.Equal(0, sut.CurrentSkippedItemCount);

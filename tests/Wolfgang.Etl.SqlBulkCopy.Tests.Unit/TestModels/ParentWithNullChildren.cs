@@ -10,5 +10,5 @@ public class ParentWithNullChildren
 {
     public int ParentId { get; set; }
 
-    public List<ChildRecord> Children { get; set; } = null!;
+    public IList<ChildRecord> Children { get; set; } = null!;
 }
