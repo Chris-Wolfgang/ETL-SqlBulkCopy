@@ -46,7 +46,7 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 
 
 
-    public Task WriteToServerAsync(DbDataReader reader, CancellationToken cancellationToken)
+    public async Task WriteToServerAsync(DbDataReader reader, CancellationToken cancellationToken)
     {
         if (_throwOnWrite is not null)
         {
@@ -54,14 +54,12 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
         }
 
         var rowCount = 0;
-        while (reader.Read())
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
             rowCount++;
         }
 
         _batchRowCounts.Add(rowCount);
-
-        return Task.CompletedTask;
     }
 
 

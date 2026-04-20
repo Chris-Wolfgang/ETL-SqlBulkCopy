@@ -14,5 +14,5 @@ public record NotMappedWithChildrenRecord
     [NotMapped]
     public int Id { get; init; }
 
-    public List<ChildRecord> Children { get; init; } = new();
+    public IList<ChildRecord> Children { get; init; } = new List<ChildRecord>();
 }
