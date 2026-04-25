@@ -610,7 +610,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_DeleteAllRecords_with_NotMapped_type_throws_Async()
+    public Task LoadAsync_when_PreAction_DeleteAllRecords_with_NotMapped_type_throws_Async()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -624,7 +624,7 @@ public class SqlBulkCopyLoaderTests
             new NotMappedWithChildrenRecord { Id = 1 }
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
             () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
         );
@@ -633,7 +633,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_TruncateTable_with_NotMapped_type_throws_Async()
+    public Task LoadAsync_when_PreAction_TruncateTable_with_NotMapped_type_throws_Async()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -647,7 +647,7 @@ public class SqlBulkCopyLoaderTests
             new NotMappedWithChildrenRecord { Id = 1 }
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>
+        return Assert.ThrowsAsync<InvalidOperationException>
         (
             () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
         );
