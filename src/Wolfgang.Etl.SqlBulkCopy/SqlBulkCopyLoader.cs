@@ -61,6 +61,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
+    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection
@@ -82,6 +83,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> or <paramref name="logger"/> is <c>null</c>.
     /// </exception>
+    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -106,6 +108,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
+    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -356,6 +359,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     protected override IProgressTimer CreateProgressTimer(IProgress<SqlBulkCopyReport> progress)
     {
         if (_progressTimer is not null)
@@ -657,6 +661,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    [ExcludeFromCodeCoverage]
     private ISqlBulkCopyWrapperFactory CreateFactory()
     {
         EnsureConnectionAvailable("bulk copy");
