@@ -559,6 +559,26 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    // --- CreateProgressTimer fallback path test ---
+
+    [Fact]
+    public async Task LoadAsync_with_progress_when_no_timer_injected_uses_base_timer_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null);
+        var captured = new List<SqlBulkCopyReport>();
+        var progress = new SynchronousProgress<SqlBulkCopyReport>(captured.Add);
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)), progress);
+
+        // The fact that LoadAsync completed without throwing means
+        // base.CreateProgressTimer(progress) was successfully invoked
+        // and the resulting SystemProgressTimer was started and stopped.
+        Assert.Equal(3, sut.CurrentItemCount);
+    }
+
+
+
     // --- Invalid enum value tests ---
 
     [Fact]
