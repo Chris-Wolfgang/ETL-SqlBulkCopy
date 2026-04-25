@@ -131,17 +131,18 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </summary>
     /// <param name="wrapperFactory">The factory for creating bulk copy wrappers.</param>
     /// <param name="logger">An optional logger instance.</param>
-    /// <param name="timer">The progress timer to inject.</param>
+    /// <param name="timer">An optional progress timer to inject. When <c>null</c>, the
+    /// base class creates a <c>SystemProgressTimer</c>.</param>
     internal SqlBulkCopyLoader
     (
         ISqlBulkCopyWrapperFactory wrapperFactory,
         ILogger? logger,
-        IProgressTimer timer
+        IProgressTimer? timer
     )
     {
         _wrapperFactory = wrapperFactory ?? throw new ArgumentNullException(nameof(wrapperFactory));
         _logger = logger ?? NullLogger.Instance;
-        _progressTimer = timer ?? throw new ArgumentNullException(nameof(timer));
+        _progressTimer = timer;
         _options = SqlBulkCopyOptions.Default;
     }
 
@@ -359,7 +360,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     protected override IProgressTimer CreateProgressTimer(IProgress<SqlBulkCopyReport> progress)
     {
         if (_progressTimer is not null)
