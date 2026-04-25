@@ -559,6 +559,82 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    // --- Invalid enum value tests ---
+
+    [Fact]
+    public Task LoadAsync_when_PreAction_is_invalid_enum_value_throws_Async()
+    {
+        var sut = CreateSut();
+        sut.PreAction = (PreAction)999;
+
+        return Assert.ThrowsAsync<ArgumentOutOfRangeException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
+    }
+
+
+
+    [Fact]
+    public Task LoadAsync_when_PostAction_is_invalid_enum_value_throws_Async()
+    {
+        var sut = CreateSut();
+        sut.PostAction = (PostAction)999;
+
+        return Assert.ThrowsAsync<ArgumentOutOfRangeException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_DeleteAllRecords_with_NotMapped_type_throws_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<NotMappedWithChildrenRecord>(factory, logger: null, timer)
+        {
+            PreAction = PreAction.DeleteAllRecords
+        };
+
+        var items = new[]
+        {
+            new NotMappedWithChildrenRecord { Id = 1 }
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_TruncateTable_with_NotMapped_type_throws_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<NotMappedWithChildrenRecord>(factory, logger: null, timer)
+        {
+            PreAction = PreAction.TruncateTable
+        };
+
+        var items = new[]
+        {
+            new NotMappedWithChildrenRecord { Id = 1 }
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+    }
+
+
+
     // --- EnableDataValidation false path ---
 
     [Fact]
