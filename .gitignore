@@ -432,3 +432,6 @@ docfx_project/obj/
 
 # Claude Code
 .claude/
+coverage-report/
+coverage-results/
+resharper-report.xml
