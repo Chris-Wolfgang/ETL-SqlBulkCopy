@@ -377,7 +377,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    private async Task WriteBatchAsync
+    private Task WriteBatchAsync
     (
         List<TRecord> batch,
         TypeMap typeMap,
@@ -385,36 +385,86 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         CancellationToken token
     )
     {
-        _batchCount++;
+        // Use covariance to avoid an extra full-batch copy for reference TRecord types.
+        // For value types, fall back to materializing as object[].
+        IReadOnlyList<object> rootItems = typeof(TRecord).IsValueType
+            ? batch.Cast<object>().ToArray()
+            : (IReadOnlyList<object>)batch;
 
+        return WriteRecursiveAsync(rootItems, typeMap, factory, isRoot: true, token);
+    }
+
+
+
+    private async Task WriteRecursiveAsync
+    (
+        IReadOnlyList<object> items,
+        TypeMap typeMap,
+        ISqlBulkCopyWrapperFactory factory,
+        bool isRoot,
+        CancellationToken token
+    )
+    {
         if (typeMap.IsMappedToTable)
         {
-            await WriteToTableAsync(batch.Cast<object>().ToList(), typeMap, factory, token)
-                .ConfigureAwait(false);
+            // Enforce BatchSize for both the root batch and any nested table writes.
+            for (var offset = 0; offset < items.Count; offset += _batchSize)
+            {
+                var chunkSize = Math.Min(_batchSize, items.Count - offset);
+                var chunk = SliceList(items, offset, chunkSize);
 
-            SqlBulkCopyLogMessages.BatchWritten(_logger, _batchCount, batch.Count, exception: null);
+                await WriteToTableAsync(chunk, typeMap, factory, token).ConfigureAwait(false);
+                _batchCount++;
+
+                if (isRoot)
+                {
+                    SqlBulkCopyLogMessages.BatchWritten(_logger, _batchCount, chunk.Count, exception: null);
+                }
+                else
+                {
+                    SqlBulkCopyLogMessages.NestedTableBatchWritten
+                    (
+                        _logger,
+                        typeMap.QualifiedTableName,
+                        chunk.Count,
+                        exception: null
+                    );
+                }
+            }
         }
 
+        // Recurse so grandchildren and deeper nested collections are also written.
+        // We do this even when the current type is not mapped, since a NotMapped
+        // type can still expose collections of mapped child types.
         foreach (var nestedMap in typeMap.NestedTables)
         {
-            var childItems = batch
+            var childItems = items
                 .SelectMany(parent => nestedMap.GetValues(parent))
                 .ToList();
 
             if (childItems.Count > 0)
             {
-                await WriteToTableAsync(childItems, nestedMap.ChildTypeMap, factory, token)
+                await WriteRecursiveAsync(childItems, nestedMap.ChildTypeMap, factory, isRoot: false, token)
                     .ConfigureAwait(false);
-
-                SqlBulkCopyLogMessages.NestedTableBatchWritten
-                (
-                    _logger,
-                    nestedMap.ChildTypeMap.QualifiedTableName,
-                    childItems.Count,
-                    exception: null
-                );
             }
         }
+    }
+
+
+
+    private static IReadOnlyList<object> SliceList(IReadOnlyList<object> source, int offset, int count)
+    {
+        if (offset == 0 && count == source.Count)
+        {
+            return source;
+        }
+
+        var slice = new object[count];
+        for (var i = 0; i < count; i++)
+        {
+            slice[i] = source[offset + i];
+        }
+        return slice;
     }
 
 

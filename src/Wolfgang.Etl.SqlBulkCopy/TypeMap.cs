@@ -21,6 +21,9 @@ internal sealed class TypeMap
 {
     private static readonly ConcurrentDictionary<(Type Type, string? SchemaName, string? TableName), TypeMap> Cache = new();
 
+    [ThreadStatic]
+    private static HashSet<Type>? _typesInProgress;
+
     /// <summary>
     /// The set of CLR types that can be mapped directly to SQL Server columns.
     /// </summary>
@@ -138,6 +141,10 @@ internal sealed class TypeMap
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="type"/> is <c>null</c>.
     /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when a circular type reference is detected (e.g., a self-referential
+    /// or mutually-recursive collection property).
+    /// </exception>
     internal static TypeMap Create
     (
         Type type,
@@ -152,7 +159,31 @@ internal sealed class TypeMap
 
         var cacheKey = (type, schemaName, tableName);
 
-        return Cache.GetOrAdd(cacheKey, _ => BuildTypeMap(type, schemaName, tableName));
+        if (Cache.TryGetValue(cacheKey, out var cached))
+        {
+            return cached;
+        }
+
+        _typesInProgress ??= new HashSet<Type>();
+        if (!_typesInProgress.Add(type))
+        {
+            throw new InvalidOperationException
+            (
+                $"Circular type reference detected involving '{type.Name}'. " +
+                "Self-referential or mutually-recursive collection properties are not supported."
+            );
+        }
+
+        try
+        {
+            var map = BuildTypeMap(type, schemaName, tableName);
+            Cache.TryAdd(cacheKey, map);
+            return map;
+        }
+        finally
+        {
+            _typesInProgress.Remove(type);
+        }
     }
 
 
@@ -319,6 +350,7 @@ internal sealed class TypeMap
                 pair => pair.ElementType is not null
                         && pair.ElementType.IsClass
                         && !SupportedColumnTypes.Contains(pair.ElementType)
+                        && pair.ElementType.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
             )
             .Select
             (
@@ -359,6 +391,13 @@ internal sealed class TypeMap
         if (type.IsArray)
         {
             return type.GetElementType();
+        }
+
+        // The type itself may be IEnumerable<T> (e.g., property declared as IEnumerable<Foo>).
+        // GetInterfaces() does not include the type itself, so check it directly.
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+        {
+            return type.GenericTypeArguments[0];
         }
 
         // Find the IEnumerable<T> interface and return T

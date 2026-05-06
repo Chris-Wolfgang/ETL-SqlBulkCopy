@@ -724,4 +724,112 @@ public class SqlBulkCopyLoaderTests
         Assert.Equal(5, report.CurrentSkippedItemCount);
         Assert.Equal(3, report.BatchCount);
     }
+
+
+
+    // --- Deep nesting tests ---
+
+    [Fact]
+    public async Task LoadAsync_recurses_into_grandchild_collections_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<GrandparentRecord>(factory, logger: null, timer);
+
+        var items = new[]
+        {
+            new GrandparentRecord
+            {
+                GrandparentId = 1,
+                Children = new List<IntermediateRecord>
+                {
+                    new IntermediateRecord
+                    {
+                        IntermediateId = 10,
+                        Grandchildren = new List<GrandchildRecord>
+                        {
+                            new GrandchildRecord { GrandchildId = 100, Note = "g1" },
+                            new GrandchildRecord { GrandchildId = 101, Note = "g2" }
+                        }
+                    }
+                }
+            }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        // 3 wrappers expected: grandparent table, intermediate table, grandchild table
+        Assert.Equal(3, factory.CreatedWrappers.Count);
+        Assert.Equal("[GrandparentRecords]", factory.CreatedWrappers[0].DestinationTableName);
+        Assert.Equal("[IntermediateRecords]", factory.CreatedWrappers[1].DestinationTableName);
+        Assert.Equal("[GrandchildRecords]", factory.CreatedWrappers[2].DestinationTableName);
+        Assert.Equal(2, factory.CreatedWrappers[2].BatchRowCounts[0]);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_enforces_BatchSize_for_nested_tables_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, timer)
+        {
+            BatchSize = 3
+        };
+
+        // Single parent with 7 children — should produce 3 nested batches (3+3+1)
+        var items = new[]
+        {
+            new ParentRecord
+            {
+                ParentId = 1,
+                Name = "P",
+                Children = Enumerable.Range(1, 7)
+                    .Select(i => new ChildRecord { ChildId = i, Description = $"C{i}" })
+                    .ToList()
+            }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        // 1 parent wrapper + 3 child wrappers
+        Assert.Equal(4, factory.CreatedWrappers.Count);
+        Assert.Equal(1, factory.CreatedWrappers[0].BatchRowCounts[0]);    // parent
+        Assert.Equal(3, factory.CreatedWrappers[1].BatchRowCounts[0]);    // child chunk 1
+        Assert.Equal(3, factory.CreatedWrappers[2].BatchRowCounts[0]);    // child chunk 2
+        Assert.Equal(1, factory.CreatedWrappers[3].BatchRowCounts[0]);    // child chunk 3 (remainder)
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_BatchCount_includes_nested_writes_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, timer);
+
+        var items = new[]
+        {
+            new ParentRecord
+            {
+                ParentId = 1,
+                Name = "P",
+                Children = new List<ChildRecord>
+                {
+                    new ChildRecord { ChildId = 10, Description = "C" }
+                }
+            }
+        };
+
+        SqlBulkCopyReport? captured = null;
+        var progress = new SynchronousProgress<SqlBulkCopyReport>(r => captured = r);
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items), progress);
+
+        // 1 parent batch + 1 nested child batch = 2
+        Assert.NotNull(captured);
+        Assert.Equal(2, captured!.BatchCount);
+    }
 }

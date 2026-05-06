@@ -10,6 +10,8 @@
 *.userosscache
 *.sln.docstates
 *.env
+# Claude Code
+.claude/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -428,7 +430,6 @@ nuget-packages/
 # DocFX generated files
 docfx_project/_site/
 docfx_project/obj/
-
 
 # Claude Code
 .claude/

@@ -23,15 +23,8 @@
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     <NoWarn>NU1701</NoWarn>
     <PackageTags>ETL;Extract-Transform-Load;SqlBulkCopy;SQL-Server;Bulk-Load</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- TODO: re-enable PackageReadmeFile once README.md template placeholders are filled in. -->
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Wolfgang.Etl.Abstractions" Version="0.12.0" />

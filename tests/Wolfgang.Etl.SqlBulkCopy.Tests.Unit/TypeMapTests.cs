@@ -320,4 +320,37 @@ public class TypeMapTests
 
         Assert.Null(map.SchemaName);
     }
+
+
+
+    [Fact]
+    public void Create_when_self_referential_type_throws()
+    {
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(CircularNode))
+        );
+    }
+
+
+
+    [Fact]
+    public void Create_when_property_type_is_directly_IEnumerable_detects_nested_table()
+    {
+        var map = TypeMap.Create(typeof(ParentWithIEnumerableChildren));
+
+        Assert.Single(map.NestedTables);
+        Assert.Equal("Children", map.NestedTables[0].PropertyName);
+        Assert.Equal("ChildRecords", map.NestedTables[0].ChildTypeMap.TableName);
+    }
+
+
+
+    [Fact]
+    public void Create_when_collection_element_is_NotMapped_does_not_create_nested_table()
+    {
+        var map = TypeMap.Create(typeof(ParentWithNotMappedChildren));
+
+        Assert.Empty(map.NestedTables);
+    }
 }
