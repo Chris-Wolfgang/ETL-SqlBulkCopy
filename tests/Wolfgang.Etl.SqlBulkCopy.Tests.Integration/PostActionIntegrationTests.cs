@@ -36,6 +36,8 @@ public class PostActionIntegrationTests
     [Fact]
     public async Task PostAction_CustomAction_invokes_delegate_after_load_Async()
     {
+        if (!_fixture.IsAvailable) return;
+
         await using var connection = await _fixture.OpenConnectionAsync();
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
         await TestSchema.ExecuteAsync

@@ -61,6 +61,8 @@ public class PreActionIntegrationTests
     [Fact]
     public async Task PreAction_DeleteAllRecords_clears_existing_rows_before_load_Async()
     {
+        if (!_fixture.IsAvailable) return;
+
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
 
@@ -84,6 +86,8 @@ public class PreActionIntegrationTests
     [Fact]
     public async Task PreAction_TruncateTable_clears_existing_rows_before_load_Async()
     {
+        if (!_fixture.IsAvailable) return;
+
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
 
@@ -107,6 +111,8 @@ public class PreActionIntegrationTests
     [Fact]
     public async Task PreAction_CustomAction_invokes_delegate_with_connection_Async()
     {
+        if (!_fixture.IsAvailable) return;
+
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 0);
 

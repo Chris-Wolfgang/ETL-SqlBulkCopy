@@ -36,6 +36,8 @@ public class TransactionIntegrationTests
     [Fact]
     public async Task LoadAsync_with_external_transaction_rolled_back_writes_no_rows_Async()
     {
+        if (!_fixture.IsAvailable) return;
+
         await using var connection = await _fixture.OpenConnectionAsync();
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
         await TestSchema.ExecuteAsync
@@ -75,6 +77,8 @@ public class TransactionIntegrationTests
     [Fact]
     public async Task LoadAsync_with_external_transaction_committed_writes_rows_Async()
     {
+        if (!_fixture.IsAvailable) return;
+
         await using var connection = await _fixture.OpenConnectionAsync();
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
         await TestSchema.ExecuteAsync
