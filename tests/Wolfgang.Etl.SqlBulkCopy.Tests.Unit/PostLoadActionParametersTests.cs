@@ -94,6 +94,25 @@ public class PostLoadActionParametersTests
 
 
     [Fact]
+    public void Deconstruct_returns_all_constructor_values()
+    {
+        var sut = CreateSut();
+
+        var (connection, transaction, schemaName, tableName, commandTimeout, columnMappings, logger, cancellationToken) = sut;
+
+        Assert.Null(connection);
+        Assert.Null(transaction);
+        Assert.Equal("dbo", schemaName);
+        Assert.Equal("Test", tableName);
+        Assert.Equal(30, commandTimeout);
+        Assert.Single(columnMappings);
+        Assert.Same(NullLogger.Instance, logger);
+        Assert.Equal(CancellationToken.None, cancellationToken);
+    }
+
+
+
+    [Fact]
     public void Properties_return_constructor_values()
     {
         var sut = CreateSut();

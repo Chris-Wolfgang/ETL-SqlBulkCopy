@@ -9,13 +9,11 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration;
 /// Lives in the Integration project because it relies on instantiating
 /// <see cref="SqlConnection"/>, which has dependency quirks on older
 /// .NET Framework TFMs that the Unit project supports.
+/// Uses the parameterless <c>SqlConnection</c> constructor — no insecure
+/// connection-string defaults are encoded in the repo.
 /// </summary>
 public class SqlBulkCopyWrapperTests
 {
-    private const string DummyConnectionString = "Data Source=.;Encrypt=false;TrustServerCertificate=true";
-
-
-
     [Fact]
     public void Constructor_when_connection_is_null_throws_ArgumentNullException()
     {
@@ -30,7 +28,7 @@ public class SqlBulkCopyWrapperTests
     [Fact]
     public void DestinationTableName_get_returns_set_value()
     {
-        using var connection = new SqlConnection(DummyConnectionString);
+        using var connection = new SqlConnection();
         using var sut = new SqlBulkCopyWrapper(connection, SqlBulkCopyOptions.Default, transaction: null);
 
         sut.DestinationTableName = "[dbo].[Widgets]";
@@ -43,7 +41,7 @@ public class SqlBulkCopyWrapperTests
     [Fact]
     public void BatchSize_get_returns_set_value()
     {
-        using var connection = new SqlConnection(DummyConnectionString);
+        using var connection = new SqlConnection();
         using var sut = new SqlBulkCopyWrapper(connection, SqlBulkCopyOptions.Default, transaction: null);
 
         sut.BatchSize = 5000;
@@ -56,7 +54,7 @@ public class SqlBulkCopyWrapperTests
     [Fact]
     public void BulkCopyTimeout_get_returns_set_value()
     {
-        using var connection = new SqlConnection(DummyConnectionString);
+        using var connection = new SqlConnection();
         using var sut = new SqlBulkCopyWrapper(connection, SqlBulkCopyOptions.Default, transaction: null);
 
         sut.BulkCopyTimeout = 120;
@@ -69,7 +67,7 @@ public class SqlBulkCopyWrapperTests
     [Fact]
     public void Dispose_does_not_throw()
     {
-        using var connection = new SqlConnection(DummyConnectionString);
+        using var connection = new SqlConnection();
         var sut = new SqlBulkCopyWrapper(connection, SqlBulkCopyOptions.Default, transaction: null);
 
         sut.Dispose();

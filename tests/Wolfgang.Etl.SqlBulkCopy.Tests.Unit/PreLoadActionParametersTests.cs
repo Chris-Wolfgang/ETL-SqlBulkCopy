@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using Microsoft.Extensions.Logging.Abstractions;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -93,6 +92,25 @@ public class PreLoadActionParametersTests
         Assert.Equal(30, a.CommandTimeout);
         Assert.Equal(120, b.CommandTimeout);
         Assert.Equal(a.TableName, b.TableName);
+    }
+
+
+
+    [Fact]
+    public void Deconstruct_returns_all_constructor_values()
+    {
+        var sut = CreateSut();
+
+        var (connection, transaction, schemaName, tableName, commandTimeout, columnMappings, logger, cancellationToken) = sut;
+
+        Assert.Null(connection);
+        Assert.Null(transaction);
+        Assert.Equal("dbo", schemaName);
+        Assert.Equal("Test", tableName);
+        Assert.Equal(30, commandTimeout);
+        Assert.Single(columnMappings);
+        Assert.Same(NullLogger.Instance, logger);
+        Assert.Equal(CancellationToken.None, cancellationToken);
     }
 
 
