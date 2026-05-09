@@ -21,13 +21,14 @@ internal sealed class TypeMap
 {
     private static readonly ConcurrentDictionary<(Type Type, string? SchemaName, string? TableName), TypeMap> Cache = new();
 
-    [ThreadStatic]
-    private static HashSet<Type>? _typesInProgress;
-
     /// <summary>
     /// The set of CLR types that can be mapped directly to SQL Server columns.
     /// </summary>
-    internal static readonly HashSet<Type> SupportedColumnTypes = new()
+    /// <remarks>
+    /// Private to prevent test pollution and accidental external mutation. The set is a
+    /// closed list — extending support requires editing this collection in source.
+    /// </remarks>
+    private static readonly HashSet<Type> SupportedColumnTypes = new()
     {
         typeof(bool),
         typeof(byte),
@@ -157,6 +158,28 @@ internal sealed class TypeMap
             throw new ArgumentNullException(nameof(type));
         }
 
+        return Create(type, schemaName, tableName, typesInProgress: new HashSet<Type>());
+    }
+
+
+
+    /// <summary>
+    /// Internal recursive entry point. The <paramref name="typesInProgress"/> set is
+    /// passed explicitly down the call chain (instead of via <c>[ThreadStatic]</c>) so
+    /// cycle detection is correct under concurrency and async continuations.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when a circular type reference is detected (e.g., a self-referential
+    /// or mutually-recursive collection property).
+    /// </exception>
+    private static TypeMap Create
+    (
+        Type type,
+        string? schemaName,
+        string? tableName,
+        HashSet<Type> typesInProgress
+    )
+    {
         var cacheKey = (type, schemaName, tableName);
 
         if (Cache.TryGetValue(cacheKey, out var cached))
@@ -164,8 +187,7 @@ internal sealed class TypeMap
             return cached;
         }
 
-        _typesInProgress ??= new HashSet<Type>();
-        if (!_typesInProgress.Add(type))
+        if (!typesInProgress.Add(type))
         {
             throw new InvalidOperationException
             (
@@ -176,13 +198,13 @@ internal sealed class TypeMap
 
         try
         {
-            var map = BuildTypeMap(type, schemaName, tableName);
+            var map = BuildTypeMap(type, schemaName, tableName, typesInProgress);
             Cache.TryAdd(cacheKey, map);
             return map;
         }
         finally
         {
-            _typesInProgress.Remove(type);
+            typesInProgress.Remove(type);
         }
     }
 
@@ -192,7 +214,8 @@ internal sealed class TypeMap
     (
         Type type,
         string? schemaName,
-        string? tableName
+        string? tableName,
+        HashSet<Type> typesInProgress
     )
     {
         var tableAttribute = type.GetCustomAttribute<TableAttribute>(inherit: false);
@@ -209,7 +232,7 @@ internal sealed class TypeMap
             ? BuildColumnMaps(properties)
             : Array.Empty<ColumnMap>();
 
-        var nestedTables = BuildNestedTableMaps(properties);
+        var nestedTables = BuildNestedTableMaps(properties, typesInProgress);
 
         if (isMapped && columns.Length == 0 && nestedTables.Length == 0)
         {
@@ -327,7 +350,11 @@ internal sealed class TypeMap
 
 
 
-    private static NestedTableMap[] BuildNestedTableMaps(PropertyInfo[] properties)
+    private static NestedTableMap[] BuildNestedTableMaps
+    (
+        PropertyInfo[] properties,
+        HashSet<Type> typesInProgress
+    )
     {
         return properties
             .Where
@@ -357,7 +384,7 @@ internal sealed class TypeMap
                 pair => new NestedTableMap
                 (
                     pair.PropertyInfo,
-                    Create(pair.ElementType!)
+                    Create(pair.ElementType!, schemaName: null, tableName: null, typesInProgress)
                 )
             )
             .ToArray();
@@ -385,6 +412,13 @@ internal sealed class TypeMap
 
 
 
+    /// <summary>
+    /// Returns the element type for an array, <see cref="IEnumerable{T}"/>, or any
+    /// type that implements <see cref="IEnumerable{T}"/>. Non-generic
+    /// <see cref="IEnumerable"/> types (e.g., <c>ArrayList</c>) return <c>null</c>
+    /// and are silently skipped during nested-table mapping — there is no element
+    /// type to reflect over, so they cannot be mapped to a child table.
+    /// </summary>
     private static Type? GetEnumerableElementType(Type type)
     {
         // Check for array element type first
