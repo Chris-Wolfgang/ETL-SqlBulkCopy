@@ -57,7 +57,7 @@ public class PostActionIntegrationTests
             {
                 using var command = parameters.Connection.CreateCommand();
                 command.CommandText = "SELECT COUNT(*) FROM [dbo].[Widgets]";
-                rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken))!;
+                rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken).ConfigureAwait(false))!;
             }
         };
 
