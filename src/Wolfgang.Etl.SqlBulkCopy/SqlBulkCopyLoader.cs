@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +60,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
-    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection
@@ -83,7 +81,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> or <paramref name="logger"/> is <c>null</c>.
     /// </exception>
-    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -108,7 +105,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
-    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -598,7 +594,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private async Task ExecutePreActionAsync(TypeMap typeMap, CancellationToken token)
     {
         if (PreAction == PreAction.None)
@@ -646,7 +641,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private async Task ExecutePostActionAsync(TypeMap typeMap, CancellationToken token)
     {
         if (PostAction == PostAction.None)
@@ -678,7 +672,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private async Task ExecuteSqlCommandAsync(string commandText, CancellationToken token)
     {
         EnsureConnectionAvailable("SQL command execution");
@@ -711,7 +704,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private ISqlBulkCopyWrapperFactory CreateFactory()
     {
         EnsureConnectionAvailable("bulk copy");
