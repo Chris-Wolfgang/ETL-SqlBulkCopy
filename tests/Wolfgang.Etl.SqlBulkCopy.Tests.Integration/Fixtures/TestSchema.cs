@@ -27,8 +27,8 @@ internal static class TestSchema
 
 
 
-    public static async Task DropIfExistsAsync(SqlConnection connection, string qualifiedTableName)
+    public static Task DropIfExistsAsync(SqlConnection connection, string qualifiedTableName)
     {
-        await ExecuteAsync(connection, $"IF OBJECT_ID(N'{qualifiedTableName}', N'U') IS NOT NULL DROP TABLE {qualifiedTableName}").ConfigureAwait(false);
+        return ExecuteAsync(connection, $"IF OBJECT_ID(N'{qualifiedTableName}', N'U') IS NOT NULL DROP TABLE {qualifiedTableName}");
     }
 }

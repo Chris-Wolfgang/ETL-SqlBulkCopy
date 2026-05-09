@@ -36,8 +36,8 @@ public class PostActionIntegrationTests
     [Fact]
     public async Task PostAction_CustomAction_invokes_delegate_after_load_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
         await TestSchema.ExecuteAsync
         (
             connection,
@@ -46,7 +46,7 @@ public class PostActionIntegrationTests
                 WidgetName NVARCHAR(100) NOT NULL,
                 Price DECIMAL(18,2) NOT NULL
             )"
-        ).ConfigureAwait(false);
+        );
 
         var rowCountAtPostAction = -1;
 
@@ -57,7 +57,7 @@ public class PostActionIntegrationTests
             {
                 using var command = parameters.Connection.CreateCommand();
                 command.CommandText = "SELECT COUNT(*) FROM [dbo].[Widgets]";
-                rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken).ConfigureAwait(false))!;
+                rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken))!;
             }
         };
 
@@ -68,7 +68,7 @@ public class PostActionIntegrationTests
             new WidgetRecord { Id = 3, Name = "c", Price = 3m }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         // Post-action observed all 3 rows already loaded
         Assert.Equal(3, rowCountAtPostAction);

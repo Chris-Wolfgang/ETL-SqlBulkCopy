@@ -54,8 +54,8 @@ public class LoaderIntegrationTests
     [Fact]
     public async Task Constructor_with_connection_only_loads_rows_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreateWidgetsTableAsync(connection).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreateWidgetsTableAsync(connection);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>(connection);
         var items = new[]
@@ -64,9 +64,9 @@ public class LoaderIntegrationTests
             new WidgetRecord { Id = 2, Name = "Gadget", Price = 19.99m }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
-        Assert.Equal(2, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(2, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 
 
@@ -74,8 +74,8 @@ public class LoaderIntegrationTests
     [Fact]
     public async Task Constructor_with_logger_loads_rows_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreateWidgetsTableAsync(connection).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreateWidgetsTableAsync(connection);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>
         (
@@ -83,9 +83,9 @@ public class LoaderIntegrationTests
             NullLogger<SqlBulkCopyLoader<WidgetRecord>>.Instance
         );
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "X", Price = 1m } })).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "X", Price = 1m } }));
 
-        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 
 
@@ -93,8 +93,8 @@ public class LoaderIntegrationTests
     [Fact]
     public async Task Constructor_full_with_options_and_transaction_loads_rows_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreateWidgetsTableAsync(connection).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreateWidgetsTableAsync(connection);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>
         (
@@ -103,9 +103,9 @@ public class LoaderIntegrationTests
             transaction: null
         );
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "X", Price = 1m } })).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "X", Price = 1m } }));
 
-        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 
 
@@ -113,18 +113,18 @@ public class LoaderIntegrationTests
     [Fact]
     public async Task LoadAsync_maps_Column_attribute_correctly_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreateWidgetsTableAsync(connection).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreateWidgetsTableAsync(connection);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>(connection);
         var items = new[] { new WidgetRecord { Id = 1, Name = "Mapped", Price = 5m } };
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
         // Read back: WidgetName column should contain "Mapped" (from Name property via [Column])
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT WidgetName FROM [dbo].[Widgets] WHERE Id = 1";
-        var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+        var result = await command.ExecuteScalarAsync();
 
         Assert.Equal("Mapped", result);
     }
@@ -134,8 +134,8 @@ public class LoaderIntegrationTests
     [Fact]
     public async Task LoadAsync_with_BatchSize_writes_multiple_batches_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreateWidgetsTableAsync(connection).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreateWidgetsTableAsync(connection);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
         {
@@ -146,8 +146,8 @@ public class LoaderIntegrationTests
             .Select(i => new WidgetRecord { Id = i, Name = $"W{i}", Price = i })
             .ToArray();
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
-        Assert.Equal(10, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(10, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 }

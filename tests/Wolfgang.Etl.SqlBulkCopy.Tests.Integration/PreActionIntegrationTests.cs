@@ -61,8 +61,8 @@ public class PreActionIntegrationTests
     [Fact]
     public async Task PreAction_DeleteAllRecords_clears_existing_rows_before_load_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
         {
@@ -74,9 +74,9 @@ public class PreActionIntegrationTests
             new WidgetRecord { Id = 100, Name = "fresh", Price = 1m }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(newItems)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(newItems));
 
-        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 
 
@@ -84,8 +84,8 @@ public class PreActionIntegrationTests
     [Fact]
     public async Task PreAction_TruncateTable_clears_existing_rows_before_load_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
 
         var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
         {
@@ -97,9 +97,9 @@ public class PreActionIntegrationTests
             new WidgetRecord { Id = 100, Name = "fresh", Price = 1m }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(newItems)).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(newItems));
 
-        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 
 
@@ -107,8 +107,8 @@ public class PreActionIntegrationTests
     [Fact]
     public async Task PreAction_CustomAction_invokes_delegate_with_connection_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 0).ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 0);
 
         SqlConnection? capturedConnection = null;
         string? capturedTableName = null;
@@ -124,7 +124,7 @@ public class PreActionIntegrationTests
             }
         };
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "x", Price = 1m } })).ConfigureAwait(false);
+        await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "x", Price = 1m } }));
 
         Assert.Same(connection, capturedConnection);
         Assert.Equal("Widgets", capturedTableName);

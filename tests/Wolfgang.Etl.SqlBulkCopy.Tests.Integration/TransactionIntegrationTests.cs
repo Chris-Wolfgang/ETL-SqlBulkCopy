@@ -36,8 +36,8 @@ public class TransactionIntegrationTests
     [Fact]
     public async Task LoadAsync_with_external_transaction_rolled_back_writes_no_rows_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
         await TestSchema.ExecuteAsync
         (
             connection,
@@ -46,9 +46,9 @@ public class TransactionIntegrationTests
                 WidgetName NVARCHAR(100) NOT NULL,
                 Price DECIMAL(18,2) NOT NULL
             )"
-        ).ConfigureAwait(false);
+        );
 
-        using (var transaction = (SqlTransaction)await connection.BeginTransactionAsync().ConfigureAwait(false))
+        using (var transaction = (SqlTransaction)await connection.BeginTransactionAsync())
         {
             var sut = new SqlBulkCopyLoader<WidgetRecord>
             (
@@ -62,12 +62,12 @@ public class TransactionIntegrationTests
                 new WidgetRecord { Id = 1, Name = "rolled-back", Price = 1m }
             };
 
-            await sut.LoadAsync(ToAsyncEnumerableAsync(items)).ConfigureAwait(false);
+            await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
-            await transaction.RollbackAsync().ConfigureAwait(false);
+            await transaction.RollbackAsync();
         }
 
-        Assert.Equal(0, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(0, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 
 
@@ -75,8 +75,8 @@ public class TransactionIntegrationTests
     [Fact]
     public async Task LoadAsync_with_external_transaction_committed_writes_rows_Async()
     {
-        await using var connection = await _fixture.OpenConnectionAsync().ConfigureAwait(false);
-        await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
+        await using var connection = await _fixture.OpenConnectionAsync();
+        await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
         await TestSchema.ExecuteAsync
         (
             connection,
@@ -85,9 +85,9 @@ public class TransactionIntegrationTests
                 WidgetName NVARCHAR(100) NOT NULL,
                 Price DECIMAL(18,2) NOT NULL
             )"
-        ).ConfigureAwait(false);
+        );
 
-        using (var transaction = (SqlTransaction)await connection.BeginTransactionAsync().ConfigureAwait(false))
+        using (var transaction = (SqlTransaction)await connection.BeginTransactionAsync())
         {
             var sut = new SqlBulkCopyLoader<WidgetRecord>
             (
@@ -101,11 +101,11 @@ public class TransactionIntegrationTests
                 new WidgetRecord { Id = 1, Name = "committed", Price = 1m }
             };
 
-            await sut.LoadAsync(ToAsyncEnumerableAsync(items)).ConfigureAwait(false);
+            await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
-            await transaction.CommitAsync().ConfigureAwait(false);
+            await transaction.CommitAsync();
         }
 
-        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false));
+        Assert.Equal(1, await TestSchema.CountRowsAsync(connection, "[dbo].[Widgets]"));
     }
 }
