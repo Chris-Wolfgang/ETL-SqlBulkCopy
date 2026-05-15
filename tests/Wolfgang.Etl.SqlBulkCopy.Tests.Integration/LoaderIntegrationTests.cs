@@ -51,10 +51,10 @@ public class LoaderIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task Constructor_with_connection_only_loads_rows_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreateWidgetsTableAsync(connection);
@@ -73,10 +73,10 @@ public class LoaderIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task Constructor_with_logger_loads_rows_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreateWidgetsTableAsync(connection);
@@ -94,10 +94,10 @@ public class LoaderIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task Constructor_full_with_options_and_transaction_loads_rows_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreateWidgetsTableAsync(connection);
@@ -116,10 +116,10 @@ public class LoaderIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task LoadAsync_maps_Column_attribute_correctly_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreateWidgetsTableAsync(connection);
@@ -139,10 +139,10 @@ public class LoaderIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task LoadAsync_with_BatchSize_writes_multiple_batches_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreateWidgetsTableAsync(connection);

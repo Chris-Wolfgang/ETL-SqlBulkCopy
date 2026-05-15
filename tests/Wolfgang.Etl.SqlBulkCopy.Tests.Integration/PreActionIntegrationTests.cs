@@ -58,10 +58,10 @@ public class PreActionIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task PreAction_DeleteAllRecords_clears_existing_rows_before_load_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
@@ -83,10 +83,10 @@ public class PreActionIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task PreAction_TruncateTable_clears_existing_rows_before_load_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
@@ -108,10 +108,10 @@ public class PreActionIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task PreAction_CustomAction_invokes_delegate_with_connection_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 0);

@@ -157,7 +157,13 @@ internal sealed class TypeMap
             throw new ArgumentNullException(nameof(type));
         }
 
-        var cacheKey = (type, schemaName, tableName);
+        // Normalize whitespace/empty overrides to null so the cache treats
+        // (null), ("") and ("   ") as the same key and matches the
+        // "no override" semantics applied later in BuildTypeMap.
+        var normalizedSchema = string.IsNullOrWhiteSpace(schemaName) ? null : schemaName;
+        var normalizedTable = string.IsNullOrWhiteSpace(tableName) ? null : tableName;
+
+        var cacheKey = (type, normalizedSchema, normalizedTable);
 
         if (Cache.TryGetValue(cacheKey, out var cached))
         {
@@ -176,7 +182,7 @@ internal sealed class TypeMap
 
         try
         {
-            var map = BuildTypeMap(type, schemaName, tableName);
+            var map = BuildTypeMap(type, normalizedSchema, normalizedTable);
             Cache.TryAdd(cacheKey, map);
             return map;
         }
@@ -206,7 +212,7 @@ internal sealed class TypeMap
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         var columns = isMapped
-            ? BuildColumnMaps(properties)
+            ? BuildColumnMaps(type, properties)
             : Array.Empty<ColumnMap>();
 
         var nestedTables = BuildNestedTableMaps(properties);
@@ -311,11 +317,11 @@ internal sealed class TypeMap
 
 
 
-    private static ColumnMap[] BuildColumnMaps(PropertyInfo[] properties)
+    private static ColumnMap[] BuildColumnMaps(Type type, PropertyInfo[] properties)
     {
         var ordinal = 0;
 
-        return properties
+        var columns = properties
             .Where
             (
                 p => p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
@@ -323,6 +329,26 @@ internal sealed class TypeMap
             )
             .Select(p => new ColumnMap(p, ordinal++))
             .ToArray();
+
+        // SqlBulkCopy column matching is case-insensitive on the source side,
+        // so two properties resolving to the same ColumnName (case-insensitive)
+        // would create an ambiguous mapping. Reject it early with a clear error.
+        var duplicate = columns
+            .GroupBy(c => c.ColumnName, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(g => g.Count() > 1);
+
+        if (duplicate is not null)
+        {
+            var propertyNames = string.Join(", ", duplicate.Select(c => $"'{c.PropertyName}'"));
+            throw new InvalidOperationException
+            (
+                $"Type '{type.Name}' has multiple properties mapping to column " +
+                $"'{duplicate.Key}': {propertyNames}. Column names must be unique " +
+                "(case-insensitive). Use [Column(\"...\")] to disambiguate."
+            );
+        }
+
+        return columns;
     }
 
 

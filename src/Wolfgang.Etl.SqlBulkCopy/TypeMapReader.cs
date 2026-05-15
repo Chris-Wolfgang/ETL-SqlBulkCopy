@@ -11,10 +11,25 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// batch of objects using a <see cref="TypeMap"/> for column metadata.
 /// </summary>
 /// <remarks>
+/// <para>
 /// This reader is designed to feed <c>SqlBulkCopy.WriteToServerAsync</c>
 /// without the overhead of <c>DataTable</c> / <c>DataRow</c> conversion.
-/// Only the methods actually called by <c>SqlBulkCopy</c> are implemented;
-/// all others throw <see cref="NotSupportedException"/>.
+/// </para>
+/// <para>
+/// Implementation policy:
+/// </para>
+/// <list type="bullet">
+/// <item><description>Methods actually called by <c>SqlBulkCopy</c>
+/// (<c>Read</c>, <c>GetValue</c>, <c>IsDBNull</c>, <c>GetName</c>,
+/// <c>GetOrdinal</c>, <c>FieldCount</c>) are fully implemented.</description></item>
+/// <item><description>Lightweight state properties (<c>Depth</c>,
+/// <c>HasRows</c>, <c>IsClosed</c>, <c>RecordsAffected</c>) and
+/// <c>NextResult</c> return sensible defaults appropriate to a
+/// single-result, in-memory reader.</description></item>
+/// <item><description>The remaining <c>Get*</c>-typed accessor overrides
+/// throw <see cref="NotSupportedException"/> because <c>SqlBulkCopy</c>
+/// never calls them.</description></item>
+/// </list>
 /// </remarks>
 internal sealed class TypeMapReader : DbDataReader
 {

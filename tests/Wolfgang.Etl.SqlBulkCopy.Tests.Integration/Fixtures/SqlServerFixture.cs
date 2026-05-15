@@ -19,9 +19,12 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures;
 /// </remarks>
 public sealed class SqlServerFixture : IAsyncLifetime
 {
-    private readonly MsSqlContainer _container = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-        .Build();
+    // Container is built and started in InitializeAsync so that ANY failure
+    // (Docker daemon not running, image not reachable, port collision, etc.)
+    // surfaces as IsAvailable=false rather than crashing the fixture's field
+    // initializer — which would tear down every test in the collection
+    // before they have a chance to call Skip.IfNot().
+    private MsSqlContainer? _container;
 
 
 
@@ -46,7 +49,13 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// Only valid after <see cref="InitializeAsync"/> has completed and
     /// <see cref="IsAvailable"/> is <c>true</c>.
     /// </summary>
-    public string ConnectionString => _container.GetConnectionString();
+    public string ConnectionString =>
+        _container?.GetConnectionString()
+        ?? throw new InvalidOperationException
+        (
+            "SQL Server container is not available. " +
+            "Check IsAvailable before using ConnectionString."
+        );
 
 
 
@@ -68,6 +77,9 @@ public sealed class SqlServerFixture : IAsyncLifetime
     {
         try
         {
+            _container = new MsSqlBuilder()
+                .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+                .Build();
             await _container.StartAsync().ConfigureAwait(false);
             IsAvailable = true;
         }
@@ -81,5 +93,6 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
 
     /// <inheritdoc />
-    public Task DisposeAsync() => _container.DisposeAsync().AsTask();
+    public Task DisposeAsync() =>
+        _container?.DisposeAsync().AsTask() ?? Task.CompletedTask;
 }

@@ -33,10 +33,10 @@ public class PostActionIntegrationTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public async Task PostAction_CustomAction_invokes_delegate_after_load_Async()
     {
-        if (!_fixture.IsAvailable) return;
+        Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
         await using var connection = await _fixture.OpenConnectionAsync();
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]");
