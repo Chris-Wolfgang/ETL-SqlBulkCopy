@@ -70,6 +70,8 @@ public class SqlBulkCopyWrapperTests
         using var connection = new SqlConnection();
         var sut = new SqlBulkCopyWrapper(connection, SqlBulkCopyOptions.Default, transaction: null);
 
-        sut.Dispose();
+        var exception = Record.Exception(() => sut.Dispose());
+
+        Assert.Null(exception);
     }
 }
