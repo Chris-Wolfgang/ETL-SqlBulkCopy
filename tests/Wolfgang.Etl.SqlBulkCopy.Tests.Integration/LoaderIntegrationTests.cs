@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -6,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels;
 using Xunit;
+using static Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.AsyncEnumerableHelpers;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration;
 
@@ -23,19 +23,7 @@ public class LoaderIntegrationTests
 
 
 
-    private static async IAsyncEnumerable<T> ToAsyncEnumerableAsync<T>(IEnumerable<T> items)
-    {
-        foreach (var item in items)
-        {
-            yield return item;
-        }
-
-        await Task.CompletedTask.ConfigureAwait(false);
-    }
-
-
-
-    private static async Task CreateWidgetsTableAsync(SqlConnection connection)
+private static async Task CreateWidgetsTableAsync(SqlConnection connection)
     {
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
         await TestSchema.ExecuteAsync
@@ -139,8 +127,14 @@ public class LoaderIntegrationTests
 
 
 
+    // Note: the unit-test suite verifies that the loader chunks correctly
+    // by observing the fake wrapper's per-call row counts. This integration
+    // test only verifies that all rows arrive at the destination when
+    // BatchSize is set smaller than the input — observing the actual batch
+    // boundaries through real SqlBulkCopy isn't easy without hooking
+    // SqlRowsCopied, which adds noise for limited extra coverage here.
     [SkippableFact]
-    public async Task LoadAsync_with_BatchSize_writes_multiple_batches_Async()
+    public async Task LoadAsync_with_BatchSize_smaller_than_source_writes_all_rows_Async()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 

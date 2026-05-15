@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels;
 using Xunit;
+using static Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.AsyncEnumerableHelpers;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration;
 
@@ -21,19 +21,7 @@ public class TransactionIntegrationTests
 
 
 
-    private static async IAsyncEnumerable<T> ToAsyncEnumerableAsync<T>(IEnumerable<T> items)
-    {
-        foreach (var item in items)
-        {
-            yield return item;
-        }
-
-        await Task.CompletedTask.ConfigureAwait(false);
-    }
-
-
-
-    [SkippableFact]
+[SkippableFact]
     public async Task LoadAsync_with_external_transaction_rolled_back_writes_no_rows_Async()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");

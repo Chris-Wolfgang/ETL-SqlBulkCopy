@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels;
 using Xunit;
+using static Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.AsyncEnumerableHelpers;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration;
 
@@ -21,19 +21,7 @@ public class PreActionIntegrationTests
 
 
 
-    private static async IAsyncEnumerable<T> ToAsyncEnumerableAsync<T>(IEnumerable<T> items)
-    {
-        foreach (var item in items)
-        {
-            yield return item;
-        }
-
-        await Task.CompletedTask.ConfigureAwait(false);
-    }
-
-
-
-    private static async Task CreatePopulatedWidgetsTableAsync(SqlConnection connection, int existingRowCount)
+private static async Task CreatePopulatedWidgetsTableAsync(SqlConnection connection, int existingRowCount)
     {
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
         await TestSchema.ExecuteAsync

@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels;
 using Xunit;
+using static Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.AsyncEnumerableHelpers;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration;
 
@@ -21,19 +21,7 @@ public class PostActionIntegrationTests
 
 
 
-    private static async IAsyncEnumerable<T> ToAsyncEnumerableAsync<T>(IEnumerable<T> items)
-    {
-        foreach (var item in items)
-        {
-            yield return item;
-        }
-
-        await Task.CompletedTask.ConfigureAwait(false);
-    }
-
-
-
-    [SkippableFact]
+[SkippableFact]
     public async Task PostAction_CustomAction_invokes_delegate_after_load_Async()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
