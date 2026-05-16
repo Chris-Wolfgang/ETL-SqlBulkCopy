@@ -46,7 +46,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     private readonly ILogger _logger;
     private readonly IProgressTimer? _progressTimer;
     private readonly ISqlBulkCopyWrapperFactory? _wrapperFactory;
-    private int _progressTimerWired;
+    private Action? _progressTimerHandler;
     private int _batchSize = 10_000;
     private int _bulkCopyTimeout = 30;
     private int _batchCount;
@@ -360,10 +360,19 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     {
         if (_progressTimer is not null)
         {
-            if (Interlocked.CompareExchange(ref _progressTimerWired, 1, 0) == 0)
+            // Detach the handler from the prior LoadAsync call (if any) before
+            // wiring the new IProgress instance, so reuse of a single loader
+            // across multiple LoadAsync calls routes progress to the current
+            // caller — not the first one — and the previous IProgress is no
+            // longer invoked after its LoadAsync has returned.
+            if (_progressTimerHandler is not null)
             {
-                _progressTimer.Elapsed += () => progress.Report(CreateProgressReport());
+                _progressTimer.Elapsed -= _progressTimerHandler;
             }
+
+            Action handler = () => progress.Report(CreateProgressReport());
+            _progressTimer.Elapsed += handler;
+            _progressTimerHandler = handler;
 
             return _progressTimer;
         }
@@ -464,8 +473,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
         foreach (var parent in parents)
         {
+            // Observe cancellation at the parent boundary so callers don't have
+            // to wait for buffer to fill before a canceled token takes effect
+            // when traversing deep or wide nested collections.
+            token.ThrowIfCancellationRequested();
+
             foreach (var child in nestedMap.GetValues(parent))
             {
+                token.ThrowIfCancellationRequested();
                 buffer.Add(child);
 
                 if (buffer.Count >= _batchSize)

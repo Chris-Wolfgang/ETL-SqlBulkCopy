@@ -347,7 +347,8 @@ internal sealed class TypeMap
         var columns = properties
             .Where
             (
-                p => p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
+                p => IsReadableInstanceProperty(p)
+                     && p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
                      && IsSupportedColumnType(p.PropertyType)
             )
             .Select(p => new ColumnMap(p, ordinal++))
@@ -385,7 +386,8 @@ internal sealed class TypeMap
         return properties
             .Where
             (
-                p => p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
+                p => IsReadableInstanceProperty(p)
+                     && p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
                      && typeof(IEnumerable).IsAssignableFrom(p.PropertyType)
                      && p.PropertyType != typeof(string)
                      && p.PropertyType != typeof(byte[])
@@ -427,13 +429,31 @@ internal sealed class TypeMap
             return true;
         }
 
-        // Support enum types by mapping to their underlying integral type
+        // Enums are mapped via their underlying integral type. Only accept enums
+        // whose underlying type is itself in SupportedColumnTypes — sbyte, ushort,
+        // uint, and ulong are not supported by SqlBulkCopy mapping, so rejecting
+        // them up-front gives a clearer error than failing at write time.
         if (type.IsEnum)
         {
-            return true;
+            return SupportedColumnTypes.Contains(Enum.GetUnderlyingType(type));
         }
 
         return false;
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> when the property can be read by <see cref="PropertyInfo.GetValue(object)"/>
+    /// without throwing — i.e. it has a public getter and takes no index parameters.
+    /// Indexer and write-only properties would throw <see cref="TargetParameterCountException"/>
+    /// or <see cref="ArgumentException"/> at read time and must be excluded from both
+    /// column maps and nested-table maps.
+    /// </summary>
+    private static bool IsReadableInstanceProperty(PropertyInfo property)
+    {
+        return property.GetMethod is not null
+               && property.GetIndexParameters().Length == 0;
     }
 
 
