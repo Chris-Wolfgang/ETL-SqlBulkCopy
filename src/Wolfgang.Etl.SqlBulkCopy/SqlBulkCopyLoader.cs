@@ -410,7 +410,9 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                 var chunk = SliceList(items, offset, chunkSize);
 
                 await WriteToTableAsync(chunk, typeMap, factory, token).ConfigureAwait(false);
-                _batchCount++;
+                // Interlocked: CreateProgressReport() may read _batchCount from the
+                // progress-timer thread.
+                Interlocked.Increment(ref _batchCount);
 
                 if (isRoot)
                 {
@@ -512,6 +514,10 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         using var wrapper = factory.Create();
 
         wrapper.DestinationTableName = typeMap.QualifiedTableName;
+        // Chunking to the user-configured _batchSize is already done upstream in
+        // WriteRecursiveAsync, so each call here writes exactly one chunk. Setting
+        // SqlBulkCopy.BatchSize to items.Count tells the underlying SqlBulkCopy
+        // to send the whole chunk in a single batch (no further sub-batching).
         wrapper.BatchSize = items.Count;
         wrapper.BulkCopyTimeout = _bulkCopyTimeout;
 
