@@ -21,7 +21,7 @@ public class TransactionIntegrationTests
 
 
 
-[SkippableFact]
+    [SkippableFact]
     public async Task LoadAsync_with_external_transaction_rolled_back_writes_no_rows_Async()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");

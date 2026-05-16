@@ -21,7 +21,7 @@ public class PreActionIntegrationTests
 
 
 
-private static async Task CreatePopulatedWidgetsTableAsync(SqlConnection connection, int existingRowCount)
+    private static async Task CreatePopulatedWidgetsTableAsync(SqlConnection connection, int existingRowCount)
     {
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
         await TestSchema.ExecuteAsync
