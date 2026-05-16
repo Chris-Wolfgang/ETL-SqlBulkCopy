@@ -579,6 +579,41 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    [Fact]
+    public async Task LoadAsync_called_twice_with_different_progress_swaps_Elapsed_handler_Async()
+    {
+        // Reusing a single loader across multiple LoadAsync calls must not
+        // continue invoking the first IProgress after the second call has
+        // wired a new one — the prior Elapsed handler must be detached and
+        // replaced. Verify via reflection on the internal handler field
+        // because ManualProgressTimer is disposed by each LoadAsync, so we
+        // can't Fire() it post-call to observe routing directly.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+
+        var progressA = new SynchronousProgress<SqlBulkCopyReport>(_ => { });
+        var progressB = new SynchronousProgress<SqlBulkCopyReport>(_ => { });
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)), progressA);
+        var handlerField = typeof(SqlBulkCopyLoader<TestRecord>).GetField
+        (
+            "_progressTimerHandler",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+        );
+        Assert.NotNull(handlerField);
+        var handlerAfterFirstCall = handlerField!.GetValue(sut);
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)), progressB);
+        var handlerAfterSecondCall = handlerField.GetValue(sut);
+
+        Assert.NotNull(handlerAfterFirstCall);
+        Assert.NotNull(handlerAfterSecondCall);
+        Assert.NotSame(handlerAfterFirstCall, handlerAfterSecondCall);
+    }
+
+
+
     // --- Invalid enum value tests ---
 
     [Fact]
