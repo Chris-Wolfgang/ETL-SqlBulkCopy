@@ -1,6 +1,5 @@
 using System;
 using System.Data.Common;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -11,7 +10,6 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// Production implementation of <see cref="ISqlBulkCopyWrapper"/> that delegates
 /// to <see cref="Microsoft.Data.SqlClient.SqlBulkCopy"/>.
 /// </summary>
-[ExcludeFromCodeCoverage]
 internal sealed class SqlBulkCopyWrapper : ISqlBulkCopyWrapper
 {
     private readonly Microsoft.Data.SqlClient.SqlBulkCopy _bulkCopy;

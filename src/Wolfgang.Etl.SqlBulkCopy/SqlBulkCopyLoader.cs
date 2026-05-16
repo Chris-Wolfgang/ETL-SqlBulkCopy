@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +60,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
-    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection
@@ -83,7 +81,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> or <paramref name="logger"/> is <c>null</c>.
     /// </exception>
-    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -108,7 +105,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
-    [ExcludeFromCodeCoverage]
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -436,19 +432,55 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         }
 
         // Recurse so grandchildren and deeper nested collections are also written.
-        // We do this even when the current type is not mapped, since a NotMapped
-        // type can still expose collections of mapped child types.
         foreach (var nestedMap in typeMap.NestedTables)
         {
-            var childItems = items
-                .SelectMany(parent => nestedMap.GetValues(parent))
-                .ToList();
+            await WriteNestedTableStreamingAsync(items, nestedMap, factory, token)
+                .ConfigureAwait(false);
+        }
+    }
 
-            if (childItems.Count > 0)
+
+
+    /// <summary>
+    /// Streams a nested collection into <see cref="WriteRecursiveAsync"/> in
+    /// fixed-size chunks. We do this even when the parent type is not mapped,
+    /// since a [NotMapped] type can still expose collections of mapped children.
+    /// </summary>
+    /// <remarks>
+    /// Bounded by BatchSize per nesting level. The naive
+    /// <c>items.SelectMany(GetValues).ToList()</c> would allocate every child
+    /// of every parent up front — a 10,000-parent batch with 100 children
+    /// each would pin 1,000,000 object references before any write fires.
+    /// </remarks>
+    private async Task WriteNestedTableStreamingAsync
+    (
+        IReadOnlyList<object> parents,
+        NestedTableMap nestedMap,
+        ISqlBulkCopyWrapperFactory factory,
+        CancellationToken token
+    )
+    {
+        var buffer = new List<object>(_batchSize);
+
+        foreach (var parent in parents)
+        {
+            foreach (var child in nestedMap.GetValues(parent))
             {
-                await WriteRecursiveAsync(childItems, nestedMap.ChildTypeMap, factory, isRoot: false, token)
-                    .ConfigureAwait(false);
+                buffer.Add(child);
+
+                if (buffer.Count >= _batchSize)
+                {
+                    await WriteRecursiveAsync(buffer, nestedMap.ChildTypeMap, factory, isRoot: false, token)
+                        .ConfigureAwait(false);
+                    buffer = new List<object>(_batchSize);
+                }
             }
+        }
+
+        if (buffer.Count > 0)
+        {
+            await WriteRecursiveAsync(buffer, nestedMap.ChildTypeMap, factory, isRoot: false, token)
+                .ConfigureAwait(false);
         }
     }
 
@@ -604,7 +636,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private async Task ExecutePreActionAsync(TypeMap typeMap, CancellationToken token)
     {
         if (PreAction == PreAction.None)
@@ -652,7 +683,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private async Task ExecutePostActionAsync(TypeMap typeMap, CancellationToken token)
     {
         if (PostAction == PostAction.None)
@@ -684,7 +714,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private async Task ExecuteSqlCommandAsync(string commandText, CancellationToken token)
     {
         EnsureConnectionAvailable("SQL command execution");
@@ -717,7 +746,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    [ExcludeFromCodeCoverage]
     private ISqlBulkCopyWrapperFactory CreateFactory()
     {
         EnsureConnectionAvailable("bulk copy");

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -17,7 +16,6 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// <param name="ColumnMappings">The column mappings being used for bulk copy.</param>
 /// <param name="Logger">The logger instance.</param>
 /// <param name="CancellationToken">A token to cancel the operation.</param>
-[ExcludeFromCodeCoverage]
 public record PreLoadActionParameters
 (
     SqlConnection Connection,

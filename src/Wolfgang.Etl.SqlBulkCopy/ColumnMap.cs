@@ -76,9 +76,18 @@ public sealed class ColumnMap
 
 
     /// <summary>
-    /// Gets the CLR type of the property, unwrapped from <see cref="Nullable{T}"/>
-    /// if applicable.
+    /// Gets the declared CLR type of the property, unwrapped from
+    /// <see cref="Nullable{T}"/> if applicable.
     /// </summary>
+    /// <remarks>
+    /// For <see langword="enum"/> properties this returns the enum type itself
+    /// — not its underlying integral type. At write time the loader converts
+    /// enum values to their underlying integral representation for SQL Server
+    /// (e.g., a <c>byte</c>-backed enum is sent as <c>tinyint</c>), so callers
+    /// inspecting <see cref="ClrType"/> to reason about the on-wire SQL payload
+    /// should call <see cref="Type.GetEnumUnderlyingType"/> on the result when
+    /// <see cref="Type.IsEnum"/> is <see langword="true"/>.
+    /// </remarks>
     public Type ClrType { get; }
 
 
