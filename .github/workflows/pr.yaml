@@ -743,6 +743,8 @@ jobs:
           if (Test-Path "CoverageReport/Summary.txt") {
             Write-Host "Coverage Summary (Windows — not gated):"
             Get-Content "CoverageReport/Summary.txt"
+          } else {
+            Write-Host "ℹ️  No coverage summary generated (CoverageReport/Summary.txt not found — ReportGenerator may have skipped due to missing coverage files)."
           }
 
       - name: Upload Windows coverage results
@@ -1013,6 +1015,8 @@ jobs:
           if [ -f "CoverageReport/Summary.txt" ]; then
             echo "Coverage Summary (macOS — not gated):"
             cat CoverageReport/Summary.txt
+          else
+            echo "ℹ️  No coverage summary generated (CoverageReport/Summary.txt not found — ReportGenerator may have skipped due to missing coverage files)."
           fi
 
       - name: Upload macOS coverage results
