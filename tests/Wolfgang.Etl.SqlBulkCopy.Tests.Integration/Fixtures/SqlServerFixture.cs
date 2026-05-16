@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Testcontainers.MsSql;
@@ -87,11 +89,42 @@ public sealed class SqlServerFixture : IAsyncLifetime
             await _container.StartAsync().ConfigureAwait(false);
             IsAvailable = true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (IsDockerUnavailable(ex))
         {
-            UnavailableReason = ex.Message;
+            UnavailableReason = $"{ex.GetType().Name}: {ex.Message}";
             IsAvailable = false;
         }
+
+        // Note: all other exceptions (e.g. bad image tag, invalid
+        // Testcontainers configuration, NRE in fixture code) propagate so
+        // CI fails loudly instead of silently skipping every integration
+        // test in the collection.
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> when the exception indicates the Docker daemon is
+    /// unreachable or the host can't run the requested container — the
+    /// scenarios in which "skip the integration tests" is the correct
+    /// outcome. Anything else (a typo in the image tag, a misconfigured
+    /// MsSqlBuilder, etc.) is treated as a real CI failure.
+    /// </summary>
+    private static bool IsDockerUnavailable(Exception ex)
+    {
+        // Unwrap one level of aggregation — Testcontainers occasionally
+        // wraps the underlying socket/IO failure in an AggregateException
+        // depending on TFM.
+        var inner = ex is AggregateException aggregate && aggregate.InnerException is not null
+            ? aggregate.InnerException
+            : ex;
+
+        // Daemon down / no Docker socket / Windows-containers mode on a
+        // Linux-image pull all surface as one of these.
+        return inner is IOException
+            || inner is SocketException
+            || inner is PlatformNotSupportedException
+            || (inner.GetType().FullName ?? string.Empty).StartsWith("Docker.DotNet.", StringComparison.Ordinal);
     }
 
 
