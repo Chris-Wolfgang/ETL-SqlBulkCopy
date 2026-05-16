@@ -353,4 +353,19 @@ public class TypeMapTests
 
         Assert.Empty(map.NestedTables);
     }
+
+
+
+    [Fact]
+    public void Create_when_two_properties_map_to_same_column_throws_InvalidOperationException()
+    {
+        var ex = Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(DuplicateColumnRecord))
+        );
+
+        Assert.Contains("DuplicateColumnRecord", ex.Message, StringComparison.Ordinal);
+        Assert.Contains("'First'", ex.Message, StringComparison.Ordinal);
+        Assert.Contains("'Second'", ex.Message, StringComparison.Ordinal);
+    }
 }
