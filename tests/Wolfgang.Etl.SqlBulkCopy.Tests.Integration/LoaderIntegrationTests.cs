@@ -23,7 +23,7 @@ public class LoaderIntegrationTests
 
 
 
-private static async Task CreateWidgetsTableAsync(SqlConnection connection)
+    private static async Task CreateWidgetsTableAsync(SqlConnection connection)
     {
         await TestSchema.DropIfExistsAsync(connection, "[dbo].[Widgets]").ConfigureAwait(false);
         await TestSchema.ExecuteAsync

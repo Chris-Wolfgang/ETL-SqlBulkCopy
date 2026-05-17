@@ -91,7 +91,13 @@ public sealed class SqlServerFixture : IAsyncLifetime
         }
         catch (Exception ex) when (IsDockerUnavailable(ex))
         {
-            UnavailableReason = $"{ex.GetType().Name}: {ex.Message}";
+            // Unwrap one level of AggregateException so the skip reason
+            // surfaces the actionable inner message ("Docker is not running...")
+            // instead of the generic "One or more errors occurred." wrapper.
+            var reported = ex is AggregateException aggregate && aggregate.InnerException is not null
+                ? aggregate.InnerException
+                : ex;
+            UnavailableReason = $"{reported.GetType().Name}: {reported.Message}";
             IsAvailable = false;
         }
 
