@@ -121,10 +121,24 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
         // Daemon down / no Docker socket / Windows-containers mode on a
         // Linux-image pull all surface as one of these.
-        return inner is IOException
+        if (inner is IOException
             || inner is SocketException
             || inner is PlatformNotSupportedException
-            || (inner.GetType().FullName ?? string.Empty).StartsWith("Docker.DotNet.", StringComparison.Ordinal);
+            || (inner.GetType().FullName ?? string.Empty).StartsWith("Docker.DotNet.", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        // Testcontainers' MsSqlBuilder.Build() runs synchronous Validate()
+        // before any await; when Docker isn't installed (e.g. macOS GHA
+        // runners) Validate throws ArgumentException with
+        // ParamName="DockerEndpointAuthConfig". Catch that specific case so
+        // Stage 3 macOS skips cleanly instead of failing every integration
+        // test in the collection. Any other ArgumentException — bad image
+        // tag, misconfigured builder, etc. — still propagates as a real
+        // failure because the ParamName differs.
+        return inner is ArgumentException argumentException
+            && string.Equals(argumentException.ParamName, "DockerEndpointAuthConfig", StringComparison.Ordinal);
     }
 
 
