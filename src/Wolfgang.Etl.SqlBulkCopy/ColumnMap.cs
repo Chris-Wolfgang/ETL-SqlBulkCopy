@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Wolfgang.Etl.SqlBulkCopy;
@@ -115,7 +114,7 @@ public sealed class ColumnMap
 
 
 
-    [ExcludeFromCodeCoverage]
+
     private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo)
     {
         return instance => propertyInfo.GetValue(obj: instance);
