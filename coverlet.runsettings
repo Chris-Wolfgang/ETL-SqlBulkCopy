@@ -7,6 +7,15 @@
           <Format>cobertura</Format>
           <ExcludeByFile>**/bin/**/*.cs;**/obj/**/*.cs</ExcludeByFile>
           <ExcludeByAttribute>ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <!--
+            Instrument the test assembly itself in addition to the source
+            assembly. Surfaces dead test helpers, unused fakes, and unused
+            test-model branches so they can be cleaned up or covered. The
+            ExcludeFromCodeCoverage attribute (when present) still opts a
+            type out — the few legitimate cases (e.g. polyfill markers
+            with no body) stay excluded.
+          -->
+          <IncludeTestAssembly>true</IncludeTestAssembly>
         </Configuration>
       </DataCollector>
     </DataCollectors>
