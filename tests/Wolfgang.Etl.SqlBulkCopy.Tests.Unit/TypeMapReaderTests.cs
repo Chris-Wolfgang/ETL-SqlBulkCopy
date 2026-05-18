@@ -392,4 +392,141 @@ public class TypeMapReaderTests
             () => reader.GetOrdinal(null!)
         );
     }
+
+
+
+    // --- NotSupportedException overrides ---
+    //
+    // SqlBulkCopy never calls these typed accessors — it routes everything
+    // through GetValue / IsDBNull. The overrides exist because DbDataReader
+    // declares them as abstract, and they explicitly throw to make the
+    // unsupported contract loud rather than returning garbage. The tests
+    // below pin that contract so a future "let's just implement these"
+    // refactor has to consciously delete the test.
+
+    [Fact]
+    public void GetBoolean_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetBoolean(0));
+    }
+
+    [Fact]
+    public void GetByte_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetByte(0));
+    }
+
+    [Fact]
+    public void GetBytes_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetBytes(0, 0L, buffer: null, bufferOffset: 0, length: 0));
+    }
+
+    [Fact]
+    public void GetChar_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetChar(0));
+    }
+
+    [Fact]
+    public void GetChars_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetChars(0, 0L, buffer: null, bufferOffset: 0, length: 0));
+    }
+
+    [Fact]
+    public void GetDataTypeName_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetDataTypeName(0));
+    }
+
+    [Fact]
+    public void GetDateTime_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetDateTime(0));
+    }
+
+    [Fact]
+    public void GetDecimal_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetDecimal(0));
+    }
+
+    [Fact]
+    public void GetDouble_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetDouble(0));
+    }
+
+    [Fact]
+    public void GetFieldType_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetFieldType(0));
+    }
+
+    [Fact]
+    public void GetFloat_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetFloat(0));
+    }
+
+    [Fact]
+    public void GetGuid_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetGuid(0));
+    }
+
+    [Fact]
+    public void GetInt16_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetInt16(0));
+    }
+
+    [Fact]
+    public void GetInt32_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetInt32(0));
+    }
+
+    [Fact]
+    public void GetInt64_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetInt64(0));
+    }
+
+    [Fact]
+    public void GetString_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetString(0));
+    }
+
+    [Fact]
+    public void GetValues_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetValues(new object[1]));
+    }
+
+    [Fact]
+    public void GetEnumerator_throws_NotSupportedException()
+    {
+        var reader = CreateReader(Array.Empty<object>());
+        Assert.Throws<NotSupportedException>(() => reader.GetEnumerator());
+    }
 }

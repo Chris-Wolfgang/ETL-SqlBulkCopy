@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -150,5 +151,65 @@ public class NestedTableMapTests
         var values = sut.GetValues(parent).ToList();
 
         Assert.Equal(2, values.Count);
+    }
+
+
+
+    // --- Defensive fallback paths in CreateValuesGetter ---
+    //
+    // BuildNestedTableMaps's filter normally rejects these shapes (non-generic
+    // IEnumerable element type, non-enumerable runtime value), so they're
+    // exercised by constructing NestedTableMap directly with PropertyInfo
+    // pointing at the contrived test types below.
+
+    private sealed class ParentWithNonGenericEnumerable
+    {
+        // Property typed as non-generic IEnumerable. The runtime value is an
+        // ArrayList — implements IEnumerable but not IEnumerable<object>, so
+        // the typed-cast branch fails and the non-generic Cast<object>
+        // branch is exercised.
+        public IEnumerable Items { get; init; } = new ArrayList();
+    }
+
+    private sealed class ParentWithNonEnumerableObject
+    {
+        // Property typed as object so PropertyInfo.GetValue can return
+        // something that is not IEnumerable at all (here, a boxed int).
+        // Exercises the final "cannot be enumerated" throw.
+        public object Items { get; init; } = 42;
+    }
+
+
+
+    [Fact]
+    public void GetValues_when_value_is_non_generic_IEnumerable_returns_cast_items()
+    {
+        var propertyInfo = typeof(ParentWithNonGenericEnumerable).GetProperty(nameof(ParentWithNonGenericEnumerable.Items))!;
+        var childMap = TypeMap.Create(typeof(ChildRecord));
+        var sut = new NestedTableMap(propertyInfo, childMap);
+        var parent = new ParentWithNonGenericEnumerable
+        {
+            Items = new ArrayList { "a", "b", "c" }
+        };
+
+        var values = sut.GetValues(parent).ToList();
+
+        Assert.Equal(3, values.Count);
+        Assert.Equal(new object[] { "a", "b", "c" }, values);
+    }
+
+
+
+    [Fact]
+    public void GetValues_when_value_is_not_enumerable_throws_InvalidOperationException()
+    {
+        var propertyInfo = typeof(ParentWithNonEnumerableObject).GetProperty(nameof(ParentWithNonEnumerableObject.Items))!;
+        var childMap = TypeMap.Create(typeof(ChildRecord));
+        var sut = new NestedTableMap(propertyInfo, childMap);
+        var parent = new ParentWithNonEnumerableObject { Items = 42 };
+
+        var ex = Assert.Throws<InvalidOperationException>(() => sut.GetValues(parent).ToList());
+
+        Assert.Contains("cannot be enumerated", ex.Message, StringComparison.Ordinal);
     }
 }
