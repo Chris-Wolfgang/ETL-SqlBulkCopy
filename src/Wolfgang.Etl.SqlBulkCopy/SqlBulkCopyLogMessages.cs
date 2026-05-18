@@ -78,6 +78,16 @@ internal static class SqlBulkCopyLogMessages
 
 
 
+    private static readonly Action<ILogger, string, int, Exception?> NestedValidationFailedMessage =
+        LoggerMessage.Define<string, int>
+        (
+            LogLevel.Warning,
+            new EventId(106, nameof(NestedValidationFailed)),
+            "Validation failed for nested-table '{TableName}' child with {ErrorCount} errors."
+        );
+
+
+
     private static readonly Action<ILogger, string, Exception?> ExecutingPreActionMessage =
         LoggerMessage.Define<string>
         (
@@ -118,6 +128,9 @@ internal static class SqlBulkCopyLogMessages
 
     internal static void NestedTableBatchWritten(ILogger logger, string tableName, int itemCount, Exception? exception) =>
         NestedTableBatchWrittenMessage(logger, tableName, itemCount, exception);
+
+    internal static void NestedValidationFailed(ILogger logger, string tableName, int errorCount, Exception? exception) =>
+        NestedValidationFailedMessage(logger, tableName, errorCount, exception);
 
     internal static void ExecutingPreAction(ILogger logger, string preAction, Exception? exception) =>
         ExecutingPreActionMessage(logger, preAction, exception);

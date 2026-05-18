@@ -224,15 +224,18 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </summary>
     /// <value>The default is <c>false</c>.</value>
     /// <remarks>
-    /// Enabling validation adds per-item overhead. Validation is applied recursively:
-    /// root <typeparamref name="TRecord"/> instances run through
-    /// <see cref="OnValidationFailed"/>, and nested-collection child instances
-    /// (mapped to child tables) run through <see cref="OnNestedValidationFailed"/>.
-    /// Root items failing validation are skipped and counted in
+    /// Enabling validation adds per-item overhead. Validation is applied recursively
+    /// to root <typeparamref name="TRecord"/> instances and to every level of
+    /// nested-collection children. Validation failures are always logged and the
+    /// failing item is dropped from its write; consumers can additionally observe
+    /// the failure by setting the matching callback — <see cref="OnValidationFailed"/>
+    /// for root items, <see cref="OnNestedValidationFailed"/> for nested children
+    /// — but both callbacks are optional. Root items failing validation are skipped
+    /// and counted in
     /// <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>;
-    /// nested children failing validation are dropped from their child-table
-    /// write but do not contribute to the root skipped-count (the count tracks
-    /// source-level skips).
+    /// nested children failing validation are dropped from their child-table write
+    /// but do not contribute to the root skipped-count (the count tracks source-level
+    /// skips only).
     /// </remarks>
     public bool EnableDataValidation { get; set; }
 
@@ -508,7 +511,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             {
                 token.ThrowIfCancellationRequested();
 
-                if (EnableDataValidation && !ValidateNestedItem(child))
+                if (EnableDataValidation && !ValidateNestedItem(child, nestedMap.ChildTypeMap))
                 {
                     // Drop the failing child without breaking the streaming
                     // batch boundary — buffer fill rate is unaffected by
@@ -608,11 +611,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
     /// <summary>
     /// Validates a nested-collection child instance. Mirrors <see cref="ValidateItem"/>
-    /// but routes failures to <see cref="OnNestedValidationFailed"/> and does not
-    /// touch <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>
+    /// but routes failures to <see cref="OnNestedValidationFailed"/>, logs a
+    /// nested-specific message that carries the child table name (so the
+    /// log line identifies which nested table a failing child belonged to),
+    /// and does not touch
+    /// <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>
     /// — the source-level skip counter only reflects root items.
     /// </summary>
-    private bool ValidateNestedItem(object item)
+    private bool ValidateNestedItem(object item, TypeMap childTypeMap)
     {
         var context = new ValidationContext(item);
         var results = new List<ValidationResult>();
@@ -622,8 +628,13 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             return true;
         }
 
-        var position = (CurrentItemCount + CurrentSkippedItemCount).ToString(System.Globalization.CultureInfo.InvariantCulture);
-        SqlBulkCopyLogMessages.ValidationFailed(_logger, position, results.Count, exception: null);
+        SqlBulkCopyLogMessages.NestedValidationFailed
+        (
+            _logger,
+            childTypeMap.QualifiedTableName,
+            results.Count,
+            exception: null
+        );
 
         OnNestedValidationFailed?.Invoke(item, results);
 
