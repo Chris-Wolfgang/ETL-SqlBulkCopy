@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 
-[ExcludeFromCodeCoverage]
 internal sealed class FakeSqlBulkCopyWrapperFactory : ISqlBulkCopyWrapperFactory
 {
     private readonly List<FakeSqlBulkCopyWrapper> _createdWrappers = new();
