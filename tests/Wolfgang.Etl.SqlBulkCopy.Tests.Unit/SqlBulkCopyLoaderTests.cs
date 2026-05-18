@@ -310,6 +310,165 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    // --- Nested-child validation tests (Issue #27) ---
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_skips_invalid_nested_children_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
+        {
+            EnableDataValidation = true
+        };
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children =
+                [
+                    new ValidatableChild { Id = 10, Name = "ok",          Quantity = 5 },
+                    new ValidatableChild { Id = 11, Name = "",            Quantity = 5 },   // Required fails
+                    new ValidatableChild { Id = 12, Name = "out-of-range", Quantity = 9000 } // Range fails
+                ]
+            }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        // The child-table wrapper(s) should have received only the 1 valid child.
+        // Wrappers are created lazily — find the one writing to the Children table.
+        var childWrapper = factory.CreatedWrappers.Single
+        (
+            w => string.Equals(w.DestinationTableName, "[Children]", StringComparison.Ordinal)
+        );
+        Assert.Equal(1, childWrapper.BatchRowCounts.Sum());
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_invokes_OnNestedValidationFailed_for_invalid_children_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var capturedChildren = new List<object>();
+        var capturedErrorCounts = new List<int>();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
+        {
+            EnableDataValidation = true,
+            OnNestedValidationFailed = (child, errors) =>
+            {
+                capturedChildren.Add(child);
+                capturedErrorCounts.Add(errors.Count);
+            }
+        };
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children =
+                [
+                    new ValidatableChild { Id = 10, Name = "ok",   Quantity = 5 },
+                    new ValidatableChild { Id = 11, Name = "",     Quantity = 5 },   // Required fails
+                    new ValidatableChild { Id = 12, Name = "also", Quantity = 9000 } // Range fails
+                ]
+            }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        Assert.Equal(2, capturedChildren.Count);
+        Assert.Contains(capturedChildren, c => ((ValidatableChild)c).Id == 11);
+        Assert.Contains(capturedChildren, c => ((ValidatableChild)c).Id == 12);
+        Assert.All(capturedErrorCounts, count => Assert.True(count >= 1));
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_validates_grandchildren_recursively_Async()
+    {
+        // Two levels deep: parent → child → grandchild. The grandchild has its
+        // own [Required] Label; an empty Label must be dropped from the
+        // grandchild table without affecting the parent or its valid child.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
+        {
+            EnableDataValidation = true
+        };
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children =
+                [
+                    new ValidatableChild
+                    {
+                        Id = 10,
+                        Name = "ok",
+                        Quantity = 5,
+                        Grandchildren =
+                        [
+                            new ValidatableGrandchild { Id = 100, Label = "ok" },
+                            new ValidatableGrandchild { Id = 101, Label = "" } // Required fails
+                        ]
+                    }
+                ]
+            }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        var grandchildWrapper = factory.CreatedWrappers.Single
+        (
+            w => string.Equals(w.DestinationTableName, "[Grandchildren]", StringComparison.Ordinal)
+        );
+        Assert.Equal(1, grandchildWrapper.BatchRowCounts.Sum());
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_disabled_does_not_skip_invalid_nested_children_Async()
+    {
+        // Sanity: with EnableDataValidation = false, invalid children are
+        // still written. This is the existing default behavior.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer);
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children =
+                [
+                    new ValidatableChild { Id = 10, Name = "ok", Quantity = 5 },
+                    new ValidatableChild { Id = 11, Name = "",   Quantity = 5 }
+                ]
+            }
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        var childWrapper = factory.CreatedWrappers.Single
+        (
+            w => string.Equals(w.DestinationTableName, "[Children]", StringComparison.Ordinal)
+        );
+        Assert.Equal(2, childWrapper.BatchRowCounts.Sum());
+    }
+
+
+
     // --- Nested table tests ---
 
     [Fact]

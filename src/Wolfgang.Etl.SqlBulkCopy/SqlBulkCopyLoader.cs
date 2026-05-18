@@ -224,21 +224,47 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </summary>
     /// <value>The default is <c>false</c>.</value>
     /// <remarks>
-    /// Enabling validation adds per-item overhead. Items failing validation are skipped
-    /// and counted in <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>.
+    /// Enabling validation adds per-item overhead. Validation is applied recursively:
+    /// root <typeparamref name="TRecord"/> instances run through
+    /// <see cref="OnValidationFailed"/>, and nested-collection child instances
+    /// (mapped to child tables) run through <see cref="OnNestedValidationFailed"/>.
+    /// Root items failing validation are skipped and counted in
+    /// <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>;
+    /// nested children failing validation are dropped from their child-table
+    /// write but do not contribute to the root skipped-count (the count tracks
+    /// source-level skips).
     /// </remarks>
     public bool EnableDataValidation { get; set; }
 
 
 
     /// <summary>
-    /// Gets or sets an optional callback invoked when an item fails validation.
+    /// Gets or sets an optional callback invoked when a root
+    /// <typeparamref name="TRecord"/> fails validation.
     /// </summary>
     /// <remarks>
     /// Only invoked when <see cref="EnableDataValidation"/> is <c>true</c>.
-    /// The callback receives the item and the collection of validation errors.
+    /// The callback receives the failing root item and the collection of
+    /// validation errors. For nested-collection children, see
+    /// <see cref="OnNestedValidationFailed"/> instead.
     /// </remarks>
     public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; set; }
+
+
+
+    /// <summary>
+    /// Gets or sets an optional callback invoked when a nested-collection
+    /// child instance fails validation.
+    /// </summary>
+    /// <remarks>
+    /// Only invoked when <see cref="EnableDataValidation"/> is <c>true</c>.
+    /// The callback receives the failing child (as <see cref="object"/> because
+    /// the child type is resolved at load time, not at <typeparamref name="TRecord"/>
+    /// definition) and the collection of validation errors. The failing child is
+    /// dropped from its child-table write. For root-item validation, see
+    /// <see cref="OnValidationFailed"/>.
+    /// </remarks>
+    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; set; }
 
 
 
@@ -481,6 +507,16 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             foreach (var child in nestedMap.GetValues(parent))
             {
                 token.ThrowIfCancellationRequested();
+
+                if (EnableDataValidation && !ValidateNestedItem(child))
+                {
+                    // Drop the failing child without breaking the streaming
+                    // batch boundary — buffer fill rate is unaffected by
+                    // skipped children, so cancellation/timeout semantics
+                    // remain consistent with the un-validated path.
+                    continue;
+                }
+
                 buffer.Add(child);
 
                 if (buffer.Count >= _batchSize)
@@ -564,6 +600,32 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
         OnValidationFailed?.Invoke(item, results);
         IncrementCurrentSkippedItemCount();
+
+        return false;
+    }
+
+
+
+    /// <summary>
+    /// Validates a nested-collection child instance. Mirrors <see cref="ValidateItem"/>
+    /// but routes failures to <see cref="OnNestedValidationFailed"/> and does not
+    /// touch <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>
+    /// — the source-level skip counter only reflects root items.
+    /// </summary>
+    private bool ValidateNestedItem(object item)
+    {
+        var context = new ValidationContext(item);
+        var results = new List<ValidationResult>();
+
+        if (Validator.TryValidateObject(item, context, results, validateAllProperties: true))
+        {
+            return true;
+        }
+
+        var position = (CurrentItemCount + CurrentSkippedItemCount).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        SqlBulkCopyLogMessages.ValidationFailed(_logger, position, results.Count, exception: null);
+
+        OnNestedValidationFailed?.Invoke(item, results);
 
         return false;
     }
