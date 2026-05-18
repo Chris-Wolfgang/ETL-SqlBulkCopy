@@ -1,9 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels;
 
-[ExcludeFromCodeCoverage]
 [Table("Widgets", Schema = "dbo")]
 public record WidgetRecord
 {

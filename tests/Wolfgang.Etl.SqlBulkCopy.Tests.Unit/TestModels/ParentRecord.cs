@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 
-[ExcludeFromCodeCoverage]
 [Table("ParentRecords")]
 public record ParentRecord
 {

@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 
-[ExcludeFromCodeCoverage]
 internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 {
     private readonly List<(string Source, string Destination)> _columnMappings = new();
