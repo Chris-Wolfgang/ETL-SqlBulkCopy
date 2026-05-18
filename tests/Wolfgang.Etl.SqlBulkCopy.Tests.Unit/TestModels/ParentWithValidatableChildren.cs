@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 
@@ -10,7 +9,6 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 /// element type carries DataAnnotation attributes so individual children
 /// can be invalid independently of the root.
 /// </summary>
-[ExcludeFromCodeCoverage]
 [Table("Parents")]
 public record ParentWithValidatableChildren
 {
@@ -21,7 +19,6 @@ public record ParentWithValidatableChildren
 
 
 
-[ExcludeFromCodeCoverage]
 [Table("Children")]
 public record ValidatableChild
 {
@@ -39,7 +36,6 @@ public record ValidatableChild
 
 
 
-[ExcludeFromCodeCoverage]
 [Table("Grandchildren")]
 public record ValidatableGrandchild
 {
