@@ -1,4 +1,3 @@
-
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 
 /// <summary>
