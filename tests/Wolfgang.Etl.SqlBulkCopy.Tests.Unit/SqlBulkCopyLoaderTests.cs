@@ -267,7 +267,8 @@ public class SqlBulkCopyLoaderTests
         var timer = new ManualProgressTimer();
         var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
         {
-            EnableDataValidation = true
+            EnableDataValidation = true,
+            ValidationFailureBehavior = ValidationFailureBehavior.Skip
         };
 
         var items = new[]
@@ -294,6 +295,7 @@ public class SqlBulkCopyLoaderTests
         var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
         {
             EnableDataValidation = true,
+            ValidationFailureBehavior = ValidationFailureBehavior.Skip,
             OnValidationFailed = (_, errors) => capturedErrors.Add(errors)
         };
 
@@ -319,7 +321,8 @@ public class SqlBulkCopyLoaderTests
         var timer = new ManualProgressTimer();
         var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
         {
-            EnableDataValidation = true
+            EnableDataValidation = true,
+            ValidationFailureBehavior = ValidationFailureBehavior.Skip
         };
 
         var items = new[]
@@ -359,6 +362,7 @@ public class SqlBulkCopyLoaderTests
         var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
         {
             EnableDataValidation = true,
+            ValidationFailureBehavior = ValidationFailureBehavior.Skip,
             OnNestedValidationFailed = (child, errors) =>
             {
                 capturedChildren.Add(child);
@@ -400,7 +404,8 @@ public class SqlBulkCopyLoaderTests
         var timer = new ManualProgressTimer();
         var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
         {
-            EnableDataValidation = true
+            EnableDataValidation = true,
+            ValidationFailureBehavior = ValidationFailureBehavior.Skip
         };
 
         var items = new[]
@@ -469,6 +474,99 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    // --- ValidationFailureBehavior.Throw (default) tests ---
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_default_behavior_throws_SqlBulkCopyValidationException_for_root_Async()
+    {
+        // Default ValidationFailureBehavior is Throw. A failing root item
+        // should raise SqlBulkCopyValidationException carrying the item
+        // and its ValidationResults.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
+        {
+            EnableDataValidation = true
+            // ValidationFailureBehavior left at default (Throw)
+        };
+
+        var items = new[]
+        {
+            new ValidatableRecord { Id = 1, Name = "", Quantity = 5 } // Required fails
+        };
+
+        var ex = await Assert.ThrowsAsync<SqlBulkCopyValidationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        var failing = Assert.IsType<ValidatableRecord>(ex.Item);
+        Assert.Equal(1, failing.Id);
+        Assert.NotEmpty(ex.ValidationResults);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_default_behavior_invokes_OnValidationFailed_before_throwing_Async()
+    {
+        // The OnValidationFailed callback must fire before the throw so a
+        // single hook can log / inspect the failure regardless of mode.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var capturedBeforeThrow = false;
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
+        {
+            EnableDataValidation = true,
+            OnValidationFailed = (_, _) => capturedBeforeThrow = true
+        };
+
+        var items = new[]
+        {
+            new ValidatableRecord { Id = 1, Name = "", Quantity = 5 }
+        };
+
+        await Assert.ThrowsAsync<SqlBulkCopyValidationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        Assert.True(capturedBeforeThrow);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_default_behavior_throws_SqlBulkCopyValidationException_for_nested_child_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
+        {
+            EnableDataValidation = true
+        };
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children = [new ValidatableChild { Id = 10, Name = "", Quantity = 5 }] // Required fails
+            }
+        };
+
+        var ex = await Assert.ThrowsAsync<SqlBulkCopyValidationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        var failing = Assert.IsType<ValidatableChild>(ex.Item);
+        Assert.Equal(10, failing.Id);
+        Assert.NotEmpty(ex.ValidationResults);
+    }
+
+
+
     // --- Nested table tests ---
 
     [Fact]
@@ -518,7 +616,8 @@ public class SqlBulkCopyLoaderTests
         var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
         {
             SkipItemCount = 1,
-            EnableDataValidation = true
+            EnableDataValidation = true,
+            ValidationFailureBehavior = ValidationFailureBehavior.Skip
         };
 
         var items = new[]

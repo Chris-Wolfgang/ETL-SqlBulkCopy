@@ -226,18 +226,32 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <remarks>
     /// Enabling validation adds per-item overhead. Validation is applied recursively
     /// to root <typeparamref name="TRecord"/> instances and to every level of
-    /// nested-collection children. Validation failures are always logged and the
-    /// failing item is dropped from its write; consumers can additionally observe
-    /// the failure by setting the matching callback — <see cref="OnValidationFailed"/>
-    /// for root items, <see cref="OnNestedValidationFailed"/> for nested children
-    /// — but both callbacks are optional. Root items failing validation are skipped
-    /// and counted in
-    /// <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>;
-    /// nested children failing validation are dropped from their child-table write
-    /// but do not contribute to the root skipped-count (the count tracks source-level
-    /// skips only).
+    /// nested-collection children. How a failure is handled is controlled by
+    /// <see cref="ValidationFailureBehavior"/> — the default is to throw a
+    /// <see cref="SqlBulkCopyValidationException"/>, which fails loudly and
+    /// stops the load. Set <see cref="ValidationFailureBehavior"/> to
+    /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip"/>
+    /// to tolerate dirty data and drop only the failing items.
     /// </remarks>
     public bool EnableDataValidation { get; set; }
+
+
+
+    /// <summary>
+    /// Gets or sets how the loader reacts to a validation failure when
+    /// <see cref="EnableDataValidation"/> is <c>true</c>.
+    /// </summary>
+    /// <value>
+    /// The default is
+    /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw"/>.
+    /// </value>
+    /// <remarks>
+    /// See <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior"/>
+    /// for the semantics of each option. The same setting applies to both
+    /// root <typeparamref name="TRecord"/> instances and nested-collection
+    /// children.
+    /// </remarks>
+    public ValidationFailureBehavior ValidationFailureBehavior { get; set; } = ValidationFailureBehavior.Throw;
 
 
 
@@ -247,9 +261,12 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </summary>
     /// <remarks>
     /// Only invoked when <see cref="EnableDataValidation"/> is <c>true</c>.
-    /// The callback receives the failing root item and the collection of
-    /// validation errors. For nested-collection children, see
-    /// <see cref="OnNestedValidationFailed"/> instead.
+    /// The callback runs <em>before</em> the configured
+    /// <see cref="ValidationFailureBehavior"/> takes effect, so consumers
+    /// can log / inspect the failing item from a single hook regardless of
+    /// whether the loader then throws or skips. The callback receives the
+    /// failing root item and the collection of validation errors. For
+    /// nested-collection children, see <see cref="OnNestedValidationFailed"/>.
     /// </remarks>
     public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; set; }
 
@@ -261,11 +278,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </summary>
     /// <remarks>
     /// Only invoked when <see cref="EnableDataValidation"/> is <c>true</c>.
-    /// The callback receives the failing child (as <see cref="object"/> because
-    /// the child type is resolved at load time, not at <typeparamref name="TRecord"/>
-    /// definition) and the collection of validation errors. The failing child is
-    /// dropped from its child-table write. For root-item validation, see
-    /// <see cref="OnValidationFailed"/>.
+    /// The callback runs <em>before</em> the configured
+    /// <see cref="ValidationFailureBehavior"/> takes effect. The child is
+    /// passed as <see cref="object"/> because the child type is resolved at
+    /// load time, not at <typeparamref name="TRecord"/> definition. For
+    /// root-item validation, see <see cref="OnValidationFailed"/>.
     /// </remarks>
     public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; set; }
 
@@ -588,6 +605,18 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    /// <summary>
+    /// Validates a root <typeparamref name="TRecord"/>. Returns <c>true</c>
+    /// if the item passed (continue processing) or <c>false</c> if the item
+    /// failed and the loader is configured to skip
+    /// (<see cref="ValidationFailureBehavior.Skip"/>).
+    /// </summary>
+    /// <exception cref="SqlBulkCopyValidationException">
+    /// Thrown when the item fails validation and
+    /// <see cref="ValidationFailureBehavior"/> is
+    /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw"/>
+    /// (the default).
+    /// </exception>
     private bool ValidateItem(TRecord item)
     {
         var context = new ValidationContext(item);
@@ -601,9 +630,16 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         var position = (CurrentItemCount + CurrentSkippedItemCount).ToString(System.Globalization.CultureInfo.InvariantCulture);
         SqlBulkCopyLogMessages.ValidationFailed(_logger, position, results.Count, exception: null);
 
+        // Run the consumer's hook before deciding throw vs. skip so a single
+        // callback works for both modes.
         OnValidationFailed?.Invoke(item, results);
-        IncrementCurrentSkippedItemCount();
 
+        if (ValidationFailureBehavior == ValidationFailureBehavior.Throw)
+        {
+            throw new SqlBulkCopyValidationException(item, results);
+        }
+
+        IncrementCurrentSkippedItemCount();
         return false;
     }
 
@@ -614,10 +650,17 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// but routes failures to <see cref="OnNestedValidationFailed"/>, logs a
     /// nested-specific message that carries the child table name (so the
     /// log line identifies which nested table a failing child belonged to),
-    /// and does not touch
+    /// honors <see cref="ValidationFailureBehavior"/> the same way as root
+    /// validation, and (when skipping) does not touch
     /// <see cref="LoaderBase{TDestination, TProgress}.CurrentSkippedItemCount"/>
     /// — the source-level skip counter only reflects root items.
     /// </summary>
+    /// <exception cref="SqlBulkCopyValidationException">
+    /// Thrown when the child fails validation and
+    /// <see cref="ValidationFailureBehavior"/> is
+    /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw"/>
+    /// (the default).
+    /// </exception>
     private bool ValidateNestedItem(object item, TypeMap childTypeMap)
     {
         var context = new ValidationContext(item);
@@ -637,6 +680,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         );
 
         OnNestedValidationFailed?.Invoke(item, results);
+
+        if (ValidationFailureBehavior == ValidationFailureBehavior.Throw)
+        {
+            throw new SqlBulkCopyValidationException(item, results);
+        }
 
         return false;
     }
