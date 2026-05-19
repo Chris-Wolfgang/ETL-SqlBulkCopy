@@ -88,9 +88,17 @@ internal sealed class NestedTableMap
 
     private static Func<object, IEnumerable<object>> CreateValuesGetter(PropertyInfo propertyInfo)
     {
+        // Compile the property accessor once via Expression.Lambda — same
+        // shape as PropertyInfo.GetValue but emits direct IL, removing the
+        // reflection dispatch from the per-parent-batch hot path during
+        // nested-table flattening. The enumerable-vs-not branch logic stays
+        // in user code because it depends on the runtime value, not on
+        // the property's compile-time type.
+        var compiledGetter = ReflectionHelpers.CompilePropertyGetter(propertyInfo);
+
         return obj =>
         {
-            var value = propertyInfo.GetValue(obj);
+            var value = compiledGetter(obj);
             if (value is null)
             {
                 throw new InvalidOperationException

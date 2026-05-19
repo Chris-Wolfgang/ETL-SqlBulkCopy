@@ -117,6 +117,9 @@ public sealed class ColumnMap
 
     private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo)
     {
-        return instance => propertyInfo.GetValue(obj: instance);
+        // Expression-tree compiled getter — emits direct IL that calls the
+        // property's getter, avoiding the per-row PropertyInfo.GetValue
+        // reflection dispatch on the bulk-copy hot path.
+        return ReflectionHelpers.CompilePropertyGetter(propertyInfo);
     }
 }
