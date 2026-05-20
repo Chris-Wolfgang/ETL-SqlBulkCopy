@@ -15,6 +15,7 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 public sealed class ColumnMap
 {
     private readonly Func<object, object?> _getter;
+    private readonly Func<object, object>? _enumConverter;
 
 
 
@@ -52,6 +53,14 @@ public sealed class ColumnMap
         Ordinal = ordinal;
 
         _getter = CreateGetter(propertyInfo);
+
+        // Precompute the enum→underlying-integral converter once per column.
+        // ClrType is already nullable-unwrapped, so a nullable enum property
+        // is still detected here (and the per-row null check happens before
+        // the converter is invoked, so we never pass null to it).
+        _enumConverter = ClrType.IsEnum
+            ? ReflectionHelpers.CompileEnumToUnderlyingConverter(ClrType)
+            : null;
     }
 
 
@@ -111,6 +120,22 @@ public sealed class ColumnMap
     /// <param name="instance">The object to read the property value from.</param>
     /// <returns>The property value, or <c>null</c> if the property is null.</returns>
     internal object? GetValue(object instance) => _getter(instance);
+
+
+
+    /// <summary>
+    /// When the mapped property's <see cref="ClrType"/> is an enum, converts
+    /// a non-null boxed value of that enum to its underlying integral type
+    /// (also boxed). Returns <see langword="null"/> when this column is not
+    /// an enum-typed column.
+    /// </summary>
+    /// <remarks>
+    /// Used by <c>TypeMapReader.GetValue</c> to avoid per-row reflection
+    /// (<see cref="object.GetType()"/> + <see cref="Enum.GetUnderlyingType(Type)"/>)
+    /// on enum columns. The delegate itself is compiled once at type-map
+    /// build time and emits a direct unbox-and-cast IL sequence.
+    /// </remarks>
+    internal Func<object, object>? EnumConverter => _enumConverter;
 
 
 

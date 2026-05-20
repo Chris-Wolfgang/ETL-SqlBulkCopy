@@ -160,4 +160,108 @@ public class ReflectionHelpersTests
 
         Assert.Equal(new DateTime(2026, 5, 19, 0, 0, 0, DateTimeKind.Utc), value);
     }
+
+
+
+    // --- CompileEnumToUnderlyingConverter ---
+
+    private enum IntBacked
+    {
+        Zero = 0,
+        One = 1,
+        Big = 1_000_000
+    }
+
+    private enum ByteBacked : byte
+    {
+        Zero = 0,
+        Hundred = 100,
+        Max = 255
+    }
+
+    private enum LongBacked : long
+    {
+        Zero = 0,
+        Big = 9_000_000_000L
+    }
+
+    private enum ShortBacked : short
+    {
+        Negative = -32_000,
+        Positive = 32_000
+    }
+
+
+
+    [Fact]
+    public void CompileEnumToUnderlyingConverter_when_enumType_is_null_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => ReflectionHelpers.CompileEnumToUnderlyingConverter(null!)
+        );
+    }
+
+
+
+    [Fact]
+    public void CompileEnumToUnderlyingConverter_when_type_is_not_enum_throws_ArgumentException()
+    {
+        Assert.Throws<ArgumentException>
+        (
+            () => ReflectionHelpers.CompileEnumToUnderlyingConverter(typeof(int))
+        );
+    }
+
+
+
+    [Fact]
+    public void CompileEnumToUnderlyingConverter_for_int_backed_enum_returns_boxed_int()
+    {
+        var converter = ReflectionHelpers.CompileEnumToUnderlyingConverter(typeof(IntBacked));
+
+        var value = converter(IntBacked.Big);
+
+        Assert.IsType<int>(value);
+        Assert.Equal(1_000_000, value);
+    }
+
+
+
+    [Fact]
+    public void CompileEnumToUnderlyingConverter_for_byte_backed_enum_returns_boxed_byte()
+    {
+        var converter = ReflectionHelpers.CompileEnumToUnderlyingConverter(typeof(ByteBacked));
+
+        var value = converter(ByteBacked.Hundred);
+
+        Assert.IsType<byte>(value);
+        Assert.Equal((byte)100, value);
+    }
+
+
+
+    [Fact]
+    public void CompileEnumToUnderlyingConverter_for_long_backed_enum_returns_boxed_long()
+    {
+        var converter = ReflectionHelpers.CompileEnumToUnderlyingConverter(typeof(LongBacked));
+
+        var value = converter(LongBacked.Big);
+
+        Assert.IsType<long>(value);
+        Assert.Equal(9_000_000_000L, value);
+    }
+
+
+
+    [Fact]
+    public void CompileEnumToUnderlyingConverter_for_short_backed_enum_preserves_sign()
+    {
+        var converter = ReflectionHelpers.CompileEnumToUnderlyingConverter(typeof(ShortBacked));
+
+        var value = converter(ShortBacked.Negative);
+
+        Assert.IsType<short>(value);
+        Assert.Equal((short)-32_000, value);
+    }
 }

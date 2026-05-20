@@ -94,13 +94,13 @@ internal sealed class TypeMapReader : DbDataReader
             return DBNull.Value;
         }
 
-        // Convert enum values to their underlying integral type
-        if (rawValue.GetType().IsEnum)
-        {
-            return Convert.ChangeType(rawValue, Enum.GetUnderlyingType(rawValue.GetType()), provider: System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        return rawValue;
+        // Convert enum values to their underlying integral type. The
+        // converter delegate is compiled once at ColumnMap construction (and
+        // is `null` for non-enum columns) so the hot path doesn't reflect
+        // on the runtime type per row.
+        return column.EnumConverter is not null
+            ? column.EnumConverter(rawValue)
+            : rawValue;
     }
 
 
