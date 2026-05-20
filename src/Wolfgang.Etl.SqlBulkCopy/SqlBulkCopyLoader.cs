@@ -340,7 +340,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
         await ExecutePreActionAsync(typeMap, token).ConfigureAwait(false);
 
-        _batchCount = 0;
+        Volatile.Write(ref _batchCount, 0); // paired with Volatile.Read in CreateProgressReport
         var skipCounter = 0;
         var batch = new List<TRecord>(_batchSize);
         var factory = _wrapperFactory ?? CreateFactory();
@@ -396,7 +396,10 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         (
             CurrentItemCount,
             CurrentSkippedItemCount,
-            _batchCount
+            // CreateProgressReport runs on the progress-timer thread, so read
+            // _batchCount with Volatile.Read to reliably observe the latest
+            // value written by Interlocked.Increment on the loader thread.
+            Volatile.Read(ref _batchCount)
         );
 
 
@@ -467,11 +470,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                 await WriteToTableAsync(chunk, typeMap, factory, token).ConfigureAwait(false);
                 // Interlocked: CreateProgressReport() may read _batchCount from the
                 // progress-timer thread.
-                Interlocked.Increment(ref _batchCount);
+                var batchCount = Interlocked.Increment(ref _batchCount);
 
                 if (isRoot)
                 {
-                    SqlBulkCopyLogMessages.BatchWritten(_logger, _batchCount, chunk.Count, exception: null);
+                    SqlBulkCopyLogMessages.BatchWritten(_logger, batchCount, chunk.Count, exception: null);
                 }
                 else
                 {
