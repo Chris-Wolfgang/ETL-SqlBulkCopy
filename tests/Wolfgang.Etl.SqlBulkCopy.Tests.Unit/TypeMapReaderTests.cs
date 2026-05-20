@@ -295,6 +295,85 @@ public class TypeMapReaderTests
 
 
     [Fact]
+    public void GetValue_with_byte_backed_enum_returns_boxed_byte()
+    {
+        var typeMap = TypeMap.Create(typeof(MultiUnderlyingEnumRecord));
+        var batch = new object[]
+        {
+            new MultiUnderlyingEnumRecord
+            {
+                Id = 1,
+                ByteValue = ByteEnum.Hundred,
+                ShortValue = ShortEnum.Max,
+                LongValue = LongEnum.Huge
+            }
+        };
+        var reader = new TypeMapReader(batch, typeMap);
+        reader.Read();
+
+        // Also read the non-enum Id column so the test exercises every
+        // property on the model.
+        Assert.Equal(1, reader.GetValue(reader.GetOrdinal("Id")));
+
+        var value = reader.GetValue(reader.GetOrdinal("ByteValue"));
+
+        Assert.IsType<byte>(value);
+        Assert.Equal((byte)100, value);
+    }
+
+
+
+    [Fact]
+    public void GetValue_with_short_backed_enum_returns_boxed_short_preserving_sign()
+    {
+        var typeMap = TypeMap.Create(typeof(MultiUnderlyingEnumRecord));
+        var batch = new object[]
+        {
+            new MultiUnderlyingEnumRecord
+            {
+                Id = 1,
+                ByteValue = ByteEnum.Zero,
+                ShortValue = ShortEnum.Min,
+                LongValue = LongEnum.Zero
+            }
+        };
+        var reader = new TypeMapReader(batch, typeMap);
+        reader.Read();
+
+        var value = reader.GetValue(reader.GetOrdinal("ShortValue"));
+
+        Assert.IsType<short>(value);
+        Assert.Equal((short)-30_000, value);
+    }
+
+
+
+    [Fact]
+    public void GetValue_with_long_backed_enum_returns_boxed_long()
+    {
+        var typeMap = TypeMap.Create(typeof(MultiUnderlyingEnumRecord));
+        var batch = new object[]
+        {
+            new MultiUnderlyingEnumRecord
+            {
+                Id = 1,
+                ByteValue = ByteEnum.Zero,
+                ShortValue = ShortEnum.Max,
+                LongValue = LongEnum.Huge
+            }
+        };
+        var reader = new TypeMapReader(batch, typeMap);
+        reader.Read();
+
+        var value = reader.GetValue(reader.GetOrdinal("LongValue"));
+
+        Assert.IsType<long>(value);
+        Assert.Equal(9_000_000_000L, value);
+    }
+
+
+
+    [Fact]
     public void GetValue_with_negative_ordinal_throws_ArgumentOutOfRangeException()
     {
         var batch = new object[]

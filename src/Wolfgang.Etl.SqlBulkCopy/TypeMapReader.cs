@@ -97,9 +97,11 @@ internal sealed class TypeMapReader : DbDataReader
         // Convert enum values to their underlying integral type. The
         // converter delegate is compiled once at ColumnMap construction (and
         // is `null` for non-enum columns) so the hot path doesn't reflect
-        // on the runtime type per row.
-        return column.EnumConverter is not null
-            ? column.EnumConverter(rawValue)
+        // on the runtime type per row. Read the delegate into a local so the
+        // per-row path touches the property once.
+        var enumConverter = column.EnumConverter;
+        return enumConverter is not null
+            ? enumConverter(rawValue)
             : rawValue;
     }
 
