@@ -12,6 +12,17 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// </summary>
 /// <remarks>
 /// <para>
+/// The loader always raises this exception through the
+/// <see cref="SqlBulkCopyValidationException(object, IReadOnlyList{ValidationResult})"/>
+/// constructor, so <see cref="Item"/> and <see cref="ValidationResults"/> are
+/// populated for every instance the library itself throws. The conventional
+/// <see cref="Exception"/> constructors are also provided so the type is a
+/// well-behaved framework citizen (catch-rethrow with a custom message,
+/// wrapping an inner exception); instances created that way have a
+/// <see langword="null"/> <see cref="Item"/> and an empty
+/// <see cref="ValidationResults"/>.
+/// </para>
+/// <para>
 /// <see cref="Item"/> is the failing instance — typed as <see cref="object"/>
 /// because the failure can come from either the root <c>TRecord</c> or a
 /// nested-collection child whose type is only known at load time. Callers
@@ -27,6 +38,48 @@ public sealed class SqlBulkCopyValidationException : Exception
     /// <summary>
     /// Initializes a new instance of the
     /// <see cref="SqlBulkCopyValidationException"/> class.
+    /// </summary>
+    public SqlBulkCopyValidationException()
+    {
+        ValidationResults = Array.Empty<ValidationResult>();
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="SqlBulkCopyValidationException"/> class with a specified
+    /// error message.
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
+    public SqlBulkCopyValidationException(string message)
+        : base(message)
+    {
+        ValidationResults = Array.Empty<ValidationResult>();
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="SqlBulkCopyValidationException"/> class with a specified
+    /// error message and a reference to the inner exception that caused it.
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
+    /// <param name="innerException">The exception that is the cause of this exception.</param>
+    public SqlBulkCopyValidationException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+        ValidationResults = Array.Empty<ValidationResult>();
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="SqlBulkCopyValidationException"/> class for a specific
+    /// failing item and its validation errors. This is the constructor the
+    /// loader uses.
     /// </summary>
     /// <param name="item">The item that failed validation.</param>
     /// <param name="validationResults">The validation errors.</param>
@@ -48,14 +101,18 @@ public sealed class SqlBulkCopyValidationException : Exception
 
 
     /// <summary>
-    /// Gets the item that failed validation.
+    /// Gets the item that failed validation, or <c>null</c> when the
+    /// exception was created through one of the conventional
+    /// <see cref="Exception"/> constructors.
     /// </summary>
-    public object Item { get; }
+    public object? Item { get; }
 
 
 
     /// <summary>
-    /// Gets the validation errors produced by DataAnnotations.
+    /// Gets the validation errors produced by DataAnnotations. Empty when the
+    /// exception was created through one of the conventional
+    /// <see cref="Exception"/> constructors.
     /// </summary>
     public IReadOnlyList<ValidationResult> ValidationResults { get; }
 
