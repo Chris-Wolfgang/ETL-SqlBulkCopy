@@ -29,8 +29,12 @@ internal static class ReflectionHelpers
     /// Thrown when <paramref name="propertyInfo"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="propertyInfo"/> has no declaring type or no
-    /// readable getter.
+    /// Thrown when <paramref name="propertyInfo"/> has no declaring type, no
+    /// readable getter, or takes index parameters (indexer properties cannot
+    /// be invoked without arguments and are not supported by the bulk-copy
+    /// type-map filter — surfacing the failure here gives a clearer error
+    /// than the <see cref="Expression.Property(Expression, PropertyInfo)"/>
+    /// internals would).
     /// </exception>
     internal static Func<object, object?> CompilePropertyGetter(PropertyInfo propertyInfo)
     {
@@ -53,6 +57,19 @@ internal static class ReflectionHelpers
             throw new ArgumentException
             (
                 $"Property '{propertyInfo.Name}' has no readable getter.",
+                nameof(propertyInfo)
+            );
+        }
+
+        if (propertyInfo.GetIndexParameters().Length != 0)
+        {
+            throw new ArgumentException
+            (
+                $"Property '{propertyInfo.Name}' is an indexer and cannot be " +
+                "compiled to a parameterless getter. Bulk-copy column / nested-table " +
+                "maps already reject indexers via " +
+                "TypeMap.IsReadableInstanceProperty — surfacing it here keeps the " +
+                "contract consistent for any future direct caller.",
                 nameof(propertyInfo)
             );
         }

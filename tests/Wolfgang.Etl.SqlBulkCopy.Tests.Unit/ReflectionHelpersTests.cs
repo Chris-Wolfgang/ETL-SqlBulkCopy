@@ -58,6 +58,27 @@ public class ReflectionHelpersTests
 
 
     [Fact]
+    public void CompilePropertyGetter_when_property_is_indexer_throws_ArgumentException()
+    {
+        // Sample exposes `string this[int i]` — an indexer that PropertyInfo
+        // can find via the indexer's compiler-emitted name. Compiling it
+        // would fail deep inside Expression.Property; the helper short-
+        // circuits with a clearer ArgumentException.
+        var indexer = typeof(Sample).GetProperty
+        (
+            "Item",
+            BindingFlags.Public | BindingFlags.Instance
+        )!;
+
+        Assert.Throws<ArgumentException>
+        (
+            () => ReflectionHelpers.CompilePropertyGetter(indexer)
+        );
+    }
+
+
+
+    [Fact]
     public void CompilePropertyGetter_reads_value_type_property_as_boxed_object()
     {
         var prop = typeof(Sample).GetProperty(nameof(Sample.IntProp))!;
