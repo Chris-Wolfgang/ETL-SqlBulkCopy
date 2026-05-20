@@ -88,14 +88,30 @@ internal static class ReflectionHelpers
 
 
     /// <summary>
-    /// Compiles a delegate that converts a boxed enum value to its underlying
-    /// integral type (also boxed). Equivalent semantics to
-    /// <c>Convert.ChangeType(boxedEnum, Enum.GetUnderlyingType(enumType))</c>
-    /// but with the type-discovery work paid once at compile time, eliminating
-    /// the per-row <see cref="object.GetType()"/> and
-    /// <see cref="Enum.GetUnderlyingType(Type)"/> reflection calls in
-    /// <c>TypeMapReader.GetValue</c>.
+    /// Compiles a delegate that converts a boxed value of <paramref name="enumType"/>
+    /// to its underlying integral type (also boxed).
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The returned delegate is <strong>not</strong> a general-purpose
+    /// converter. It is a compiled <c>(object boxed) =&gt; (object)(TUnderlying)(TEnum)boxed</c>
+    /// closed over the specific <paramref name="enumType"/>: the input
+    /// <c>boxed</c> argument must be a boxed value of exactly that enum
+    /// type. Passing a boxed underlying integral value, a different enum
+    /// type, or any other object throws <see cref="InvalidCastException"/>
+    /// at the unbox step.
+    /// </para>
+    /// <para>
+    /// This is the intended trade-off: the type-discovery work that
+    /// <c>Convert.ChangeType(boxedEnum, Enum.GetUnderlyingType(enumType))</c>
+    /// performs per call is paid once here at compile time, eliminating the
+    /// per-row <see cref="object.GetType()"/> and
+    /// <see cref="Enum.GetUnderlyingType(Type)"/> reflection in
+    /// <c>TypeMapReader.GetValue</c> — which only ever invokes the delegate
+    /// with values read from a property whose declared type is
+    /// <paramref name="enumType"/>.
+    /// </para>
+    /// </remarks>
     /// <param name="enumType">The enum type to compile a converter for.</param>
     /// <returns>
     /// A delegate equivalent to <c>(object boxed) =&gt; (object)(TUnderlying)(TEnum)boxed</c>.
