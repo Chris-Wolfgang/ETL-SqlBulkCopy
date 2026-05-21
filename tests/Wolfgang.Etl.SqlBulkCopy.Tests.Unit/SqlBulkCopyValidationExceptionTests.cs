@@ -59,8 +59,43 @@ public class SqlBulkCopyValidationExceptionTests
 
         Assert.Same(item, ex.Item);
         Assert.Single(ex.ValidationResults);
+        // Assert the meaningful parts (type name + error count) without
+        // locking the test to the exact message wording.
         Assert.Contains("ValidatableRecord", ex.Message, StringComparison.Ordinal);
-        Assert.Contains("1 errors", ex.Message, StringComparison.Ordinal);
+        Assert.Contains("1", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
+    public void Item_constructor_message_uses_singular_error_for_one_failure()
+    {
+        var ex = new SqlBulkCopyValidationException
+        (
+            new ValidatableRecord(),
+            new List<ValidationResult> { new ValidationResult("one") }
+        );
+
+        Assert.Contains("1 error.", ex.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("1 errors", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
+    public void Item_constructor_message_uses_plural_errors_for_multiple_failures()
+    {
+        var ex = new SqlBulkCopyValidationException
+        (
+            new ValidatableRecord(),
+            new List<ValidationResult>
+            {
+                new ValidationResult("one"),
+                new ValidationResult("two")
+            }
+        );
+
+        Assert.Contains("2 errors.", ex.Message, StringComparison.Ordinal);
     }
 
 
