@@ -41,7 +41,6 @@ public sealed class SqlBulkCopyValidationException : Exception
     /// </summary>
     public SqlBulkCopyValidationException()
     {
-        ValidationResults = Array.Empty<ValidationResult>();
     }
 
 
@@ -55,7 +54,6 @@ public sealed class SqlBulkCopyValidationException : Exception
     public SqlBulkCopyValidationException(string message)
         : base(message)
     {
-        ValidationResults = Array.Empty<ValidationResult>();
     }
 
 
@@ -70,7 +68,6 @@ public sealed class SqlBulkCopyValidationException : Exception
     public SqlBulkCopyValidationException(string message, Exception innerException)
         : base(message, innerException)
     {
-        ValidationResults = Array.Empty<ValidationResult>();
     }
 
 
@@ -112,9 +109,10 @@ public sealed class SqlBulkCopyValidationException : Exception
     /// <summary>
     /// Gets the validation errors produced by DataAnnotations. Empty when the
     /// exception was created through one of the conventional
-    /// <see cref="Exception"/> constructors.
+    /// <see cref="Exception"/> constructors — the property initializer below
+    /// supplies the empty default, and only the rich constructor overrides it.
     /// </summary>
-    public IReadOnlyList<ValidationResult> ValidationResults { get; }
+    public IReadOnlyList<ValidationResult> ValidationResults { get; } = Array.Empty<ValidationResult>();
 
 
 
@@ -133,6 +131,7 @@ public sealed class SqlBulkCopyValidationException : Exception
         }
 
         var count = validationResults?.Count ?? 0;
-        return $"DataAnnotation validation failed for '{item.GetType().Name}' with {count} errors.";
+        var errorWord = count == 1 ? "error" : "errors";
+        return $"DataAnnotation validation failed for '{item.GetType().Name}' with {count} {errorWord}.";
     }
 }
