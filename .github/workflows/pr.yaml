@@ -278,7 +278,13 @@ jobs:
       # repository so APT verifies the package via GPG instead of a plain wget download.
       - name: Install OpenSSL 1.1 for .NET 5.0
         run: |
-          echo "deb https://security.ubuntu.com/ubuntu focal-security main" | sudo tee /etc/apt/sources.list.d/focal-security.list
+          # signed-by= points apt at the Canonical archive keyring that ships on all
+          # GitHub-hosted Ubuntu runners. It contains the same signing key Canonical
+          # uses across releases (focal, jammy, noble), so it can verify focal-security
+          # packages from a non-focal runner without disabling signature checking.
+          # Earlier iteration used [trusted=yes] (skipping verification) as a quick
+          # unblock; this restores end-to-end signature verification.
+          echo "deb [signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] https://security.ubuntu.com/ubuntu focal-security main" | sudo tee /etc/apt/sources.list.d/focal-security.list
           sudo apt-get update -q
           sudo apt-get install --yes libssl1.1
           sudo rm /etc/apt/sources.list.d/focal-security.list
@@ -294,6 +300,12 @@ jobs:
             8.0.x
             9.0.x
             10.0.x
+
+      - name: Restore .NET workloads
+        # Some projects (MAUI / MauiHybrid / Android / iOS / WPF) declare workloads via
+        # their TFMs (e.g. net10.0-android). For workload-bearing repos this installs them
+        # before restore; for pure libraries it's a fast no-op.
+        run: dotnet workload restore
 
       - name: Restore and build (exclude .NET Framework-only projects)
         run: |
@@ -560,6 +572,10 @@ jobs:
           persist-credentials: false
       
       - name: Fetch trusted configuration files from main branch
+        # Skip for Dependabot — its package-version bumps to protected files (e.g.
+        # Directory.Build.props) are legitimate and should not be overwritten by main's
+        # older versions. Dependabot's identity is GitHub-controlled and not spoofable.
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
         shell: pwsh
         run: |
           Write-Host "Fetching configuration files from main branch to prevent malicious overrides..."
@@ -615,6 +631,12 @@ jobs:
             8.0.x
             9.0.x
             10.0.x
+
+      - name: Restore .NET workloads
+        # Some projects (MAUI / MauiHybrid / Android / iOS / WPF) declare workloads via
+        # their TFMs (e.g. net10.0-android). For workload-bearing repos this installs them
+        # before restore; for pure libraries it's a fast no-op.
+        run: dotnet workload restore
 
       - name: Restore dependencies
         run: dotnet restore
@@ -730,22 +752,55 @@ jobs:
             -targetdir:"CoverageReport" `
             -reporttypes:"Html;TextSummary;MarkdownSummaryGithub;CsvSummary"
 
-      # Coverage gate is enforced on Stage 1 (Linux) only — Linux can run the full
-      # test suite including integration tests against a Linux SQL Server container.
-      # Windows runs the same .NET tests for cross-platform runtime validation but
-      # cannot host Linux containers without Docker Desktop, so its coverage report
-      # would always be incomplete. Stage 2's value is "the library runs on Windows
-      # and .NET Framework," not "coverage is X% on Windows."
-      - name: Display Windows coverage summary (informational)
+      - name: Enforce 90% coverage threshold
         if: steps.check-coverage.outputs.has-coverage == 'true'
         shell: pwsh
         run: |
-          if (Test-Path "CoverageReport/Summary.txt") {
-            Write-Host "Coverage Summary (Windows — not gated):"
-            Get-Content "CoverageReport/Summary.txt"
-          } else {
-            Write-Host "ℹ️  No coverage summary generated (CoverageReport/Summary.txt not found — ReportGenerator may have skipped due to missing coverage files)."
+          if (-not (Test-Path "CoverageReport/Summary.txt")) {
+            Write-Error "❌ Coverage report not generated!"
+            exit 1
           }
+
+          Write-Host "Coverage Summary:"
+          Get-Content "CoverageReport/Summary.txt"
+          Write-Host ""
+
+          $threshold = if ($env:CODECOV_MINIMUM) { [int]$env:CODECOV_MINIMUM } else { 90 }
+          $failedProjects = @()
+
+          foreach ($line in (Get-Content "CoverageReport/Summary.txt")) {
+            if ($line -match '^\s*(\S+)\s+(\d+(?:\.\d+)?)%\s*$' -and $line -notmatch '^\s*Summary') {
+              $module  = $Matches[1]
+              $percent = [int][math]::Floor([double]$Matches[2])
+
+              Write-Host "Checking module: '$module' - Coverage: ${percent}%"
+
+              if ($percent -lt $threshold) {
+                Write-Host "  ❌ FAIL: Below ${threshold}% threshold" -ForegroundColor Red
+                $failedProjects += "$module (${percent}%)"
+              } else {
+                Write-Host "  ✅ PASS: Meets ${threshold}% threshold" -ForegroundColor Green
+              }
+            }
+          }
+
+          if ($failedProjects.Count -gt 0) {
+            Write-Host ""
+            Write-Host "==========================================" -ForegroundColor Red
+            Write-Host "❌ COVERAGE GATE FAILED" -ForegroundColor Red
+            Write-Host "==========================================" -ForegroundColor Red
+            Write-Host "Projects below ${threshold}% coverage: $($failedProjects -join ', ')" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "Stage 2 failed. macOS tests will NOT run."
+            exit 1
+          }
+
+          Write-Host ""
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "✅ COVERAGE GATE PASSED" -ForegroundColor Green
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "All projects meet ${threshold}% coverage threshold."
+          Write-Host "Proceeding to Stage 3 (macOS tests)."
 
       - name: Upload Windows coverage results
         if: always()
@@ -830,6 +885,12 @@ jobs:
             8.0.x
             9.0.x
             10.0.x
+
+      - name: Restore .NET workloads
+        # Some projects (MAUI / MauiHybrid / Android / iOS / WPF) declare workloads via
+        # their TFMs (e.g. net10.0-android). For workload-bearing repos this installs them
+        # before restore; for pure libraries it's a fast no-op.
+        run: dotnet workload restore
 
       - name: Restore and build (exclude .NET Framework-only projects)
         run: |
@@ -1005,19 +1066,49 @@ jobs:
             echo "ℹ️  No coverage files found - skipping report generation"
           fi
 
-      # Coverage gate is enforced on Stage 1 (Linux) only — see Stage 2 comment.
-      # macOS GHA runners have no Docker at all, so they cannot run integration
-      # tests against a SQL Server container. The macOS stage's purpose is to
-      # validate that the library builds and runs on macOS .NET (ARM64), not to
-      # re-measure coverage.
-      - name: Display macOS coverage summary (informational)
+      - name: Enforce 90% coverage threshold
         run: |
-          if [ -f "CoverageReport/Summary.txt" ]; then
-            echo "Coverage Summary (macOS — not gated):"
-            cat CoverageReport/Summary.txt
-          else
-            echo "ℹ️  No coverage summary generated (CoverageReport/Summary.txt not found — ReportGenerator may have skipped due to missing coverage files)."
+          if [ ! -f "CoverageReport/Summary.txt" ]; then
+            echo "❌ Coverage report not generated!"
+            exit 1
           fi
+
+          echo "Coverage Summary:"
+          cat CoverageReport/Summary.txt
+          echo ""
+
+          THRESHOLD=${CODECOV_MINIMUM:-90}
+          FAILED=0
+
+          while IFS= read -r line; do
+            if echo "$line" | grep -qE '^[^ ]+.*[0-9]+%$' && ! echo "$line" | grep -q '^Summary'; then
+              MODULE=$(echo "$line" | awk '{print $1}')
+              PERCENT=$(echo "$line" | grep -oE '[0-9]+(\.[0-9]+)?%' | tail -1 | grep -oE '^[0-9]+')
+              echo "Checking module: '$MODULE' - Coverage: ${PERCENT}%"
+              if [ "$PERCENT" -lt "$THRESHOLD" ]; then
+                echo "  ❌ FAIL: Below ${THRESHOLD}% threshold"
+                FAILED=1
+              else
+                echo "  ✅ PASS: Meets ${THRESHOLD}% threshold"
+              fi
+            fi
+          done < CoverageReport/Summary.txt
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo ""
+            echo "=========================================="
+            echo "❌ COVERAGE GATE FAILED"
+            echo "=========================================="
+            echo "One or more modules are below ${THRESHOLD}% coverage."
+            echo "Stage 3 failed."
+            exit 1
+          fi
+
+          echo ""
+          echo "=========================================="
+          echo "✅ COVERAGE GATE PASSED"
+          echo "=========================================="
+          echo "All modules meet ${THRESHOLD}% coverage threshold."
 
       - name: Upload macOS coverage results
         if: always()
@@ -1055,9 +1146,9 @@ jobs:
           echo "=========================================="
           echo "✅ ALL STAGES PASSED"
           echo "=========================================="
-          echo "Stage 1: Linux tests + 90% coverage gate ✅"
-          echo "Stage 2: Windows .NET Core & .NET Framework tests (informational coverage) ✅"
-          echo "Stage 3: macOS tests (informational coverage) ✅"
+          echo "Stage 1: Linux tests + 90% coverage ✅"
+          echo "Stage 2: Windows .NET Core & .NET Framework tests ✅"
+          echo "Stage 3: macOS tests ✅"
           echo ""
           echo "PR is ready to merge! 🎉"
 
