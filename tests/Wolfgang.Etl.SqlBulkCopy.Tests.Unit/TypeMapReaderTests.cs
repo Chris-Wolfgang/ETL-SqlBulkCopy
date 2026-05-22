@@ -303,9 +303,9 @@ public class TypeMapReaderTests
             new MultiUnderlyingEnumRecord
             {
                 Id = 1,
-                ByteValue = ByteEnum.Hundred,
-                ShortValue = ShortEnum.Max,
-                LongValue = LongEnum.Huge
+                ByteValue = ByteKind.Hundred,
+                ShortValue = ShortKind.Max,
+                LongValue = LongKind.Huge
             }
         };
         var reader = new TypeMapReader(batch, typeMap);
@@ -332,9 +332,9 @@ public class TypeMapReaderTests
             new MultiUnderlyingEnumRecord
             {
                 Id = 1,
-                ByteValue = ByteEnum.Zero,
-                ShortValue = ShortEnum.Min,
-                LongValue = LongEnum.Zero
+                ByteValue = ByteKind.Zero,
+                ShortValue = ShortKind.Min,
+                LongValue = LongKind.Zero
             }
         };
         var reader = new TypeMapReader(batch, typeMap);
@@ -357,9 +357,9 @@ public class TypeMapReaderTests
             new MultiUnderlyingEnumRecord
             {
                 Id = 1,
-                ByteValue = ByteEnum.Zero,
-                ShortValue = ShortEnum.Max,
-                LongValue = LongEnum.Huge
+                ByteValue = ByteKind.Zero,
+                ShortValue = ShortKind.Max,
+                LongValue = LongKind.Huge
             }
         };
         var reader = new TypeMapReader(batch, typeMap);

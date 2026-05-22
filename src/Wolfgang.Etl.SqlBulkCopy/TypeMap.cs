@@ -205,8 +205,10 @@ internal sealed class TypeMap
         try
         {
             var map = BuildTypeMap(type, schemaName, tableName, typesInProgress);
-            Cache.TryAdd(cacheKey, map);
-            return map;
+            // GetOrAdd, not TryAdd: if another thread built and cached the
+            // same key concurrently, return that thread's instance so a
+            // given cache key always resolves to a single shared TypeMap.
+            return Cache.GetOrAdd(cacheKey, map);
         }
         finally
         {
