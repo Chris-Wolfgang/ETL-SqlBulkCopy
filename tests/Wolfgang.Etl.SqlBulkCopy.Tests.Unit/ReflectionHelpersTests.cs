@@ -6,6 +6,16 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
 public class ReflectionHelpersTests
 {
+    // The Sample type deliberately contains property shapes that
+    // CompilePropertyGetter's guard clauses must reject — an indexer and a
+    // write-only property. The static analyzers can't see that these are
+    // exercised via reflection (GetProperty + the guard tests below), so
+    // they flag them as dead/ill-formed code. Suppress those specific rules
+    // for this fixture type only:
+    //   S1144 — unused private member (the indexer)
+    //   S2376 — write-only property (SetOnly, intentional)
+    //   S4487 — unread private field (_setOnlyBacking, backs SetOnly)
+#pragma warning disable S1144, S2376, S4487
     private sealed class Sample
     {
         public int IntProp { get; init; }
@@ -20,12 +30,11 @@ public class ReflectionHelpersTests
 
         public string SetOnly
         {
-            // ReSharper disable once UnusedMember.Local — covered by the
-            // "no getter throws" test.
             set { _setOnlyBacking = value; }
         }
         private string _setOnlyBacking = string.Empty;
     }
+#pragma warning restore S1144, S2376, S4487
 
 
 
