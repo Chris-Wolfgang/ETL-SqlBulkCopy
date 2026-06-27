@@ -63,6 +63,117 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    [Fact]
+    public void Constructor_with_connection_only_succeeds_with_closed_connection()
+    {
+        // A closed SqlConnection is enough to construct — the loader does not
+        // open it until LoadAsync runs. Covers the public (SqlConnection)
+        // constructor body which integration tests would otherwise be the
+        // only callers of.
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>(connection);
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_connection_and_logger_when_logger_is_null_throws_ArgumentNullException()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>(connection, (Microsoft.Extensions.Logging.ILogger<SqlBulkCopyLoader<TestRecord>>)null!)
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_connection_and_logger_when_connection_is_null_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+            )
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_connection_and_logger_succeeds()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+        );
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_when_connection_is_null_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+                transaction: null
+            )
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_succeeds_without_logger()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+            transaction: null
+        );
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_succeeds_with_logger()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+            transaction: null,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+        );
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
     // --- Property tests ---
 
     [Fact]

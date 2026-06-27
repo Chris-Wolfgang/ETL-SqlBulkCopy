@@ -775,6 +775,12 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    // ExcludeFromCodeCoverage: pre-action SQL paths (DeleteAllRecords,
+    // TruncateTable, CustomAction) require a live SqlConnection — they are
+    // covered end-to-end by the integration test suite, which runs against a
+    // Testcontainers-hosted SQL Server. Unit-testing them would mean mocking
+    // SqlCommand, which proves the test setup, not the loader's behavior.
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private async Task ExecutePreActionAsync(TypeMap typeMap, CancellationToken token)
     {
         if (PreAction == PreAction.None)
@@ -822,6 +828,10 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    // ExcludeFromCodeCoverage: post-action SQL paths require a live
+    // SqlConnection — same justification as ExecutePreActionAsync above.
+    // Integration tests cover the actual SQL behavior.
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private async Task ExecutePostActionAsync(TypeMap typeMap, CancellationToken token)
     {
         if (PostAction == PostAction.None)
@@ -853,6 +863,10 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    // ExcludeFromCodeCoverage: builds + executes a SqlCommand against the
+    // live SqlConnection. Same justification as the wrapper classes — unit
+    // testing would mean mocking SqlCommand. Integration tests exercise it.
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private async Task ExecuteSqlCommandAsync(string commandText, CancellationToken token)
     {
         EnsureConnectionAvailable("SQL command execution");
@@ -885,6 +899,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    // ExcludeFromCodeCoverage: builds the production SqlBulkCopyWrapperFactory
+    // which wraps Microsoft.Data.SqlClient.SqlBulkCopy — already excluded for
+    // the same "thin SDK pass-through" reason. Reached only via the public
+    // SqlConnection constructors; integration tests exercise it end-to-end.
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private ISqlBulkCopyWrapperFactory CreateFactory()
     {
         EnsureConnectionAvailable("bulk copy");

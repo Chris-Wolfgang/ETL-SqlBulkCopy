@@ -39,6 +39,52 @@ public class ReflectionHelpersTests
 
 
     [Fact]
+    public void CompilePropertyGetter_when_declaringType_is_null_throws_ArgumentException()
+    {
+        // PropertyInfo from typeof(object).GetMethod("ToString")?.ReturnParameter
+        // would be a parameter, not a property — we need a real PropertyInfo
+        // whose DeclaringType is null. Build a Moq-free fake by subclassing
+        // PropertyInfo and overriding DeclaringType to return null.
+        var fake = new NullDeclaringTypePropertyInfo();
+
+        var ex = Assert.Throws<ArgumentException>
+        (
+            () => ReflectionHelpers.CompilePropertyGetter(fake)
+        );
+
+        Assert.Contains("no declaring type", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    // ExcludeFromCodeCoverage: this PropertyInfo subclass exists solely to
+    // supply a single value (DeclaringType => null) that the production
+    // helper's guard clause must reject. The rest of the overrides are
+    // boilerplate to satisfy the abstract base and are not exercised.
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    private sealed class NullDeclaringTypePropertyInfo : PropertyInfo
+    {
+        public override Type? DeclaringType => null;
+        public override string Name => "Fake";
+        public override Type PropertyType => typeof(string);
+        public override PropertyAttributes Attributes => PropertyAttributes.None;
+        public override bool CanRead => true;
+        public override bool CanWrite => false;
+        public override Type ReflectedType => typeof(object);
+        public override MethodInfo[] GetAccessors(bool nonPublic) => Array.Empty<MethodInfo>();
+        public override MethodInfo? GetGetMethod(bool nonPublic) => null;
+        public override MethodInfo? GetSetMethod(bool nonPublic) => null;
+        public override ParameterInfo[] GetIndexParameters() => Array.Empty<ParameterInfo>();
+        public override object? GetValue(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? index, System.Globalization.CultureInfo? culture) => null;
+        public override void SetValue(object? obj, object? value, BindingFlags invokeAttr, Binder? binder, object?[]? index, System.Globalization.CultureInfo? culture) { }
+        public override object[] GetCustomAttributes(bool inherit) => Array.Empty<object>();
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit) => Array.Empty<object>();
+        public override bool IsDefined(Type attributeType, bool inherit) => false;
+    }
+
+
+
+    [Fact]
     public void CompilePropertyGetter_when_propertyInfo_is_null_throws_ArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>
