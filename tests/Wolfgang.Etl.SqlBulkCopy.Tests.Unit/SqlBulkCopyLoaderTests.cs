@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -12,6 +13,35 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
 public class SqlBulkCopyLoaderTests
 {
+    // Microsoft.Data.SqlClient 6.x's SqlPerformanceCounters cctor depends on
+    // Windows-only PerformanceCounter and on perf-counter categories that may
+    // not exist on every runner. When the cctor throws TypeInitializationException
+    // (Linux, locked-down Windows boxes), tests that need a real SqlConnection
+    // instance skip rather than fail. Determine this once per process.
+    private static readonly Lazy<bool> _sqlConnectionConstructible = new(IsSqlConnectionConstructible, LazyThreadSafetyMode.PublicationOnly);
+
+    private static bool IsSqlConnectionConstructible()
+    {
+        try
+        {
+            using var probe = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+            return true;
+        }
+        catch (TypeInitializationException)
+        {
+            return false;
+        }
+    }
+
+    private static void SkipUnlessSqlConnectionConstructible()
+    {
+        Skip.IfNot
+        (
+            _sqlConnectionConstructible.Value,
+            "Microsoft.Data.SqlClient cannot initialize on this runner (SqlPerformanceCounters cctor failed); ctor test covered by environments where SqlConnection is constructible."
+        );
+    }
+
     private static SqlBulkCopyLoader<TestRecord> CreateSut()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
@@ -63,9 +93,11 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_with_connection_only_succeeds_with_closed_connection()
     {
+        SkipUnlessSqlConnectionConstructible();
+
         // A closed SqlConnection is enough to construct — the loader does not
         // open it until LoadAsync runs. Covers the public (SqlConnection)
         // constructor body which integration tests would otherwise be the
@@ -79,9 +111,11 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_with_connection_and_logger_when_logger_is_null_throws_ArgumentNullException()
     {
+        SkipUnlessSqlConnectionConstructible();
+
         using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
 
         Assert.Throws<ArgumentNullException>
@@ -107,9 +141,11 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_with_connection_and_logger_succeeds()
     {
+        SkipUnlessSqlConnectionConstructible();
+
         using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>
@@ -139,9 +175,11 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_full_succeeds_without_logger()
     {
+        SkipUnlessSqlConnectionConstructible();
+
         using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>
@@ -156,9 +194,11 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_full_succeeds_with_logger()
     {
+        SkipUnlessSqlConnectionConstructible();
+
         using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>
