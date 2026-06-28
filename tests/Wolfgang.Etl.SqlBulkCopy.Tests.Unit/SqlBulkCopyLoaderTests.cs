@@ -24,7 +24,7 @@ public class SqlBulkCopyLoaderTests
     {
         try
         {
-            using var probe = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+            using var probe = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
             return true;
         }
         catch (TypeInitializationException)
@@ -102,7 +102,7 @@ public class SqlBulkCopyLoaderTests
         // open it until LoadAsync runs. Covers the public (SqlConnection)
         // constructor body which integration tests would otherwise be the
         // only callers of.
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>(connection);
 
@@ -116,7 +116,7 @@ public class SqlBulkCopyLoaderTests
     {
         SkipUnlessSqlConnectionConstructible();
 
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
         Assert.Throws<ArgumentNullException>
         (
@@ -146,7 +146,7 @@ public class SqlBulkCopyLoaderTests
     {
         SkipUnlessSqlConnectionConstructible();
 
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>
         (
@@ -180,7 +180,7 @@ public class SqlBulkCopyLoaderTests
     {
         SkipUnlessSqlConnectionConstructible();
 
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>
         (
@@ -199,7 +199,7 @@ public class SqlBulkCopyLoaderTests
     {
         SkipUnlessSqlConnectionConstructible();
 
-        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
         var sut = new SqlBulkCopyLoader<TestRecord>
         (
