@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 
 namespace Wolfgang.Etl.SqlBulkCopy;
@@ -7,6 +8,14 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// Production implementation of <see cref="ISqlBulkCopyWrapperFactory"/> that creates
 /// <see cref="SqlBulkCopyWrapper"/> instances using a real <see cref="SqlConnection"/>.
 /// </summary>
+/// <remarks>
+/// Excluded from code coverage for the same reason as
+/// <see cref="SqlBulkCopyWrapper"/> — a constructor capture + one-line
+/// <see cref="Create"/> factory whose only meaningful test is "does it produce
+/// a working <see cref="Microsoft.Data.SqlClient.SqlBulkCopy"/>?", which only
+/// answers itself against a real SQL Server. The integration tests cover that.
+/// </remarks>
+[ExcludeFromCodeCoverage]
 internal sealed class SqlBulkCopyWrapperFactory : ISqlBulkCopyWrapperFactory
 {
     private readonly SqlConnection _connection;

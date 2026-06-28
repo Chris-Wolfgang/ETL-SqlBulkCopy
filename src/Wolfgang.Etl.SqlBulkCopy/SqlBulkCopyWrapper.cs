@@ -1,5 +1,6 @@
 using System;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -10,6 +11,16 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// Production implementation of <see cref="ISqlBulkCopyWrapper"/> that delegates
 /// to <see cref="Microsoft.Data.SqlClient.SqlBulkCopy"/>.
 /// </summary>
+/// <remarks>
+/// Excluded from code coverage because every member is a one-line pass-through
+/// to <see cref="Microsoft.Data.SqlClient.SqlBulkCopy"/>. Unit-testing these
+/// would amount to either mocking <see cref="Microsoft.Data.SqlClient.SqlBulkCopy"/>
+/// itself (proving the test setup, not our code) or requiring a live SQL Server
+/// connection — which is what the integration tests in
+/// <c>Wolfgang.Etl.SqlBulkCopy.Tests.Integration</c> already do against a
+/// Testcontainers-hosted SQL Server. Behavior coverage lives there.
+/// </remarks>
+[ExcludeFromCodeCoverage]
 internal sealed class SqlBulkCopyWrapper : ISqlBulkCopyWrapper
 {
     private readonly Microsoft.Data.SqlClient.SqlBulkCopy _bulkCopy;

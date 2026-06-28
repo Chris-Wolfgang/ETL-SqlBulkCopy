@@ -63,6 +63,117 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    [Fact]
+    public void Constructor_with_connection_only_succeeds_with_closed_connection()
+    {
+        // A closed SqlConnection is enough to construct — the loader does not
+        // open it until LoadAsync runs. Covers the public (SqlConnection)
+        // constructor body which integration tests would otherwise be the
+        // only callers of.
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>(connection);
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_connection_and_logger_when_logger_is_null_throws_ArgumentNullException()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>(connection, (Microsoft.Extensions.Logging.ILogger<SqlBulkCopyLoader<TestRecord>>)null!)
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_connection_and_logger_when_connection_is_null_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+            )
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_with_connection_and_logger_succeeds()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+        );
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_when_connection_is_null_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>
+        (
+            () => new SqlBulkCopyLoader<TestRecord>
+            (
+                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+                transaction: null
+            )
+        );
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_succeeds_without_logger()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+            transaction: null
+        );
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
+    [Fact]
+    public void Constructor_full_succeeds_with_logger()
+    {
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;");
+
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            connection,
+            Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
+            transaction: null,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
+        );
+
+        Assert.Equal(10_000, sut.BatchSize);
+    }
+
+
+
     // --- Property tests ---
 
     [Fact]
@@ -631,6 +742,103 @@ public class SqlBulkCopyLoaderTests
 
         // 1 skipped by SkipItemCount, 1 skipped by validation, 1 loaded
         Assert.Equal(1, sut.CurrentItemCount);
+    }
+
+
+
+    // --- PreAction / PostAction SQL orchestration tests (via FakeSqlCommandExecutor) ---
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_is_DeleteAllRecords_issues_DELETE_FROM_command_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var executor = new FakeSqlCommandExecutor();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor)
+        {
+            PreAction = PreAction.DeleteAllRecords
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
+
+        var cmd = Assert.Single(executor.ExecutedCommands);
+        Assert.Equal("DELETE FROM [dbo].[TestRecords]", cmd.CommandText);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_is_TruncateTable_issues_TRUNCATE_TABLE_command_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var executor = new FakeSqlCommandExecutor();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor)
+        {
+            PreAction = PreAction.TruncateTable
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
+
+        var cmd = Assert.Single(executor.ExecutedCommands);
+        Assert.Equal("TRUNCATE TABLE [dbo].[TestRecords]", cmd.CommandText);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_is_None_executor_is_not_called_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var executor = new FakeSqlCommandExecutor();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor);
+        // PreAction stays at default (None)
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
+
+        Assert.Empty(executor.ExecutedCommands);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_command_uses_configured_BulkCopyTimeout_Async()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var executor = new FakeSqlCommandExecutor();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor)
+        {
+            PreAction = PreAction.DeleteAllRecords,
+            BulkCopyTimeout = 120
+        };
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
+
+        Assert.Equal(120, executor.ExecutedCommands[0].CommandTimeout);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_PreAction_is_DeleteAllRecords_without_executor_throws_InvalidOperationException_Async()
+    {
+        // Internal test ctor without an ISqlCommandExecutor + a SQL-issuing
+        // PreAction = clear configuration error rather than NRE.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var timer = new ManualProgressTimer();
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
+        {
+            PreAction = PreAction.DeleteAllRecords
+        };
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
+        );
+
+        Assert.Contains("SqlConnection", ex.Message, StringComparison.Ordinal);
     }
 
 

@@ -46,6 +46,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     private readonly ILogger _logger;
     private readonly IProgressTimer? _progressTimer;
     private readonly ISqlBulkCopyWrapperFactory? _wrapperFactory;
+    private readonly ISqlCommandExecutor? _commandExecutor;
     private Action? _progressTimerHandler;
     private int _batchSize = 10_000;
     private int _bulkCopyTimeout = 30;
@@ -68,6 +69,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _logger = NullLogger.Instance;
         _options = SqlBulkCopyOptions.Default;
+        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, _options, transaction: null);
+        _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
 
 
@@ -90,6 +93,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = SqlBulkCopyOptions.Default;
+        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, _options, transaction: null);
+        _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
 
 
@@ -117,6 +122,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         _options = options;
         _transaction = transaction;
         _logger = logger ?? (ILogger)NullLogger.Instance;
+        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, options, transaction);
+        _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction);
     }
 
 
@@ -129,16 +136,24 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <param name="logger">An optional logger instance.</param>
     /// <param name="timer">An optional progress timer to inject. When <c>null</c>, the
     /// base class creates a <c>SystemProgressTimer</c>.</param>
+    /// <param name="commandExecutor">
+    /// Optional SQL command executor for pre/post actions. When <c>null</c>,
+    /// any call into the SQL path (PreAction = DeleteAllRecords / TruncateTable,
+    /// PostAction = ...) throws <see cref="InvalidOperationException"/>. Tests
+    /// that exercise SQL-issuing pre/post actions must supply a fake.
+    /// </param>
     internal SqlBulkCopyLoader
     (
         ISqlBulkCopyWrapperFactory wrapperFactory,
         ILogger? logger,
-        IProgressTimer? timer
+        IProgressTimer? timer,
+        ISqlCommandExecutor? commandExecutor = null
     )
     {
         _wrapperFactory = wrapperFactory ?? throw new ArgumentNullException(nameof(wrapperFactory));
         _logger = logger ?? NullLogger.Instance;
         _progressTimer = timer;
+        _commandExecutor = commandExecutor;
         _options = SqlBulkCopyOptions.Default;
     }
 
@@ -343,7 +358,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         Volatile.Write(ref _batchCount, 0); // paired with Volatile.Read in CreateProgressReport
         var skipCounter = 0;
         var batch = new List<TRecord>(_batchSize);
-        var factory = _wrapperFactory ?? CreateFactory();
+        var factory = _wrapperFactory!; // every constructor sets this
 
         await foreach (var item in items.WithCancellation(token).ConfigureAwait(false))
         {
@@ -853,20 +868,24 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    private async Task ExecuteSqlCommandAsync(string commandText, CancellationToken token)
+    private Task ExecuteSqlCommandAsync(string commandText, CancellationToken token)
     {
-        EnsureConnectionAvailable("SQL command execution");
-
-        using var command = _connection!.CreateCommand();
-        command.CommandText = commandText;
-        command.CommandTimeout = _bulkCopyTimeout;
-
-        if (_transaction is not null)
+        if (_commandExecutor is null)
         {
-            command.Transaction = _transaction;
+            // Mirrors EnsureConnectionAvailable's contract for CustomAction:
+            // a SQL-issuing pre/post action requires either a public-ctor
+            // SqlConnection (which constructs the executor) or — in tests —
+            // an explicitly injected ISqlCommandExecutor on the internal
+            // ctor. Public-API callers can never see this path because every
+            // public constructor populates _commandExecutor.
+            throw new InvalidOperationException
+            (
+                "Cannot execute SQL command without a SqlConnection or ISqlCommandExecutor. " +
+                "Use a constructor that accepts a SqlConnection."
+            );
         }
 
-        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        return _commandExecutor.ExecuteNonQueryAsync(commandText, _bulkCopyTimeout, token);
     }
 
 
@@ -885,10 +904,4 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    private ISqlBulkCopyWrapperFactory CreateFactory()
-    {
-        EnsureConnectionAvailable("bulk copy");
-
-        return new SqlBulkCopyWrapperFactory(_connection!, _options, _transaction);
-    }
 }
