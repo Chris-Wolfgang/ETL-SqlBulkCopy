@@ -575,7 +575,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-    private static IReadOnlyList<object> SliceList(IReadOnlyList<object> source, int offset, int count)
+    internal static IReadOnlyList<object> SliceList(IReadOnlyList<object> source, int offset, int count)
     {
         if (offset == 0 && count == source.Count)
         {
