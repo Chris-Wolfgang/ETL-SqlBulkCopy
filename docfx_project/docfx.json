@@ -36,7 +36,8 @@
           "favicon.svg",
           "favicon.ico",
           "apple-touch-icon.png",
-          "images/**"
+          "images/**",
+          "public/**"
         ]
       }
     ],
