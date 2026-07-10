@@ -14,7 +14,7 @@ A loader that uses SqlBulkCopy for fast inserts into a Microsoft SQL database
 dotnet add package Wolfgang.Etl.SqlBulkCopy
 ```
 
-**NuGet Package:** Coming soon to NuGet.org
+**NuGet Package:** [Wolfgang.Etl.SqlBulkCopy](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/)
 
 ---
 
@@ -35,16 +35,57 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ## 🚀 Quick Start
 
-{{QUICK_START_EXAMPLE}}
+```csharp
+using Microsoft.Data.SqlClient;
+using Wolfgang.Etl.SqlBulkCopy;
+
+public sealed record Customer
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public decimal Balance { get; init; }
+}
+
+async IAsyncEnumerable<Customer> ReadSourceAsync()
+{
+    // your source: file, API, another database, etc.
+    yield return new Customer { Id = 1, Name = "Acme", Balance = 100m };
+    yield return new Customer { Id = 2, Name = "Contoso", Balance = 250m };
+}
+
+using var connection = new SqlConnection("Server=.;Database=Sandbox;Integrated Security=True;Encrypt=True;");
+await connection.OpenAsync();
+
+var loader = new SqlBulkCopyLoader<Customer>(connection)
+{
+    BatchSize = 10_000,
+    PreAction = PreAction.TruncateTable,
+};
+
+await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
+```
 
 ---
 
 ## ✨ Features
 
-{{FEATURES_TABLE}}
+| Feature | Description |
+|---------|-------------|
+| **Streaming bulk load** | Consumes `IAsyncEnumerable<T>` and writes to SQL Server via `SqlBulkCopy` |
+| **Type-driven mapping** | `[Table]` / `[Column]` / `[NotMapped]` attributes drive schema/table/column names — no manual `ColumnMappings` |
+| **Nested tables** | Recursively writes child collections to their own tables inside the same bulk-copy session |
+| **Pre/post actions** | Built-in `TruncateTable` / `DeleteAllRecords`; custom-action delegates for schema-aware work |
+| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — batch count, rows written, elapsed time |
+| **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
+| **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
+| **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net8.0`, `net10.0` |
 
 **Examples:**
-{{FEATURE_EXAMPLES}}
+- **Truncate before load:** set `PreAction = PreAction.TruncateTable` (shown above).
+- **Custom pre-action:** set `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ };`
+- **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
+
+See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) for the full surface.
 
 ---
 
@@ -52,9 +93,9 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 | Framework | Versions |
 |-----------|----------|
-| .NET Framework | .NET 4.6.2, .NET 4.7.0, .NET 4.7.1, .NET 4.7.2, .NET 4.8, .NET 4.8.1 |
-| .NET Core | .NET Core 3.1 |
-| .NET | .NET 5.0, .NET 6.0, .NET 7.0, .NET 8.0, .NET 9.0, .NET 10.0 |
+| .NET Framework | .NET 4.6.2, .NET 4.8.1 |
+| .NET Standard | .NET Standard 2.0 |
+| .NET | .NET 8.0, .NET 10.0 |
 
 ---
 
@@ -177,5 +218,5 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## 🙏 Acknowledgments
 
-{{ACKNOWLEDGMENTS}}
+Built on top of [Wolfgang.Etl.Abstractions](https://github.com/Chris-Wolfgang/ETL-Abstractions) and [Microsoft.Data.SqlClient](https://github.com/dotnet/SqlClient).
 
