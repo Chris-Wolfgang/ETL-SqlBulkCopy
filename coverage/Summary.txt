@@ -1,0 +1,49 @@
+Summary
+  Generated on: 7/10/2026 - 12:57:16 AM
+  Coverage date: 7/10/2026 - 12:57:12 AM
+  Parser: MultiReport (2x Cobertura)
+  Assemblies: 2
+  Classes: 25
+  Files: 25
+  Line coverage: 98.6%
+  Covered lines: 2478
+  Uncovered lines: 33
+  Coverable lines: 2511
+  Total lines: 6160
+  Branch coverage: 96.1% (303 of 315)
+  Covered branches: 303
+  Total branches: 315
+  Method coverage: 99.2% (387 of 390)
+  Full method coverage: 97.4% (380 of 390)
+  Covered methods: 387
+  Fully covered methods: 380
+  Total methods: 390
+
+Wolfgang.Etl.SqlBulkCopy                                                      97%
+  Wolfgang.Etl.SqlBulkCopy.ColumnMap                                         100%
+  Wolfgang.Etl.SqlBulkCopy.NestedTableMap                                    100%
+  Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters                          100%
+  Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters                           100%
+  Wolfgang.Etl.SqlBulkCopy.ReflectionHelpers                                 100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<T>                             91.8%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLogMessages                            100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport                                 100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException                    100%
+  Wolfgang.Etl.SqlBulkCopy.TypeMap                                           100%
+  Wolfgang.Etl.SqlBulkCopy.TypeMapReader                                     100%
+
+Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                         99.5%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ColumnMapTests                         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapper          90.4%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapperFactory    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlCommandExecutor           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NestedTableMapTests                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PostLoadActionParametersTests          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PreLoadActionParametersTests           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ReflectionHelpersTests                98.1%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SliceListTests                         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderContractTests         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderTests                99.4%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyValidationExceptionTests    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapReaderTests                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapTests                           100%

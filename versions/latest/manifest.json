@@ -1,0 +1,298 @@
+{
+  "source_base_path": "D:/a/ETL-SqlBulkCopy/ETL-SqlBulkCopy/docfx_project",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      }
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/README.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/README.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.ColumnMap.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.ColumnMap.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.ColumnMap",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.ColumnMap.yml\" sourcestartlinenumber=\"1\">Maps a single property on a .NET type to a column in a SQL Server table.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PostAction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PostAction.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.PostAction",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.PostAction.yml\" sourcestartlinenumber=\"1\">Specifies the action to execute after the bulk copy loading operation completes.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.yml\" sourcestartlinenumber=\"1\">Parameters passed to the <xref href=\"Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader%601.PostLoadCustomAction\" data-throw-if-not-resolved=\"false\"></xref> delegate.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PreAction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PreAction.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.PreAction",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.PreAction.yml\" sourcestartlinenumber=\"1\">Specifies the action to execute before the bulk copy loading operation begins.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.yml\" sourcestartlinenumber=\"1\">Parameters passed to the <xref href=\"Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader%601.PreLoadCustomAction\" data-throw-if-not-resolved=\"false\"></xref> delegate.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.yml\" sourcestartlinenumber=\"1\">Loads items of type <code class=\"typeparamref\">TRecord</code> into a SQL Server table\nusing <code>SqlBulkCopy</code> for high-throughput bulk insert operations.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.yml\" sourcestartlinenumber=\"1\">Progress report for SQL Server bulk copy loading operations.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.yml\" sourcestartlinenumber=\"1\">Thrown by <xref href=\"Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader%601\" data-throw-if-not-resolved=\"false\"></xref> when an item (root or\nnested-collection child) fails DataAnnotation validation and the loader\nis configured to throw via\n<xref href=\"Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw\" data-throw-if-not-resolved=\"false\"></xref> (the default).</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.yml\" sourcestartlinenumber=\"1\">Controls how <xref href=\"Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader%601\" data-throw-if-not-resolved=\"false\"></xref> reacts to an item\n(root or nested) that fails DataAnnotation validation when\n<xref href=\"Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader%601.EnableDataValidation\" data-throw-if-not-resolved=\"false\"></xref> is <code>true</code>.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy",
+      "Summary": null
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html"
+        },
+        ".json": {
+          "relative_path": "api/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "apple-touch-icon.png",
+      "output": {
+        "resource": {
+          "relative_path": "apple-touch-icon.png"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/getting-started.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/getting-started.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/introduction.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/introduction.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "docs/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "docs/toc.html"
+        },
+        ".json": {
+          "relative_path": "docs/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "favicon.ico",
+      "output": {
+        "resource": {
+          "relative_path": "favicon.ico"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "favicon.svg",
+      "output": {
+        "resource": {
+          "relative_path": "favicon.svg"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "logo.svg",
+      "output": {
+        "resource": {
+          "relative_path": "logo.svg"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html"
+        },
+        ".json": {
+          "relative_path": "toc.json"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}
