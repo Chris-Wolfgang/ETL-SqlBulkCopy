@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<coverage version="1.0" date="2026-07-10_00-57-16" tag="">
+<coverage version="1.0" date="2026-07-10_23-34-18" tag="">
   <assembly name="Wolfgang.Etl.SqlBulkCopy">
     <class name="Wolfgang.Etl.SqlBulkCopy.ColumnMap" coveredlines="29" coverablelines="29" totallines="150" coveredbranches="12" totalbranches="12" coveredcodeelements="9" fullcoveredcodeelements="9" totalcodeelements="9" />
     <class name="Wolfgang.Etl.SqlBulkCopy.NestedTableMap" coveredlines="44" coverablelines="44" totallines="127" coveredbranches="12" totalbranches="12" coveredcodeelements="5" fullcoveredcodeelements="5" totalcodeelements="5" />
