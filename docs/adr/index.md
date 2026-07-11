@@ -23,7 +23,7 @@ record is marked accordingly.
 
 ## Adding a new ADR
 
-1. Copy [`0000-template.md`](0000-template.md) to `NNNN-short-kebab-title.md`,
+1. Copy [`TEMPLATE.md`](TEMPLATE.md) to `NNNN-short-kebab-title.md`,
    taking the next free number.
 2. Fill in Context, Decision, Consequences.
 3. Add a row to the index table above.

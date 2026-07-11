@@ -17,7 +17,7 @@ contributor might "clean up" and regress.
 
 We keep a log of Architecture Decision Records in `docs/adr/`, one immutable
 markdown file per decision, using the lightweight MADR format described in
-[README.md](README.md).
+[index.md](index.md).
 
 ## Consequences
 
