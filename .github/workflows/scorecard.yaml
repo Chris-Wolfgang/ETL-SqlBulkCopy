@@ -27,7 +27,9 @@ jobs:
     permissions:
       # Required for uploading results to the code-scanning dashboard.
       security-events: write
-      # Required to read the repository content for the analysis.
+      # Required for the OIDC token Scorecard uses to publish results to the
+      # public registry (publish_results: true). Not for reading repo content —
+      # that is covered by `contents: read` below.
       id-token: write
       contents: read
       actions: read
