@@ -1,7 +1,9 @@
 # Migrating from vX to vY
 
-- **Applies to:** consumers upgrading `Wolfgang.Etl.SqlBulkCopy` from `X.*` to `Y.0.0`
-- **Release:** [vY.0.0](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/releases/tag/vY.0.0)
+- **Applies to:** consumers upgrading `Wolfgang.Etl.SqlBulkCopy` from `vX` to
+  `vY`, where `vY` is the first version containing the breaking change (a
+  `MAJOR` bump at 1.0+, or a breaking `0.x` bump pre-1.0)
+- **Release:** [vY](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/releases/tag/vY)
 - **Related ADRs:** [ADR-NNNN](../adr/NNNN-....md)
 
 > Copy this file to `vX-to-vY.md`, fill in every section, and delete these
