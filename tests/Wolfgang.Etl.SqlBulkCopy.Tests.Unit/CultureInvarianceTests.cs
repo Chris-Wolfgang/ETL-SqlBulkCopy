@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -25,15 +24,20 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 /// </summary>
 public class CultureInvarianceTests
 {
-    // Cultures chosen for their classic string-handling traps:
+    // The full hostile-culture matrix required by issue #97, each chosen for a
+    // distinct string-handling trap:
     //   tr-TR — dotted/dotless-I case folding (the important one here)
     //   de-DE — decimal comma / grouping
-    //   ja-JP — non-Latin script, different collation
+    //   zh-CN — collation + simplified-Chinese formatting
+    //   ar-SA — RTL + Hindi-Arabic digit shapes
+    //   ja-JP — full-width digits / non-Latin script
     // en-US is the CI default and the invariance baseline.
     public static IEnumerable<object[]> HostileCultures()
     {
         yield return new object[] { "tr-TR" };
         yield return new object[] { "de-DE" };
+        yield return new object[] { "zh-CN" };
+        yield return new object[] { "ar-SA" };
         yield return new object[] { "ja-JP" };
         yield return new object[] { "en-US" };
     }
@@ -44,7 +48,7 @@ public class CultureInvarianceTests
     [MemberData(nameof(HostileCultures))]
     public async Task LoadAsync_resolves_column_mappings_identically_under_any_culture_Async(string cultureName)
     {
-        var mappingsUnderCulture = await RunLoadAndCaptureMappingsAsync(cultureName).ConfigureAwait(true);
+        var mappingsUnderCulture = await RunLoadAndCaptureMappingsAsync(cultureName);
 
         // The mapping set must be exactly the invariant-culture result — the
         // property names Id / FullName / Amount all round-trip regardless of
@@ -61,8 +65,8 @@ public class CultureInvarianceTests
     [Fact]
     public async Task LoadAsync_column_mappings_are_stable_across_tr_TR_and_invariant_Async()
     {
-        var underTurkish = await RunLoadAndCaptureMappingsAsync("tr-TR").ConfigureAwait(true);
-        var underInvariant = await RunLoadAndCaptureMappingsAsync(CultureInfo.InvariantCulture.Name).ConfigureAwait(true);
+        var underTurkish = await RunLoadAndCaptureMappingsAsync("tr-TR");
+        var underInvariant = await RunLoadAndCaptureMappingsAsync(CultureInfo.InvariantCulture.Name);
 
         Assert.Equal(underInvariant, underTurkish);
     }
@@ -84,7 +88,11 @@ public class CultureInvarianceTests
             var timer = new ManualProgressTimer();
             var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
 
-            await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1))).ConfigureAwait(true);
+            await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
+
+            // Guard the index so a future refactor that stops creating wrappers
+            // reports the real cause instead of an opaque IndexOutOfRange.
+            Assert.NotEmpty(factory.CreatedWrappers);
 
             return factory.CreatedWrappers[0].ColumnMappings
                 .OrderBy(m => m.Source, StringComparer.Ordinal)
