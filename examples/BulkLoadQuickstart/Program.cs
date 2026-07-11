@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Wolfgang.Etl.SqlBulkCopy;
@@ -49,7 +48,9 @@ internal static class Program
         {
             Console.WriteLine("Set SQLBULKCOPY_SAMPLE_CONNECTION to a SQL Server connection string to run this sample.");
             Console.WriteLine("The target must already contain a [dbo].[Customers] table with (Id int, FullName nvarchar, Balance decimal).");
-            return 1;
+            // Missing configuration is a no-op, not an error — exit cleanly so
+            // running the sample without setup prints guidance and succeeds.
+            return 0;
         }
 
         using var connection = new SqlConnection(connectionString);
