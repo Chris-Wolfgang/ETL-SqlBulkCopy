@@ -41,7 +41,9 @@
     <File Path="scripts/setup.ps1" />
   </Folder>
   <Folder Name="/benchmarks/" />
-  <Folder Name="/examples/" />
+  <Folder Name="/examples/">
+    <Project Path="examples/BulkLoadQuickstart/BulkLoadQuickstart.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Wolfgang.Etl.SqlBulkCopy/Wolfgang.Etl.SqlBulkCopy.csproj" />
   </Folder>
