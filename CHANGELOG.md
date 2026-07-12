@@ -19,6 +19,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.2.0] - 2026-07-12
+
+Documentation, examples, and supply-chain tooling. **No change to the shipped
+library API or behavior** — the compiled assembly is functionally identical to
+0.1.0; this release adds consumer-facing docs/samples and hardens the build's
+security posture.
+
+### Added
+
+- `examples/BulkLoadQuickstart` — a runnable end-to-end consumer sample:
+  attribute-driven column mapping, `BatchSize` / `BulkCopyTimeout`,
+  `PreAction.TruncateTable`, and `LoadAsync(source, progress)` with live
+  per-batch progress reporting.
+- Architecture Decision Records under `docs/adr/` capturing the non-obvious
+  design decisions (SDK-wrapper isolation, async-only enforcement, compiled
+  property getters + the Native-AOT limitation, AssemblyVersion policy).
+- Migration-guide convention + template under `docs/migrations/`, established
+  proactively so the first breaking release ships a guide written during its
+  own PR.
+
+### Security
+
+- Supply-chain and build-integrity CI: OSSF Scorecard analysis, transitive
+  dependency license audit, GitHub Actions workflow linting (actionlint +
+  zizmor), and cross-runner build-reproducibility verification. The release
+  pipeline already emits a CycloneDX SBOM per package.
+
 ## [0.1.0] - 2026-07-09
 
 Initial release.
@@ -40,5 +67,6 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/releases/tag/v0.1.0
