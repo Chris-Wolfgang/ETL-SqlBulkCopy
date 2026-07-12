@@ -21,14 +21,15 @@ advertises a 1.x binding identity for a 0.x package.
 ## Decision
 
 For the 0.x pre-release line we keep `AssemblyVersion` and `FileVersion` in step
-with `Version` (all `0.1.0` today). Once the library reaches 1.0 and stability
+with `Version` (all three were `0.1.0` when this ADR was written, and move
+together on each 0.x release). Once the library reaches 1.0 and stability
 matters, `AssemblyVersion` may be intentionally held at `MAJOR.0.0.0` and moved
 only on breaking releases, while `Version`/`FileVersion` continue to track each
 release.
 
 ## Consequences
 
-- Today the three versions agree, removing the stale-`1.0.0` inconsistency and
+- The three versions agree, removing the stale-`1.0.0` inconsistency and
   making the assembly identity honestly reflect a 0.x package.
 - The door is left open to the standard post-1.0 practice of pinning
   `AssemblyVersion` to the major, without committing to it while the API is

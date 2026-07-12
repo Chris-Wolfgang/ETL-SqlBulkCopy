@@ -1,3 +1,11 @@
+// GC.GetAllocatedBytesForCurrentThread() does not exist on the older .NET
+// Framework reference assemblies (net462/net47/net471 — CS0117), so this whole
+// file compiles only on .NET Core / .NET 5+ targets, where the API is
+// guaranteed. The allocation behavior it guards is runtime-independent, so
+// running it on the modern TFMs (netcoreapp3.1 + net5.0–net10.0) is sufficient.
+// The entire file — usings included — is inside the guard so excluded TFMs
+// don't trip the unused-using analyzer under warnings-as-errors.
+#if NETCOREAPP
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -50,3 +58,4 @@ public class AllocationTests
         Assert.Equal(0, allocated);
     }
 }
+#endif
