@@ -51,6 +51,10 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// Only valid after <see cref="InitializeAsync"/> has completed and
     /// <see cref="IsAvailable"/> is <c>true</c>.
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the SQL Server container is not available (check
+    /// <see cref="IsAvailable"/> first).
+    /// </exception>
     public string ConnectionString =>
         _container?.GetConnectionString()
         ?? throw new InvalidOperationException
