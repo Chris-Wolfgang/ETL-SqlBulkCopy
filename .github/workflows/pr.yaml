@@ -239,6 +239,141 @@ jobs:
             echo "has-projects=false" >> "$GITHUB_OUTPUT"
             echo "ℹ️  No .NET project files found - skipping .NET build and test jobs"
           fi
+  # ============================================================================
+  # INSPECTCODE: JetBrains ReSharper InspectCode parallel to the test stages.
+  # Runs concurrently with Stage 1 / 2 / 3 (no `needs:` on a test job) so it
+  # doesn't extend wall-clock — typically 3–5 min vs the slowest stage.
+  # SARIF uploads to GitHub Code Scanning (Security tab + inline PR
+  # annotations). `error`-severity findings fail the job; `warning`-severity
+  # surfaces in Code Scanning but doesn't fail (gated by --severity=WARNING
+  # filter). Tune the noise floor via .DotSettings at the repo root.
+  # ============================================================================
+  inspectcode:
+    name: "ReSharper InspectCode"
+    runs-on: ubuntu-latest
+    needs: detect-projects
+    if: github.repository != 'Chris-Wolfgang/repo-template' && needs.detect-projects.outputs.has-projects == 'true'
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write   # required for upload-sarif
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          persist-credentials: false
+
+      - name: Fetch trusted configuration files from main branch
+        # This job runs under pull_request_target and checks out the PR head, so
+        # analyzer config (.editorconfig / .globalconfig / rulesets / props) from
+        # the PR could otherwise weaken InspectCode's rules. Pull the protected
+        # config from trusted main before analyzing, matching the test stages.
+        # Skip for Dependabot — its bumps to protected files are legitimate.
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        run: |
+          echo "Fetching configuration files from main branch to prevent malicious overrides..."
+
+          # Fetch the main branch
+          git fetch origin main:main-branch
+
+          # List of configuration files that should come from trusted main branch
+          config_files=(
+            ".editorconfig"
+            "Directory.Build.props"
+            "Directory.Build.targets"
+            "BannedSymbols.txt"
+            "*.globalconfig"
+            "*.ruleset"
+          )
+
+          # Copy each configuration file from main branch if it exists
+          for config_file in "${config_files[@]}"; do
+            if [[ "$config_file" == *"*"* ]]; then
+              while read -r file; do
+                if [ -n "$file" ]; then
+                  echo "  ✓ Copying $file from main branch"
+                  mkdir -p "$(dirname "$file")"
+                  if ! git show "main-branch:$file" > "$file"; then
+                    echo "::error::Failed to copy $file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
+                    exit 1
+                  fi
+                fi
+              done < <(git ls-tree -r --name-only main-branch | { grep -E "${config_file//\*/.*}" || true; })
+            else
+              if git cat-file -e "main-branch:$config_file" 2>/dev/null; then
+                echo "  ✓ Copying $config_file from main branch"
+                if ! git show "main-branch:$config_file" > "$config_file"; then
+                  echo "::error::Failed to copy $config_file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
+                  exit 1
+                fi
+              else
+                echo "  ℹ️  $config_file not found in main branch, skipping"
+              fi
+            fi
+          done
+
+          echo ""
+          echo "✅ Configuration files secured - using versions from main branch"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore + Build (Release)
+        # Constrain to net10.0 — this job runs on Ubuntu, and an unconstrained
+        # `dotnet build` would try to build the .NET Framework TFMs (net462/net481)
+        # too, which fails on Linux (no Framework reference assemblies). Building a
+        # single modern TFM is sufficient for InspectCode's analysis.
+        run: |
+          dotnet restore
+          dotnet build -c Release --no-restore -p:TargetFramework=net10.0
+
+      - name: Install JetBrains.ReSharper.GlobalTools
+        run: dotnet tool install -g JetBrains.ReSharper.GlobalTools
+
+      - name: Run InspectCode
+        run: |
+          # Find a solution to inspect. Prefer .slnx (new format) then .sln.
+          # InspectCode requires SOMETHING solution-shaped — fail loudly if neither exists.
+          SLN=$(ls *.slnx 2>/dev/null | head -n1)
+          if [ -z "$SLN" ]; then
+            SLN=$(ls *.sln 2>/dev/null | head -n1)
+          fi
+          if [ -z "$SLN" ]; then
+            echo "::error::No .slnx or .sln found at repo root — InspectCode needs one to run."
+            exit 1
+          fi
+          echo "Inspecting: $SLN"
+          # Pin the analysis to net10.0 for the same reason as the build above —
+          # otherwise InspectCode evaluates the .NET Framework targets, which
+          # aren't buildable on Linux.
+          jb inspectcode "$SLN" \
+            --output=inspect.sarif \
+            --format=sarif \
+            --severity=WARNING \
+            --properties:TargetFramework=net10.0 \
+            --no-build
+
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: inspect.sarif
+
+      - name: Gate on error-severity findings
+        run: |
+          # SARIF level=error fails the job; warnings still upload (visible in
+          # Security → Code scanning) but don't gate merge — raise to `error`
+          # later when the noise floor is acceptable.
+          count=$(jq '[.runs[].results[] | select(.level=="error")] | length' inspect.sarif)
+          if [ "$count" -gt 0 ]; then
+            echo "::error::$count InspectCode error-severity finding(s) — see Security → Code scanning"
+            exit 1
+          fi
+          echo "✅ No error-severity InspectCode findings."
+
 
   # ============================================================================
   # STAGE 1: Linux - .NET Core/5+ Tests with Coverage Gate
