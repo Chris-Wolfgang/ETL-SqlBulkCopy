@@ -4,5 +4,7 @@
   "BSD-2-Clause",
   "BSD-3-Clause",
   "MS-PL",
-  "0BSD"
+  "0BSD",
+  "MICROSOFT-DISTRIBUTABLE-CODE",
+  "MICROSOFT-DOTNET-LIBRARY"
 ]
