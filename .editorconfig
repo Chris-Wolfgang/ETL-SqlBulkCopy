@@ -38,6 +38,15 @@ indent_size = 2
 # SA0001 - Disable XML documentation file requirement
 dotnet_diagnostic.SA0001.severity = none
 
+# ReSharper / InspectCode false positives (see docs/adr — reflection-driven ETL).
+# UnusedAutoPropertyAccessor.Global fires on:
+#   - public-API accessors on the shipped library (used by external consumers
+#     that InspectCode cannot see), and
+#   - data-model / test-fixture / sample POCOs whose getters are invoked through
+#     the loader's compiled-reflection column mapping, not directly in code.
+# Both are by-design here, so the rule is pure noise. Disable it repo-wide.
+resharper_unused_auto_property_accessor_global_highlighting = none
+
 # .NET Code Analysis Rules
 # Enable .NET analyzers with conservative defaults
 dotnet_analyzer_diagnostic.severity = suggestion
