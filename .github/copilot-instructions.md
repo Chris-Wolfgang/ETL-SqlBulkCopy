@@ -86,7 +86,6 @@ root/
 ### Key Configuration Files
 - **`.editorconfig`**: Code style rules (C# file-scoped namespaces, var preferences, analyzer severity)
 - **`.gitignore`**: Comprehensive .NET gitignore (Visual Studio, build artifacts, packages)
-- **`REPO-INSTRUCTIONS.md`**: Template setup instructions (delete after setup)
 - **`CONTRIBUTING.md`**: Contribution guidelines
 - **`CODE_OF_CONDUCT.md`**: Standard Contributor Covenant v2.0
 
@@ -137,7 +136,6 @@ Branch protection rules are configured by running the local PowerShell script `s
 ### Root Directory Files
 - `README.md` - Basic template description (update for your project)
 - `LICENSE` - MIT License
-- `REPO-INSTRUCTIONS.md` - Template setup instructions (delete after setup)
 - `.editorconfig` - Code style configuration
 - `.gitignore` - .NET-specific gitignore
 
@@ -160,8 +158,8 @@ Branch protection rules are configured by running the local PowerShell script `s
 ### Trust These Instructions
 This information has been validated against the template structure and GitHub workflows. **Only search for additional information if these instructions are incomplete or found to be incorrect.**
 
-### When Working with This Template
-1. **Creating New Projects**: Follow the structure outlined in `REPO-INSTRUCTIONS.md`
+### When Working with This Repository
+1. **Project Structure**: Follow the `src/` + `tests/` layout described in `CONTRIBUTING.md`
 2. **Adding Dependencies**: Use `dotnet add package` commands
 3. **Code Style**: Follow `.editorconfig` rules (file-scoped namespaces, explicit typing)
 4. **Testing**: Ensure test projects follow `*Test*.csproj` naming convention

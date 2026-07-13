@@ -6,7 +6,6 @@
     <File Path="Directory.Build.props" />
     <File Path="LICENSE" />
     <File Path="README.md" />
-    <File Path="REPO-INSTRUCTIONS.md" />
     <File Path="SECURITY.md" />
   </Folder>
   <Folder Name="/.root/.github/">
