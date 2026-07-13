@@ -1,0 +1,93 @@
+#nullable enable
+Wolfgang.Etl.SqlBulkCopy.ColumnMap
+Wolfgang.Etl.SqlBulkCopy.ColumnMap.ClrType.get -> System.Type!
+Wolfgang.Etl.SqlBulkCopy.ColumnMap.ColumnName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.ColumnMap.IsNullable.get -> bool
+Wolfgang.Etl.SqlBulkCopy.ColumnMap.Ordinal.get -> int
+Wolfgang.Etl.SqlBulkCopy.ColumnMap.PropertyName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.PostAction
+Wolfgang.Etl.SqlBulkCopy.PostAction.CustomAction = 1 -> Wolfgang.Etl.SqlBulkCopy.PostAction
+Wolfgang.Etl.SqlBulkCopy.PostAction.None = 0 -> Wolfgang.Etl.SqlBulkCopy.PostAction
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.CancellationToken.get -> System.Threading.CancellationToken
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.CancellationToken.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.ColumnMappings.get -> System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.ColumnMap!>!
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.ColumnMappings.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.CommandTimeout.get -> int
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.CommandTimeout.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Connection.get -> Microsoft.Data.SqlClient.SqlConnection!
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Connection.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Logger.get -> Microsoft.Extensions.Logging.ILogger!
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Logger.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.PostLoadActionParameters(Microsoft.Data.SqlClient.SqlConnection! Connection, Microsoft.Data.SqlClient.SqlTransaction? Transaction, string? SchemaName, string! TableName, int CommandTimeout, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.ColumnMap!>! ColumnMappings, Microsoft.Extensions.Logging.ILogger! Logger, System.Threading.CancellationToken CancellationToken) -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.SchemaName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.SchemaName.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.TableName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.TableName.init -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Transaction.get -> Microsoft.Data.SqlClient.SqlTransaction?
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Transaction.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.PreAction.CustomAction = 3 -> Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.PreAction.DeleteAllRecords = 1 -> Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.PreAction.None = 0 -> Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.PreAction.TruncateTable = 2 -> Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.CancellationToken.get -> System.Threading.CancellationToken
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.CancellationToken.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.ColumnMappings.get -> System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.ColumnMap!>!
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.ColumnMappings.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.CommandTimeout.get -> int
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.CommandTimeout.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Connection.get -> Microsoft.Data.SqlClient.SqlConnection!
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Connection.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Logger.get -> Microsoft.Extensions.Logging.ILogger!
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Logger.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.PreLoadActionParameters(Microsoft.Data.SqlClient.SqlConnection! Connection, Microsoft.Data.SqlClient.SqlTransaction? Transaction, string? SchemaName, string! TableName, int CommandTimeout, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.ColumnMap!>! ColumnMappings, Microsoft.Extensions.Logging.ILogger! Logger, System.Threading.CancellationToken CancellationToken) -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.SchemaName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.SchemaName.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.TableName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.TableName.init -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Transaction.get -> Microsoft.Data.SqlClient.SqlTransaction?
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Transaction.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.BatchSize.get -> int
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.BatchSize.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.BulkCopyTimeout.get -> int
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.BulkCopyTimeout.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.DestinationSchemaName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.DestinationSchemaName.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.DestinationTableName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.DestinationTableName.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.EnableDataValidation.get -> bool
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.EnableDataValidation.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnNestedValidationFailed.get -> System.Action<object!, System.Collections.Generic.ICollection<System.ComponentModel.DataAnnotations.ValidationResult!>!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnNestedValidationFailed.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnValidationFailed.get -> System.Action<TRecord, System.Collections.Generic.ICollection<System.ComponentModel.DataAnnotations.ValidationResult!>!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnValidationFailed.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PostAction.get -> Wolfgang.Etl.SqlBulkCopy.PostAction
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PostAction.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PostLoadCustomAction.get -> System.Func<Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters!, System.Threading.Tasks.Task!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PostLoadCustomAction.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PreAction.get -> Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PreAction.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PreLoadCustomAction.get -> System.Func<Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters!, System.Threading.Tasks.Task!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PreLoadCustomAction.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection, Microsoft.Data.SqlClient.SqlBulkCopyOptions options, Microsoft.Data.SqlClient.SqlTransaction? transaction, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>? logger = null) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>! logger) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.ValidationFailureBehavior.get -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.ValidationFailureBehavior.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.BatchCount.get -> int
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.CurrentSkippedItemCount.get -> int
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.SqlBulkCopyReport(int currentItemCount, int currentSkippedItemCount, int batchCount) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.Item.get -> object?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.SqlBulkCopyValidationException() -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.SqlBulkCopyValidationException(object! item, System.Collections.Generic.IReadOnlyList<System.ComponentModel.DataAnnotations.ValidationResult!>! validationResults) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.SqlBulkCopyValidationException(string! message) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.SqlBulkCopyValidationException(string! message, System.Exception! innerException) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.ValidationResults.get -> System.Collections.Generic.IReadOnlyList<System.ComponentModel.DataAnnotations.ValidationResult!>!
+Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
+Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip = 1 -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
+Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw = 0 -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
