@@ -302,7 +302,7 @@ public class SqlBulkCopyLoaderTests
     // --- Loading behavior tests ---
 
     [Fact]
-    public async Task LoadAsync_writes_all_items_in_single_batch_Async()
+    public async Task LoadAsync_writes_all_items_in_single_batch()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -317,7 +317,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_items_exceed_BatchSize_creates_multiple_batches_Async()
+    public async Task LoadAsync_when_items_exceed_BatchSize_creates_multiple_batches()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -337,7 +337,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_sets_column_mappings_on_wrapper_Async()
+    public async Task LoadAsync_sets_column_mappings_on_wrapper()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -354,7 +354,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_sets_destination_table_name_on_wrapper_Async()
+    public async Task LoadAsync_sets_destination_table_name_on_wrapper()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -368,7 +368,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_DestinationTableName_override_uses_override_Async()
+    public async Task LoadAsync_when_DestinationTableName_override_uses_override()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -384,7 +384,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_with_empty_source_does_not_write_Async()
+    public async Task LoadAsync_with_empty_source_does_not_write()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -397,7 +397,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_increments_CurrentItemCount_Async()
+    public async Task LoadAsync_increments_CurrentItemCount()
     {
         var sut = CreateSut();
         var items = CreateTestItems(5);
@@ -412,7 +412,7 @@ public class SqlBulkCopyLoaderTests
     // --- Validation tests ---
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_skips_invalid_items_Async()
+    public async Task LoadAsync_when_validation_enabled_skips_invalid_items()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -438,7 +438,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_invokes_callback_Async()
+    public async Task LoadAsync_when_validation_enabled_invokes_callback()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -466,7 +466,7 @@ public class SqlBulkCopyLoaderTests
     // --- Nested-child validation tests (Issue #27) ---
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_skips_invalid_nested_children_Async()
+    public async Task LoadAsync_when_validation_enabled_skips_invalid_nested_children()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -504,7 +504,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_invokes_OnNestedValidationFailed_for_invalid_children_Async()
+    public async Task LoadAsync_when_validation_enabled_invokes_OnNestedValidationFailed_for_invalid_children()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -546,7 +546,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_validates_grandchildren_recursively_Async()
+    public async Task LoadAsync_when_validation_enabled_validates_grandchildren_recursively()
     {
         // Two levels deep: parent → child → grandchild. The grandchild has its
         // own [Required] Label; an empty Label must be dropped from the
@@ -593,7 +593,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_validation_disabled_does_not_skip_invalid_nested_children_Async()
+    public async Task LoadAsync_when_validation_disabled_does_not_skip_invalid_nested_children()
     {
         // Sanity: with EnableDataValidation = false, invalid children are
         // still written. This is the existing default behavior.
@@ -628,7 +628,7 @@ public class SqlBulkCopyLoaderTests
     // --- ValidationFailureBehavior.Throw (default) tests ---
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_default_behavior_throws_SqlBulkCopyValidationException_for_root_Async()
+    public async Task LoadAsync_when_validation_enabled_default_behavior_throws_SqlBulkCopyValidationException_for_root()
     {
         // Default ValidationFailureBehavior is Throw. A failing root item
         // should raise SqlBulkCopyValidationException carrying the item
@@ -659,7 +659,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_default_behavior_invokes_OnValidationFailed_before_throwing_Async()
+    public async Task LoadAsync_when_validation_enabled_default_behavior_invokes_OnValidationFailed_before_throwing()
     {
         // The OnValidationFailed callback must fire before the throw so a
         // single hook can log / inspect the failure regardless of mode.
@@ -688,7 +688,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_validation_enabled_default_behavior_throws_SqlBulkCopyValidationException_for_nested_child_Async()
+    public async Task LoadAsync_when_validation_enabled_default_behavior_throws_SqlBulkCopyValidationException_for_nested_child()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -721,7 +721,7 @@ public class SqlBulkCopyLoaderTests
     // --- Nested table tests ---
 
     [Fact]
-    public async Task LoadAsync_writes_nested_table_items_Async()
+    public async Task LoadAsync_writes_nested_table_items()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -760,7 +760,7 @@ public class SqlBulkCopyLoaderTests
     // --- SkipItemCount + Validation interaction tests ---
 
     [Fact]
-    public async Task LoadAsync_when_SkipItemCount_set_with_validation_skips_correctly_Async()
+    public async Task LoadAsync_when_SkipItemCount_set_with_validation_skips_correctly()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -789,7 +789,7 @@ public class SqlBulkCopyLoaderTests
     // --- PreAction / PostAction SQL orchestration tests (via FakeSqlCommandExecutor) ---
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_is_DeleteAllRecords_issues_DELETE_FROM_command_Async()
+    public async Task LoadAsync_when_PreAction_is_DeleteAllRecords_issues_DELETE_FROM_command()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
@@ -808,7 +808,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_is_TruncateTable_issues_TRUNCATE_TABLE_command_Async()
+    public async Task LoadAsync_when_PreAction_is_TruncateTable_issues_TRUNCATE_TABLE_command()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
@@ -827,7 +827,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_is_None_executor_is_not_called_Async()
+    public async Task LoadAsync_when_PreAction_is_None_executor_is_not_called()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
@@ -843,7 +843,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_command_uses_configured_BulkCopyTimeout_Async()
+    public async Task LoadAsync_when_PreAction_command_uses_configured_BulkCopyTimeout()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
@@ -862,7 +862,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_when_PreAction_is_DeleteAllRecords_without_executor_throws_InvalidOperationException_Async()
+    public async Task LoadAsync_when_PreAction_is_DeleteAllRecords_without_executor_throws_InvalidOperationException()
     {
         // Internal test ctor without an ISqlCommandExecutor + a SQL-issuing
         // PreAction = clear configuration error rather than NRE.
@@ -886,7 +886,7 @@ public class SqlBulkCopyLoaderTests
     // --- ValidateActionConfiguration tests ---
 
     [Fact]
-    public Task LoadAsync_when_PreAction_CustomAction_without_delegate_throws_Async()
+    public Task LoadAsync_when_PreAction_CustomAction_without_delegate_throws()
     {
         var sut = CreateSut();
         sut.PreAction = PreAction.CustomAction;
@@ -900,7 +900,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PostAction_CustomAction_without_delegate_throws_Async()
+    public Task LoadAsync_when_PostAction_CustomAction_without_delegate_throws()
     {
         var sut = CreateSut();
         sut.PostAction = PostAction.CustomAction;
@@ -916,7 +916,7 @@ public class SqlBulkCopyLoaderTests
     // --- EnsureConnectionAvailable tests ---
 
     [Fact]
-    public Task LoadAsync_when_PreAction_DeleteAllRecords_without_connection_throws_Async()
+    public Task LoadAsync_when_PreAction_DeleteAllRecords_without_connection_throws()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -934,7 +934,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PreAction_TruncateTable_without_connection_throws_Async()
+    public Task LoadAsync_when_PreAction_TruncateTable_without_connection_throws()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -952,7 +952,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PreAction_CustomAction_without_connection_throws_Async()
+    public Task LoadAsync_when_PreAction_CustomAction_without_connection_throws()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -971,7 +971,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PostAction_CustomAction_without_connection_throws_Async()
+    public Task LoadAsync_when_PostAction_CustomAction_without_connection_throws()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -992,7 +992,7 @@ public class SqlBulkCopyLoaderTests
     // --- MaximumItemCount tests ---
 
     [Fact]
-    public async Task LoadAsync_stops_at_MaximumItemCount_Async()
+    public async Task LoadAsync_stops_at_MaximumItemCount()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -1009,7 +1009,7 @@ public class SqlBulkCopyLoaderTests
     // --- SkipItemCount tests ---
 
     [Fact]
-    public async Task LoadAsync_skips_items_up_to_SkipItemCount_Async()
+    public async Task LoadAsync_skips_items_up_to_SkipItemCount()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -1027,7 +1027,7 @@ public class SqlBulkCopyLoaderTests
     // --- BulkCopyTimeout propagation ---
 
     [Fact]
-    public async Task LoadAsync_sets_BulkCopyTimeout_on_wrapper_Async()
+    public async Task LoadAsync_sets_BulkCopyTimeout_on_wrapper()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
@@ -1044,7 +1044,7 @@ public class SqlBulkCopyLoaderTests
     // --- Progress report ---
 
     [Fact]
-    public async Task LoadAsync_with_progress_reports_batch_count_Async()
+    public async Task LoadAsync_with_progress_reports_batch_count()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -1068,7 +1068,7 @@ public class SqlBulkCopyLoaderTests
     // --- CreateProgressTimer fallback path test ---
 
     [Fact]
-    public async Task LoadAsync_with_progress_when_no_timer_injected_uses_base_timer_Async()
+    public async Task LoadAsync_with_progress_when_no_timer_injected_uses_base_timer()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null);
@@ -1086,7 +1086,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_called_twice_with_different_progress_swaps_Elapsed_handler_Async()
+    public async Task LoadAsync_called_twice_with_different_progress_swaps_Elapsed_handler()
     {
         // Reusing a single loader across multiple LoadAsync calls must not
         // continue invoking the first IProgress after the second call has
@@ -1123,7 +1123,7 @@ public class SqlBulkCopyLoaderTests
     // --- Invalid enum value tests ---
 
     [Fact]
-    public Task LoadAsync_when_PreAction_is_invalid_enum_value_throws_Async()
+    public Task LoadAsync_when_PreAction_is_invalid_enum_value_throws()
     {
         var sut = CreateSut();
         sut.PreAction = (PreAction)999;
@@ -1137,7 +1137,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PostAction_is_invalid_enum_value_throws_Async()
+    public Task LoadAsync_when_PostAction_is_invalid_enum_value_throws()
     {
         var sut = CreateSut();
         sut.PostAction = (PostAction)999;
@@ -1151,7 +1151,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PreAction_DeleteAllRecords_with_NotMapped_type_throws_Async()
+    public Task LoadAsync_when_PreAction_DeleteAllRecords_with_NotMapped_type_throws()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -1174,7 +1174,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public Task LoadAsync_when_PreAction_TruncateTable_with_NotMapped_type_throws_Async()
+    public Task LoadAsync_when_PreAction_TruncateTable_with_NotMapped_type_throws()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -1199,7 +1199,7 @@ public class SqlBulkCopyLoaderTests
     // --- EnableDataValidation false path ---
 
     [Fact]
-    public async Task LoadAsync_when_validation_disabled_loads_all_items_Async()
+    public async Task LoadAsync_when_validation_disabled_loads_all_items()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -1271,7 +1271,7 @@ public class SqlBulkCopyLoaderTests
     // --- Deep nesting tests ---
 
     [Fact]
-    public async Task LoadAsync_recurses_into_grandchild_collections_Async()
+    public async Task LoadAsync_recurses_into_grandchild_collections()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -1310,7 +1310,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_enforces_BatchSize_for_nested_tables_Async()
+    public async Task LoadAsync_enforces_BatchSize_for_nested_tables()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
@@ -1345,7 +1345,7 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_BatchCount_includes_nested_writes_Async()
+    public async Task LoadAsync_BatchCount_includes_nested_writes()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();

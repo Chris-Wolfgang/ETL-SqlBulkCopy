@@ -47,7 +47,7 @@ public class PreActionIntegrationTests
 
 
     [SkippableFact]
-    public async Task PreAction_DeleteAllRecords_clears_existing_rows_before_load_Async()
+    public async Task PreAction_DeleteAllRecords_clears_existing_rows_before_load()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
@@ -72,7 +72,7 @@ public class PreActionIntegrationTests
 
 
     [SkippableFact]
-    public async Task PreAction_TruncateTable_clears_existing_rows_before_load_Async()
+    public async Task PreAction_TruncateTable_clears_existing_rows_before_load()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
@@ -97,7 +97,7 @@ public class PreActionIntegrationTests
 
 
     [SkippableFact]
-    public async Task PreAction_CustomAction_invokes_delegate_with_connection_Async()
+    public async Task PreAction_CustomAction_invokes_delegate_with_connection()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 

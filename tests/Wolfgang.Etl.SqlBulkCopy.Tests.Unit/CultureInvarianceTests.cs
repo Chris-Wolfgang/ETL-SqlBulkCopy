@@ -46,7 +46,7 @@ public class CultureInvarianceTests
 
     [Theory]
     [MemberData(nameof(HostileCultures))]
-    public async Task LoadAsync_resolves_column_mappings_identically_under_any_culture_Async(string cultureName)
+    public async Task LoadAsync_resolves_column_mappings_identically_under_any_culture(string cultureName)
     {
         var mappingsUnderCulture = await RunLoadAndCaptureMappingsAsync(cultureName);
 
@@ -63,7 +63,7 @@ public class CultureInvarianceTests
 
 
     [Fact]
-    public async Task LoadAsync_column_mappings_are_stable_across_tr_TR_and_invariant_Async()
+    public async Task LoadAsync_column_mappings_are_stable_across_tr_TR_and_invariant()
     {
         var underTurkish = await RunLoadAndCaptureMappingsAsync("tr-TR");
         var underInvariant = await RunLoadAndCaptureMappingsAsync(CultureInfo.InvariantCulture.Name);

@@ -40,7 +40,7 @@ public class LoaderIntegrationTests
 
 
     [SkippableFact]
-    public async Task Constructor_with_connection_only_loads_rows_Async()
+    public async Task Constructor_with_connection_only_loads_rows()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
@@ -62,7 +62,7 @@ public class LoaderIntegrationTests
 
 
     [SkippableFact]
-    public async Task Constructor_with_logger_loads_rows_Async()
+    public async Task Constructor_with_logger_loads_rows()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
@@ -83,7 +83,7 @@ public class LoaderIntegrationTests
 
 
     [SkippableFact]
-    public async Task Constructor_full_with_options_and_transaction_loads_rows_Async()
+    public async Task Constructor_full_with_options_and_transaction_loads_rows()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
@@ -105,7 +105,7 @@ public class LoaderIntegrationTests
 
 
     [SkippableFact]
-    public async Task LoadAsync_maps_Column_attribute_correctly_Async()
+    public async Task LoadAsync_maps_Column_attribute_correctly()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
@@ -134,7 +134,7 @@ public class LoaderIntegrationTests
     // boundaries through real SqlBulkCopy isn't easy without hooking
     // SqlRowsCopied, which adds noise for limited extra coverage here.
     [SkippableFact]
-    public async Task LoadAsync_with_BatchSize_smaller_than_source_writes_all_rows_Async()
+    public async Task LoadAsync_with_BatchSize_smaller_than_source_writes_all_rows()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
