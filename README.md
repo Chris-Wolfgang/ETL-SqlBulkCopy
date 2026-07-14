@@ -30,6 +30,8 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 - **API Documentation:** https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/
 - **Formatting Guide:** [README-FORMATTING.md](README-FORMATTING.md)
 - **Contributing Guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Architecture Decisions:** [docs/adr/index.md](docs/adr/index.md)
+- **Migration Guides:** [docs/migrations/](docs/migrations/)
 
 ---
 
