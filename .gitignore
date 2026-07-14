@@ -436,3 +436,6 @@ docfx_project/obj/
 coverage-report/
 coverage-results/
 resharper-report.xml
+
+# Stryker.NET mutation-testing output (generated; uploaded as CI artifact)
+StrykerOutput/

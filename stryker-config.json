@@ -1,0 +1,19 @@
+{
+  "stryker-config": {
+    "project": "src/Wolfgang.Etl.SqlBulkCopy/Wolfgang.Etl.SqlBulkCopy.csproj",
+    "test-projects": [
+      "tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj"
+    ],
+    "target-framework": "net10.0",
+    "reporters": [
+      "html",
+      "json",
+      "progress"
+    ],
+    "thresholds": {
+      "high": 90,
+      "low": 75,
+      "break": 0
+    }
+  }
+}
