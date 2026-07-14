@@ -70,14 +70,23 @@ public class BulkLoadShadowWorkloads
 
 
     /// <summary>
-    /// Empties the table between measured iterations so accumulated rows do not
-    /// skew later measurements. Runs outside the measured window.
+    /// Before each measured iteration, reset to a known non-empty table: truncate,
+    /// then seed a baseline of rows. Seeding (rather than starting empty) means
+    /// <see cref="LoadWithTruncatePreAction"/>'s pre-action truncate clears real
+    /// rows instead of running against an already-empty table, and the flat/
+    /// validation loads run against a table that already holds data. Runs outside
+    /// the measured window. Seed ids are negative so they never collide with the
+    /// loaded rows (0..RecordCount-1).
     /// </summary>
-    [IterationCleanup]
-    public void TruncateBetweenIterations()
+    [IterationSetup]
+    public void SeedBeforeIteration()
     {
         using var command = _connection.CreateCommand();
-        command.CommandText = "TRUNCATE TABLE dbo.Widgets;";
+        command.CommandText =
+            "TRUNCATE TABLE dbo.Widgets;" +
+            "INSERT INTO dbo.Widgets (Id, WidgetName, Price) " +
+            "SELECT TOP (1000) -ROW_NUMBER() OVER (ORDER BY (SELECT NULL)), 'seed', 0 " +
+            "FROM sys.all_objects;";
         command.ExecuteNonQuery();
     }
 
@@ -145,13 +154,16 @@ public class BulkLoadShadowWorkloads
 
 
 
+    // Synchronous source exposed as IAsyncEnumerable for LoadAsync. No await on
+    // the enumerated path keeps the measured allocation/latency free of extra
+    // await-state-machine work; CS1998 is expected and suppressed.
+#pragma warning disable CS1998
     private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(IEnumerable<T> items)
     {
         foreach (var item in items)
         {
             yield return item;
         }
-
-        await Task.CompletedTask;
     }
+#pragma warning restore CS1998
 }
