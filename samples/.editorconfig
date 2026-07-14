@@ -1,0 +1,23 @@
+# Analyzer rules relaxed for sample / shadow-workload projects
+
+[*.cs]
+
+# AsyncFixer01: Remove async/await — benchmark methods use BenchmarkDotNet conventions
+dotnet_diagnostic.AsyncFixer01.severity = none
+
+# MA0004: Use ConfigureAwait(false) — not needed in a standalone sample harness
+dotnet_diagnostic.MA0004.severity = none
+
+# S1215: Remove use of GC.GetTotalMemory — required for memory benchmarks
+dotnet_diagnostic.S1215.severity = none
+
+# VSTHRD200: Use Async suffix — benchmark methods follow BenchmarkDotNet naming conventions
+dotnet_diagnostic.VSTHRD200.severity = none
+
+# CA2007: ConfigureAwait — a standalone console/benchmark app has no sync context to capture
+dotnet_diagnostic.CA2007.severity = none
+
+# CA1001: Own disposable fields without being IDisposable — BenchmarkDotNet owns the
+# lifecycle here: [GlobalSetup] creates the container/connection and [GlobalCleanup]
+# disposes them. The benchmark class itself is never disposed by a caller.
+dotnet_diagnostic.CA1001.severity = none

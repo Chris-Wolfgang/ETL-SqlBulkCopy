@@ -45,6 +45,9 @@
   <Folder Name="/examples/">
     <Project Path="examples/BulkLoadQuickstart/BulkLoadQuickstart.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads/Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Wolfgang.Etl.SqlBulkCopy/Wolfgang.Etl.SqlBulkCopy.csproj" />
   </Folder>
