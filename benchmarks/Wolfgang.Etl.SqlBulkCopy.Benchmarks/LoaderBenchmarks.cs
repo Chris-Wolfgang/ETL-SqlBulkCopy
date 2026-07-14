@@ -58,13 +58,16 @@ public class LoaderBenchmarks
         await loader.LoadAsync(ToAsyncEnumerable(_rows));
     }
 
+    // Synchronous source exposed as IAsyncEnumerable for LoadAsync. No await on
+    // the enumerated path keeps the measured allocation/latency free of extra
+    // await-state-machine work; CS1998 is expected and suppressed.
+#pragma warning disable CS1998
     private static async IAsyncEnumerable<BenchRow> ToAsyncEnumerable(BenchRow[] rows)
     {
         foreach (var row in rows)
         {
             yield return row;
         }
-
-        await Task.CompletedTask;
     }
+#pragma warning restore CS1998
 }

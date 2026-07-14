@@ -26,9 +26,16 @@ internal sealed class NoOpSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 
     public async Task WriteToServerAsync(DbDataReader reader, CancellationToken cancellationToken)
     {
-        // Drain the reader so the loader's per-row mapping actually executes.
+        // Drain the reader AND read every field so the loader's per-row mapping
+        // (TypeMapReader + the compiled property getters) actually executes for
+        // each column. Without reading the values, the compiled getters would
+        // never fire and the benchmark would understate the real load path.
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
+            for (var i = 0; i < reader.FieldCount; i++)
+            {
+                _ = reader.GetValue(i);
+            }
         }
     }
 
