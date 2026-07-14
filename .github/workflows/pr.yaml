@@ -275,7 +275,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
@@ -337,7 +337,7 @@ jobs:
           echo "✅ Configuration files secured - using versions from main branch"
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
           dotnet-version: '10.0.x'
 
@@ -359,9 +359,11 @@ jobs:
         run: |
           # Find a solution to inspect. Prefer .slnx (new format) then .sln.
           # InspectCode requires SOMETHING solution-shaped — fail loudly if neither exists.
-          SLN=$(ls *.slnx 2>/dev/null | head -n1)
+          # find (not ls) so shellcheck SC2012/SC2035 stay clean and a no-match
+          # yields empty output instead of a non-zero pipeline.
+          SLN=$(find . -maxdepth 1 -name '*.slnx' | head -n1)
           if [ -z "$SLN" ]; then
-            SLN=$(ls *.sln 2>/dev/null | head -n1)
+            SLN=$(find . -maxdepth 1 -name '*.sln' | head -n1)
           fi
           if [ -z "$SLN" ]; then
             echo "::error::No .slnx or .sln found at repo root — InspectCode needs one to run."
@@ -375,7 +377,7 @@ jobs:
             --no-build
 
       - name: Upload SARIF to Code Scanning
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
         with:
           sarif_file: inspect.sarif
 
