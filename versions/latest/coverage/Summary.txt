@@ -1,23 +1,23 @@
 Summary
-  Generated on: 7/10/2026 - 11:34:18 PM
-  Coverage date: 7/10/2026 - 11:34:14 PM
+  Generated on: 7/14/2026 - 1:10:27 AM
+  Coverage date: 7/14/2026 - 1:10:22 AM - 7/14/2026 - 1:10:23 AM
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
-  Classes: 25
-  Files: 25
-  Line coverage: 98.6%
-  Covered lines: 2478
+  Classes: 27
+  Files: 27
+  Line coverage: 98.7%
+  Covered lines: 2529
   Uncovered lines: 33
-  Coverable lines: 2511
-  Total lines: 6160
-  Branch coverage: 96.1% (303 of 315)
-  Covered branches: 303
-  Total branches: 315
-  Method coverage: 99.2% (387 of 390)
-  Full method coverage: 97.4% (380 of 390)
-  Covered methods: 387
-  Fully covered methods: 380
-  Total methods: 390
+  Coverable lines: 2562
+  Total lines: 6349
+  Branch coverage: 96.2% (309 of 321)
+  Covered branches: 309
+  Total branches: 321
+  Method coverage: 99.2% (395 of 398)
+  Full method coverage: 97.4% (388 of 398)
+  Covered methods: 395
+  Fully covered methods: 388
+  Total methods: 398
 
 Wolfgang.Etl.SqlBulkCopy                                                      97%
   Wolfgang.Etl.SqlBulkCopy.ColumnMap                                         100%
@@ -33,7 +33,9 @@ Wolfgang.Etl.SqlBulkCopy                                                      97
   Wolfgang.Etl.SqlBulkCopy.TypeMapReader                                     100%
 
 Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                         99.5%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.AllocationTests                        100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ColumnMapTests                         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.CultureInvarianceTests                 100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapper          90.4%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapperFactory    100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlCommandExecutor           100%
