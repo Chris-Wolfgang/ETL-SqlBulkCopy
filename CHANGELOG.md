@@ -19,6 +19,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.3.0] - 2026-07-14
+
+Test-quality and performance-engineering tooling. **No change to the shipped
+library API or behavior** — the compiled assembly is functionally identical to
+0.2.0 (aside from an added `InternalsVisibleTo` for the benchmark project). This
+release adds the internal benchmark/sample harnesses and mutation-testing
+infrastructure that guard the library's performance and test rigor.
+
+### Added
+
+- `benchmarks/Wolfgang.Etl.SqlBulkCopy.Benchmarks` — a BenchmarkDotNet baseline
+  project covering the compiled property getters, the end-to-end load path (via
+  an in-process no-op wrapper), and the `SliceList` batching fast-path.
+- `samples/Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads` — realistic shadow
+  workloads (bulk load, validation, and `PreAction.TruncateTable`) that exercise
+  the loader against a real SQL Server via Testcontainers; doubles as usage
+  documentation.
+- Stryker.NET mutation-testing configuration (`stryker-config.json`), enabling
+  the canonical weekly mutation run; baseline mutation score recorded and
+  surviving mutants triaged.
+- Nightly shadow-workload perf-regression workflow (`shadow.yaml`) that replays
+  the sample workloads, publishes a trend to gh-pages under `dev/shadow/`, and
+  fails + files an issue on a latency regression beyond threshold.
+- Code-coverage trend graph published to the docs site under `/coverage/`.
+
+### Changed
+
+- Dropped the redundant `_Async` suffix from test method names across the unit
+  and integration suites for naming consistency (test-only; no shipped change).
+
 ## [0.2.0] - 2026-07-12
 
 Documentation, examples, and supply-chain tooling. **No change to the shipped
