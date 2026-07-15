@@ -22,7 +22,7 @@ public class PostActionIntegrationTests
 
 
     [SkippableFact]
-    public async Task PostAction_CustomAction_invokes_delegate_after_load_Async()
+    public async Task PostAction_CustomAction_invokes_delegate_after_load()
     {
         Skip.IfNot(_fixture.IsAvailable, _fixture.UnavailableReason ?? "SQL Server container unavailable.");
 
