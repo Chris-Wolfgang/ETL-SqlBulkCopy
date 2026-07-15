@@ -87,8 +87,9 @@ public sealed class SqlServerFixture : IAsyncLifetime
             // behaviour. Update this when consciously moving to a newer CU
             // (avoid floating ":2022-latest" so upstream image updates don't
             // surprise CI).
-            _container = new MsSqlBuilder()
-                .WithImage("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
+            // Testcontainers 4.13+ deprecated the parameterless MsSqlBuilder()
+            // in favour of passing the image to the constructor.
+            _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
                 .Build();
             await _container.StartAsync().ConfigureAwait(false);
             IsAvailable = true;
