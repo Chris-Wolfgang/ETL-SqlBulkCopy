@@ -66,12 +66,12 @@
 <div class="card">
 <div class="card-header">Branch coverage</div>
 <div class="card-body">
-<div class="large cardpercentagebar cardpercentagebar0">100%</div>
+<div class="large cardpercentagebar cardpercentagebar50">50%</div>
 <div class="table">
 <table>
 <tr>
 <th>Covered branches:</th>
-<td class="limit-width right" title="6">6</td>
+<td class="limit-width right" title="3">3</td>
 </tr>
 <tr>
 <th>Total branches:</th>
@@ -79,7 +79,7 @@
 </tr>
 <tr>
 <th>Branch coverage:</th>
-<td class="limit-width right" title="6 of 6">100%</td>
+<td class="limit-width right" title="3 of 6">50%</td>
 </tr>
 </table>
 </div>
@@ -96,7 +96,7 @@
 </div>
 </div>
 <h1>Coverage history</h1>
-<div class="historychart ct-chart" data-data="historyChartDatab41aa49170f049deb152ba42eab2cc41"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ct-chart" width="1200" height="150" viewBox="0 0 1200 150">
+<div class="historychart ct-chart" data-data="historyChartDataafaf772d98294ecc950d5051c5b76970"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ct-chart" width="1200" height="150" viewBox="0 0 1200 150">
 <style type="text/css">
         <![CDATA[
         .ct-chart .ct-grid {
@@ -161,27 +161,101 @@
     <text x="45" y="38" class="ct-label">75</text>
     <text x="45" y="13" class="ct-label">100</text>
 </g><g class="ct-series ct-series-a">
-<path d="M50.000,16.900" class="ct-line"></path>
+<path d="M50.000,16.900L1190.000,16.900" class="ct-line"></path>
 <line x1="50.000" y1="16.900" x2="50.010" y2="16.900" class="ct-point"><title>7/10/2026 - 12:57:16 AM&#13;
 Line coverage: 98.1% (104/106)&#13;
 Branch coverage: 100% (6/6)&#13;
+Total lines: 322</title></line><line x1="1190.000" y1="16.900" x2="1190.010" y2="16.900" class="ct-point"><title>7/15/2026 - 8:32:18 PM&#13;
+Line coverage: 98.1% (104/106)&#13;
+Branch coverage: 50% (3/6)&#13;
 Total lines: 322</title></line></g>
 <g class="ct-series ct-series-b">
-<path d="M50.000,15.000" class="ct-line"></path>
+<path d="M50.000,15.000L1190.000,65.000" class="ct-line"></path>
 <line x1="50.000" y1="15.000" x2="50.010" y2="15.000" class="ct-point"><title>7/10/2026 - 12:57:16 AM&#13;
 Line coverage: 98.1% (104/106)&#13;
 Branch coverage: 100% (6/6)&#13;
+Total lines: 322</title></line><line x1="1190.000" y1="65.000" x2="1190.010" y2="65.000" class="ct-point"><title>7/15/2026 - 8:32:18 PM&#13;
+Line coverage: 98.1% (104/106)&#13;
+Branch coverage: 50% (3/6)&#13;
 Total lines: 322</title></line></g>
 </svg>
 </div>
 <script type="text/javascript">/* <![CDATA[ */ 
-var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
-    "series" : [[{ 'meta': 0, 'value': 98.1 }],
-[{ 'meta': 0, 'value': 100 }],
+var historyChartDataafaf772d98294ecc950d5051c5b76970 = {
+    "series" : [[{ 'meta': 0, 'value': 98.1 }, { 'meta': 1, 'value': 98.1 }],
+[{ 'meta': 0, 'value': 100 }, { 'meta': 1, 'value': 50 }],
 [],
 []
 ],
-    "tooltips" : ['<h3>7/10/2026 - 12:57:16 AM</h3><br /><span class="linecoverage"></span> Line coverage: 98.1% (104/106)<br /><span class="branchcoverage"></span> Branch coverage: 100% (6/6)<br />Total lines: 322']
+    "tooltips" : ['<h3>7/10/2026 - 12:57:16 AM</h3><br /><span class="linecoverage"></span> Line coverage: 98.1% (104/106)<br /><span class="branchcoverage"></span> Branch coverage: 100% (6/6)<br />Total lines: 322','<h3>7/15/2026 - 8:32:18 PM</h3><br /><span class="linecoverage"></span> Line coverage: 98.1% (104/106)<br /><span class="branchcoverage"></span> Branch coverage: 50% (3/6)<br />Total lines: 322']
+};
+ /* ]]> */ </script>
+<h1>Coverage delta</h1>
+<div class="historydiffchart ct-chart" data-data="historyChartDatadf07c1d995e14d6fbb50132a47f2fc2e"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ct-chart-bar ct-horizontal-bars" width="1200" height="100" viewBox="0 0 1200 100">
+<style type="text/css">
+        <![CDATA[
+        .ct-chart-bar .ct-grid {
+            stroke: rgba(0,0,0,.2);
+            stroke-width: 1px;
+            stroke-dasharray: 2px;
+        }
+
+        .ct-label {
+            fill: rgba(0, 0, 0, 0.4);
+            color: rgba(0, 0, 0, 0.4);
+            font-size: 12px;
+            font-family: sans-serif;
+            text-anchor: end;
+        }
+
+        .ct-bar {fill: none;
+            stroke-width: 10px;
+        }
+
+        .ct-chart .ct-series.ct-series-a .ct-bar {
+            stroke: #c00;
+        }
+
+        .ct-chart .ct-series.ct-series-b .ct-bar {
+            stroke: #1c2298;
+        }
+
+        .ct-chart .ct-series.ct-series-c .ct-bar {
+            stroke: #0aad0a;
+        }
+
+        .ct-chart .ct-series.ct-series-d .ct-bar {
+            stroke: #FF6A00;
+        }
+        ]]>
+</style>
+<title>Coverage delta</title>
+<defs>
+</defs><g class="ct-grids">
+<line x1="50" x2="1190" y1="0" y2="0" class="ct-grid"></line>
+<line x1="50" x2="1190" y1="25" y2="25" class="ct-grid"></line>
+<line x1="50" x2="1190" y1="50" y2="50" class="ct-grid"></line>
+<line x1="50" x2="1190" y1="75" y2="75" class="ct-grid"></line>
+<line x1="50" x2="1190" y1="100" y2="100" class="ct-grid"></line>
+<line x1="50.000" x2="50.000" y1="0" y2="100" class="ct-grid"></line>
+<line x1="1190.000" x2="1190.000" y1="0" y2="100" class="ct-grid"></line>
+</g>
+<g>
+<text x="45" y="10" class="ct-label">50</text>
+<text x="45" y="100" class="ct-label">-50</text>
+</g>
+<g class="ct-series ct-series-a">
+<line x1="600.500" x2="600.500" y1="50" y2="50.000" class="ct-bar"></line>
+</g>
+<g class="ct-series ct-series-b">
+<line x1="613.500" x2="613.500" y1="50" y2="100.000" class="ct-bar"></line>
+</g>
+</svg>
+</div>
+<script type="text/javascript">/* <![CDATA[ */ 
+var historyChartDatadf07c1d995e14d6fbb50132a47f2fc2e = {
+    "minMaxValue" : 50,    "series" : [[{ 'meta': 0, 'value': 0.0 }],[{ 'meta': 0, 'value': -50 }],],
+    "tooltips" : ['<h3>Coverage delta</h3><br/>Current: 7/15/2026 - 8:32:18 PM<br/>Previous: 7/10/2026 - 12:57:16 AM<br /><br /><span class="linecoverage"></span> Line coverage: 0.0%<br /><span class="branchcoverage"></span> Branch coverage: -50%']
 };
  /* ]]> */ </script>
 <h1>Metrics</h1>
@@ -204,7 +278,7 @@ var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
 <tr><td title="set_SetOnly(System.String)"><a href="#file0_line33" class="navigatetohash">set_SetOnly(...)</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
 <tr><td title=".ctor()"><a href="#file0_line35" class="navigatetohash">.ctor()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompilePropertyGetter_when_declaringType_is_null_throws_ArgumentException()"><a href="#file0_line48" class="navigatetohash">CompilePropertyGetter_when_declaringType_is_null_throws_ArgumentException()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
-<tr><td title="CompilePropertyGetter_when_propertyInfo_is_null_throws_ArgumentNullException()"><a href="#file0_line90" class="navigatetohash">CompilePropertyGetter_when_propertyInfo_is_null_throws_ArgumentNullException()</a></td><td>100%</td><td>2</td><td>2</td><td>100%</td></tr>
+<tr><td title="CompilePropertyGetter_when_propertyInfo_is_null_throws_ArgumentNullException()"><a href="#file0_line90" class="navigatetohash">CompilePropertyGetter_when_propertyInfo_is_null_throws_ArgumentNullException()</a></td><td>50%</td><td>2</td><td>2</td><td>100%</td></tr>
 <tr><td title="CompilePropertyGetter_when_property_has_no_getter_throws_ArgumentException()"><a href="#file0_line101" class="navigatetohash">CompilePropertyGetter_when_property_has_no_getter_throws_ArgumentException()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompilePropertyGetter_when_property_is_indexer_throws_ArgumentException()"><a href="#file0_line122" class="navigatetohash">CompilePropertyGetter_when_property_is_indexer_throws_ArgumentException()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompilePropertyGetter_reads_value_type_property_as_boxed_object()"><a href="#file0_line139" class="navigatetohash">CompilePropertyGetter_reads_value_type_property_as_boxed_object()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
@@ -213,8 +287,8 @@ var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
 <tr><td title="CompilePropertyGetter_reads_reference_type_property()"><a href="#file0_line182" class="navigatetohash">CompilePropertyGetter_reads_reference_type_property()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompilePropertyGetter_reads_reference_type_property_when_null_returns_null()"><a href="#file0_line196" class="navigatetohash">CompilePropertyGetter_reads_reference_type_property_when_null_returns_null()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompilePropertyGetter_reads_DateTime_property()"><a href="#file0_line210" class="navigatetohash">CompilePropertyGetter_reads_DateTime_property()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
-<tr><td title="CompileEnumToUnderlyingConverter_when_enumType_is_null_throws_ArgumentNullException()"><a href="#file0_line254" class="navigatetohash">CompileEnumToUnderlyingConverter_when_enumType_is_null_throws_ArgumentNullException()</a></td><td>100%</td><td>2</td><td>2</td><td>100%</td></tr>
-<tr><td title="CompileEnumToUnderlyingConverter_when_type_is_not_enum_throws_ArgumentException()"><a href="#file0_line265" class="navigatetohash">CompileEnumToUnderlyingConverter_when_type_is_not_enum_throws_ArgumentException()</a></td><td>100%</td><td>2</td><td>2</td><td>100%</td></tr>
+<tr><td title="CompileEnumToUnderlyingConverter_when_enumType_is_null_throws_ArgumentNullException()"><a href="#file0_line254" class="navigatetohash">CompileEnumToUnderlyingConverter_when_enumType_is_null_throws_ArgumentNullException()</a></td><td>50%</td><td>2</td><td>2</td><td>100%</td></tr>
+<tr><td title="CompileEnumToUnderlyingConverter_when_type_is_not_enum_throws_ArgumentException()"><a href="#file0_line265" class="navigatetohash">CompileEnumToUnderlyingConverter_when_type_is_not_enum_throws_ArgumentException()</a></td><td>50%</td><td>2</td><td>2</td><td>100%</td></tr>
 <tr><td title="CompileEnumToUnderlyingConverter_for_int_backed_enum_returns_boxed_int()"><a href="#file0_line276" class="navigatetohash">CompileEnumToUnderlyingConverter_for_int_backed_enum_returns_boxed_int()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompileEnumToUnderlyingConverter_for_byte_backed_enum_returns_boxed_byte()"><a href="#file0_line289" class="navigatetohash">CompileEnumToUnderlyingConverter_for_byte_backed_enum_returns_boxed_byte()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="CompileEnumToUnderlyingConverter_for_long_backed_enum_returns_boxed_long()"><a href="#file0_line302" class="navigatetohash">CompileEnumToUnderlyingConverter_for_long_backed_enum_returns_boxed_long()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
@@ -317,7 +391,7 @@ var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line87"></a><code>87</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;[Fact]</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line88"></a><code>88</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;CompilePropertyGetter_when_propertyInfo_is_null_throws_ArgumentNullException()</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line89"></a><code>89</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr class="coverableline" title="Covered (1 visits, 2 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line90"></a><code>90</code></td><td class="percentagebar percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert.Throws&lt;ArgumentNullException&gt;</code></td></tr>
+<tr class="coverableline" title="Partially covered (1 visits, 1 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'orange'}}"><td class="orange">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line90"></a><code>90</code></td><td class="percentagebar percentagebar50"><i class="icon-fork"></i></td><td class="lightorange"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert.Throws&lt;ArgumentNullException&gt;</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line91"></a><code>91</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line92"></a><code>92</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;()&nbsp;=&gt;&nbsp;ReflectionHelpers.CompilePropertyGetter(null!)</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line93"></a><code>93</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</code></td></tr>
@@ -481,7 +555,7 @@ var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line251"></a><code>251</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;[Fact]</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line252"></a><code>252</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;CompileEnumToUnderlyingConverter_when_enumType_is_null_throws_ArgumentNullException()</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line253"></a><code>253</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr class="coverableline" title="Covered (1 visits, 2 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line254"></a><code>254</code></td><td class="percentagebar percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert.Throws&lt;ArgumentNullException&gt;</code></td></tr>
+<tr class="coverableline" title="Partially covered (1 visits, 1 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'orange'}}"><td class="orange">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line254"></a><code>254</code></td><td class="percentagebar percentagebar50"><i class="icon-fork"></i></td><td class="lightorange"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert.Throws&lt;ArgumentNullException&gt;</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line255"></a><code>255</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line256"></a><code>256</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;()&nbsp;=&gt;&nbsp;ReflectionHelpers.CompileEnumToUnderlyingConverter(null!)</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line257"></a><code>257</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</code></td></tr>
@@ -492,7 +566,7 @@ var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line262"></a><code>262</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;[Fact]</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line263"></a><code>263</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;CompileEnumToUnderlyingConverter_when_type_is_not_enum_throws_ArgumentException()</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line264"></a><code>264</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr class="coverableline" title="Covered (1 visits, 2 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line265"></a><code>265</code></td><td class="percentagebar percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert.Throws&lt;ArgumentException&gt;</code></td></tr>
+<tr class="coverableline" title="Partially covered (1 visits, 1 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'orange'}}"><td class="orange">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line265"></a><code>265</code></td><td class="percentagebar percentagebar50"><i class="icon-fork"></i></td><td class="lightorange"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert.Throws&lt;ArgumentException&gt;</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line266"></a><code>266</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line267"></a><code>267</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;()&nbsp;=&gt;&nbsp;ReflectionHelpers.CompileEnumToUnderlyingConverter(typeof(int))</code></td></tr>
 <tr class="coverableline" title="Covered (1 visits)" data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line268"></a><code>268</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</code></td></tr>
@@ -553,7 +627,7 @@ var historyChartDatab41aa49170f049deb152ba42eab2cc41 = {
 </tbody>
 </table>
 </div>
-<div class="footer">Generated by: ReportGenerator 5.5.10.0<br />7/14/2026 - 1:10:27 AM<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
+<div class="footer">Generated by: ReportGenerator 5.5.10.0<br />7/15/2026 - 8:32:18 PM<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
 <div class="containerright">
 <div class="containerrightfixed">
 <h1>Methods/Properties</h1>
