@@ -44,8 +44,9 @@ public class BulkLoadShadowWorkloads
     {
         // Pin the same image tag the integration-test fixture uses so shadow
         // measurements are comparable to the tested configuration.
-        _container = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
+        // Testcontainers 4.13+ takes the image via the constructor (the
+        // parameterless MsSqlBuilder() + .WithImage() form is deprecated).
+        _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
             .Build();
         await _container.StartAsync();
 
