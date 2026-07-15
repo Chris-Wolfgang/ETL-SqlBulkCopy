@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <!-- Xunit.SkippableFact: lets a [SkippableFact] short-circuit at runtime via
          Skip.IfNot(...). Used by the ctor tests that build a real SqlConnection —
