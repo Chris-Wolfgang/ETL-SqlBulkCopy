@@ -1,18 +1,16 @@
 # zizmor baseline configuration.
 #
-# Suppress accepted-as-intentional findings here, with rule_id + path +
-# rationale. Empty today — accumulate suppressions as real findings are
-# reviewed and either fixed or formally accepted.
+# Suppress accepted-as-intentional findings here, with a rationale comment.
+# Everything not listed is subject to the workflow-security gate: a new
+# high-severity finding fails the PR (see .github/workflows/workflow-security.yaml).
 #
-# Format: https://woodruffw.github.io/zizmor/configuration/
-#
-# Example for future reference:
-#
-# rules:
-#   dangerous-triggers:
-#     ignore:
-#       - path: .github/workflows/pr.yaml
-#         comment: |
-#           pull_request_target is intentional here so PR validation runs
-#           from main's trusted version of the workflow rather than the
-#           PR-author-controlled HEAD. See S2 hardening notes.
+# Format: https://docs.zizmor.sh/configuration/
+
+rules:
+  dangerous-triggers:
+    ignore:
+      # pr.yaml uses `pull_request_target` intentionally. PR validation must run
+      # from main's trusted copy of the workflow (with the PR checked out
+      # read-only for scanning), not the PR-author-controlled HEAD — that is the
+      # whole point of the guard. Documented in the pr.yaml header.
+      - pr.yaml
