@@ -85,13 +85,15 @@ jobs:
         # --offline avoids GitHub API calls during the lint (no rate-limit
         # surprises on busy days). --persona auditor enables stricter rules
         # appropriate for a library shipping to the public NuGet feed.
+        # --config loads .zizmor.yml explicitly: zizmor only auto-discovers
+        # .github/zizmor.yml, so without this the root .zizmor.yml (where
+        # accepted findings are suppressed) is silently ignored.
         run: |
-          zizmor --offline --persona auditor --format sarif \
+          zizmor --config .zizmor.yml --offline --persona auditor --format sarif \
             .github/workflows/ > zizmor.sarif || true
-        # `|| true` keeps the step from short-circuiting on finding, so
-        # SARIF still uploads. Findings surface as PR annotations via the
-        # upload step below; severity threshold tightening is tracked in
-        # the issue's Acceptance criteria for a follow-up.
+        # `|| true` keeps the step from short-circuiting on findings, so the
+        # full SARIF still uploads (all severities surface as PR annotations).
+        # The gate step below is what actually fails the PR on high severity.
 
       - name: Upload SARIF to code-scanning
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
@@ -99,3 +101,31 @@ jobs:
         with:
           sarif_file: zizmor.sarif
           category: zizmor
+
+      - name: Gate on new high-severity findings
+        # Fails the PR on a NEW high-severity zizmor finding. Accepted findings
+        # (e.g. pr.yaml's intentional pull_request_target) are suppressed in
+        # .zizmor.yml, so anything left at high severity is genuinely new.
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Guard against a false green: if zizmor failed to install/run, the
+          # `|| true` above would leave zizmor.sarif missing or empty. Fail
+          # here rather than reporting a clean gate on no data.
+          if [ ! -s zizmor.sarif ]; then
+            echo "::error::zizmor.sarif is missing or empty — zizmor did not run. Failing rather than passing on no data."
+            exit 1
+          fi
+          if ! jq empty zizmor.sarif 2>/dev/null; then
+            echo "::error::zizmor.sarif is not valid JSON — zizmor output is malformed."
+            exit 1
+          fi
+          # zizmor maps High/Critical severity to SARIF level "error".
+          high=$(jq '[.runs[].results[] | select(.level == "error")] | length' zizmor.sarif)
+          echo "High-severity (level=error) zizmor findings: $high"
+          if [ "$high" -gt 0 ]; then
+            echo "::error::$high new high-severity zizmor finding(s). Fix them, or accept in .zizmor.yml with a rationale."
+            jq -r '.runs[].results[] | select(.level == "error") | "  - \(.ruleId): \(.locations[0].physicalLocation.artifactLocation.uri)"' zizmor.sarif
+            exit 1
+          fi
+          echo "✅ No new high-severity zizmor findings."
