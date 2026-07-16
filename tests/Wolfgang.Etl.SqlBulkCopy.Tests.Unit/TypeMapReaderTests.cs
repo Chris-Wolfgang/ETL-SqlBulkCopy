@@ -170,6 +170,71 @@ public class TypeMapReaderTests
 
 
     [Fact]
+    public void GetName_when_ordinal_out_of_range_throws_from_the_ordinal_guard()
+    {
+        // GetName has its own ValidateOrdinal call. Assert ParamName "ordinal"
+        // so removing that guard (the downstream Columns[ordinal] indexer would
+        // still throw, with ParamName "index") is caught.
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.GetName(reader.FieldCount)
+        );
+
+        Assert.Equal("ordinal", ex.ParamName);
+    }
+
+
+
+    [Fact]
+    public void IsDBNull_when_ordinal_out_of_range_throws_from_the_ordinal_guard()
+    {
+        // IsDBNull has its own ValidateOrdinal call — same masking as GetName:
+        // the downstream Columns[ordinal] indexer would also throw, so pin the
+        // guard via ParamName "ordinal".
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.IsDBNull(reader.FieldCount)
+        );
+
+        Assert.Equal("ordinal", ex.ParamName);
+    }
+
+
+
+    [Fact]
+    public void GetOrdinal_when_name_is_null_throws_ArgumentNullException()
+    {
+        // The explicit null-check throws ArgumentNullException(nameof(name)).
+        // Removing it would let `_ordinalLookup.TryGetValue(null, ...)` throw
+        // ArgumentNullException too, but with ParamName "key" — so pin "name"
+        // to prove the reader's own guard fired.
+        var reader = CreateReader(Array.Empty<object>());
+
+        var ex = Assert.Throws<ArgumentNullException>
+        (
+            () => reader.GetOrdinal(null!)
+        );
+
+        Assert.Equal("name", ex.ParamName);
+    }
+
+
+
+    [Fact]
     public void IsDBNull_when_value_is_null_returns_true()
     {
         var typeMap = TypeMap.Create(typeof(NullablePropertiesRecord));
@@ -507,19 +572,6 @@ public class TypeMapReaderTests
         var reader = CreateReader(Array.Empty<object>());
 
         Assert.False(reader.NextResult());
-    }
-
-
-
-    [Fact]
-    public void GetOrdinal_when_name_is_null_throws_ArgumentNullException()
-    {
-        var reader = CreateReader(Array.Empty<object>());
-
-        Assert.Throws<ArgumentNullException>
-        (
-            () => reader.GetOrdinal(null!)
-        );
     }
 
 
