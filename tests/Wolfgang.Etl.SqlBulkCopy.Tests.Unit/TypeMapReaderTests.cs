@@ -120,6 +120,48 @@ public class TypeMapReaderTests
 
 
     [Fact]
+    public void GetValue_when_ordinal_is_negative_throws_ArgumentOutOfRangeException()
+    {
+        // -1 pins the lower bound of `ordinal < 0`. A large value like 99 (above)
+        // only exercises the upper bound, so it can't catch a mutation to the
+        // `< 0` clause (or the `||` collapsing to `&&`).
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.GetValue(-1)
+        );
+    }
+
+
+
+    [Fact]
+    public void GetValue_when_ordinal_equals_field_count_throws_ArgumentOutOfRangeException()
+    {
+        // FieldCount (3 for TestRecord: Id, Name, Amount) is the first invalid
+        // index — it pins the exact `ordinal >= _typeMap.Columns.Count` boundary.
+        // 99 (above) can't distinguish `>= Count` from `> Count`; `== Count` can.
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.GetValue(reader.FieldCount)
+        );
+    }
+
+
+
+    [Fact]
     public void IsDBNull_when_value_is_null_returns_true()
     {
         var typeMap = TypeMap.Create(typeof(NullablePropertiesRecord));
