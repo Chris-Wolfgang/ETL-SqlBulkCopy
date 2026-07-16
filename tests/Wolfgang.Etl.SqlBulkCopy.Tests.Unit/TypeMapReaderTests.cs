@@ -120,6 +120,56 @@ public class TypeMapReaderTests
 
 
     [Fact]
+    public void GetValue_when_ordinal_is_negative_throws_from_the_ordinal_guard()
+    {
+        // -1 pins the lower bound of `ordinal < 0`. We must assert the exception
+        // comes from ValidateOrdinal (ParamName "ordinal"), NOT the downstream
+        // Columns[ordinal] list indexer — which also throws ArgumentOutOfRange
+        // but with ParamName "index". Without the ParamName check, a mutation to
+        // the `< 0` clause (or `||` -> `&&`) would still throw via the indexer and
+        // escape detection.
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.GetValue(-1)
+        );
+
+        Assert.Equal("ordinal", ex.ParamName);
+    }
+
+
+
+    [Fact]
+    public void GetValue_when_ordinal_equals_field_count_throws_from_the_ordinal_guard()
+    {
+        // FieldCount (3 for TestRecord: Id, Name, Amount) is the first invalid
+        // index — it pins the exact `ordinal >= _typeMap.Columns.Count` boundary
+        // (`>= Count` vs `> Count`). As above, assert ParamName "ordinal" so the
+        // downstream indexer (ParamName "index") can't mask a mutated guard.
+        var batch = new object[]
+        {
+            new TestRecord { Id = 1, Name = "A", Amount = 10m }
+        };
+        var reader = CreateReader(batch);
+        reader.Read();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => reader.GetValue(reader.FieldCount)
+        );
+
+        Assert.Equal("ordinal", ex.ParamName);
+    }
+
+
+
+    [Fact]
     public void IsDBNull_when_value_is_null_returns_true()
     {
         var typeMap = TypeMap.Create(typeof(NullablePropertiesRecord));
