@@ -33,8 +33,6 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 
     public IReadOnlyList<int> BatchRowCounts => _batchRowCounts;
 
-    public int TotalWriteCalls => _batchRowCounts.Count;
-
 
 
     public void AddColumnMapping(string sourceColumn, string destinationColumn)
