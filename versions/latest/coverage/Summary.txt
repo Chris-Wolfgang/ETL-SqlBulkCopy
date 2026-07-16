@@ -1,23 +1,23 @@
 Summary
-  Generated on: 7/15/2026 - 8:32:18 PM
-  Coverage date: 7/15/2026 - 8:32:12 PM - 7/15/2026 - 8:32:14 PM
+  Generated on: 7/16/2026 - 8:27:54 PM
+  Coverage date: 7/16/2026 - 8:27:49 PM - 7/16/2026 - 8:27:50 PM
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
   Classes: 27
   Files: 27
   Line coverage: 98.7%
-  Covered lines: 2529
-  Uncovered lines: 33
-  Coverable lines: 2562
-  Total lines: 6349
+  Covered lines: 2592
+  Uncovered lines: 32
+  Coverable lines: 2624
+  Total lines: 6490
   Branch coverage: 89.7% (288 of 321)
   Covered branches: 288
   Total branches: 321
-  Method coverage: 99.2% (395 of 398)
-  Full method coverage: 97.4% (388 of 398)
-  Covered methods: 395
-  Fully covered methods: 388
-  Total methods: 398
+  Method coverage: 99.5% (401 of 403)
+  Full method coverage: 97.7% (394 of 403)
+  Covered methods: 401
+  Fully covered methods: 394
+  Total methods: 403
 
 Wolfgang.Etl.SqlBulkCopy                                                      97%
   Wolfgang.Etl.SqlBulkCopy.ColumnMap                                         100%
@@ -32,11 +32,11 @@ Wolfgang.Etl.SqlBulkCopy                                                      97
   Wolfgang.Etl.SqlBulkCopy.TypeMap                                           100%
   Wolfgang.Etl.SqlBulkCopy.TypeMapReader                                     100%
 
-Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                         99.5%
+Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                         99.6%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.AllocationTests                        100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ColumnMapTests                         100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.CultureInvarianceTests                 100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapper          90.4%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapper            95%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapperFactory    100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlCommandExecutor           100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NestedTableMapTests                    100%
