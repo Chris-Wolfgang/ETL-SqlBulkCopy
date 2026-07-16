@@ -10,10 +10,15 @@ public class TypeMapTests
     [Fact]
     public void Create_when_type_is_null_throws_ArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>
+        var ex = Assert.Throws<ArgumentNullException>
         (
             () => TypeMap.Create(null!)
         );
+
+        // Assert the guard itself fired (ParamName "type"). Removing the guard
+        // would still surface an ArgumentNullException from a downstream null
+        // path; pinning ParamName proves this specific check is the one throwing.
+        Assert.Equal("type", ex.ParamName);
     }
 
 
