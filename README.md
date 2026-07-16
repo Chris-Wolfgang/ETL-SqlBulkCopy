@@ -5,6 +5,7 @@ A loader that uses SqlBulkCopy for fast inserts into a Microsoft SQL database
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-Multi--Targeted-purple.svg)](https://dotnet.microsoft.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Chris-Wolfgang/ETL-SqlBulkCopy/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Chris-Wolfgang/ETL-SqlBulkCopy)
 
 ---
 

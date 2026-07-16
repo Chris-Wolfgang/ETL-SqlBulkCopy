@@ -239,6 +239,21 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
+    public void BatchSize_when_set_to_one_is_accepted()
+    {
+        // 1 is the inclusive minimum — the exact boundary the `value < 1` guard
+        // hinges on. Setting it must NOT throw and must round-trip. (Pins the
+        // boundary so a `< 1` -> `<= 1` mutation, which would reject 1, is caught.)
+        var sut = CreateSut();
+
+        sut.BatchSize = 1;
+
+        Assert.Equal(1, sut.BatchSize);
+    }
+
+
+
+    [Fact]
     public void BatchSize_when_set_to_zero_throws_ArgumentOutOfRangeException()
     {
         var sut = CreateSut();
@@ -332,6 +347,27 @@ public class SqlBulkCopyLoaderTests
         Assert.Equal(3, factory.CreatedWrappers[0].BatchRowCounts[0]);
         Assert.Equal(3, factory.CreatedWrappers[1].BatchRowCounts[0]);
         Assert.Equal(1, factory.CreatedWrappers[2].BatchRowCounts[0]);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_item_count_is_exact_multiple_of_BatchSize_writes_no_empty_final_batch()
+    {
+        // 6 items / batch size 3 = exactly 2 full batches; the final `batch.Count`
+        // is 0, so the trailing `if (batch.Count > 0)` flush must NOT run. Only a
+        // non-zero-count test (like the 3+3+1 case above) can't distinguish
+        // `> 0` from `>= 0` — a `>= 0` mutation would append a third, empty batch.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut(factory);
+        sut.BatchSize = 3;
+        var items = CreateTestItems(6);
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
+
+        Assert.Equal(2, factory.CreatedWrappers.Count);
+        Assert.Equal(3, factory.CreatedWrappers[0].BatchRowCounts[0]);
+        Assert.Equal(3, factory.CreatedWrappers[1].BatchRowCounts[0]);
     }
 
 

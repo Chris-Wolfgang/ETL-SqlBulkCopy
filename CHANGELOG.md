@@ -19,6 +19,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.4.0] - 2026-07-16
+
+CI/CD hardening, test-quality tooling, and docs. **No change to the shipped
+library API or behavior** — the compiled assembly and its dependencies are
+identical to 0.3.0. Everything here is repo infrastructure and internal test
+strengthening.
+
+### Added
+
+- Benchmark-result charts published to the docs site: the `benchmarks.yaml`
+  workflow runs the BenchmarkDotNet project on each push to `main` and renders
+  an interactive trend at `/dev/bench/` on gh-pages.
+- `REPRODUCIBLE-BUILD.md` — a consumer guide to the deterministic-build
+  guarantee and how to independently verify a released assembly.
+- OpenSSF Scorecard badge in the README plus a documented supply-chain score
+  floor in `SECURITY.md`.
+
+### Changed
+
+- `workflow-security.yaml` now **gates** PRs on new high-severity zizmor
+  findings (previously advisory-only), with a non-empty-SARIF guard against
+  false greens; accepted findings are suppressed in `.zizmor.yml`.
+- Test-suite strengthening: additional boundary/guard tests raised the Stryker
+  mutation score (67.96% → 70.63%), and one dead test helper was removed.
+
 ## [0.3.0] - 2026-07-14
 
 Test-quality and performance-engineering tooling. **No change to the shipped
@@ -97,7 +122,8 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/releases/tag/v0.1.0
