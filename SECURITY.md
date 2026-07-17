@@ -33,6 +33,16 @@ reviewer attention and be justified or remediated before merge. The floor is a
 minimum, not a target; the aim is to raise the score over time (pinned actions,
 branch protection, signed releases, etc.).
 
+## Release path & compromise scope
+
+Facts a maintainer would need at 2am if the release identity is compromised. Generic incident-response steps (rotating credentials, revoking OAuth apps, publishing advisories, unlisting NuGet packages) are not duplicated here — GitHub's and NuGet's own docs update faster than a checked-in runbook.
+
+- **Release path**: OIDC / NuGet Trusted Publishing via `NuGet/login@v1` in `.github/workflows/release.yaml`. The workflow mints an ephemeral push token per run via OIDC — the release path does not depend on a long-lived API key stored in GitHub secrets or on the NuGet account. During an incident, check the NuGet account for any long-lived API keys anyway (they can be created outside of CI) and delete anything you don't recognize.
+- **Fallback**: none. If Trusted Publishing is compromised, the incident is at the GitHub-account level (the OIDC identity is `Chris-Wolfgang/ETL-SqlBulkCopy`).
+- **Owner**: @Chris-Wolfgang.
+- **Downstream consumers**: no known `Wolfgang.*` fleet dependents (ETL-SqlBulkCopy is a leaf library — it consumes `Wolfgang.Etl.Abstractions`, but nothing in the fleet depends on it); unknown external consumers may exist on nuget.org.
+- **Package coordinates for unlisting**: `Wolfgang.Etl.SqlBulkCopy` on nuget.org — <https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/>.
+
 ## Thank You
 
 Your help is greatly appreciated!
