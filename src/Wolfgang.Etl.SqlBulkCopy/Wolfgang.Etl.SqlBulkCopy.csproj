@@ -9,6 +9,16 @@
     <AssemblyVersion>0.4.0</AssemblyVersion>
     <FileVersion>0.4.0</FileVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <!-- API/ABI compatibility gate (#88). On pack, the SDK's package validation
+         (Microsoft.DotNet.ApiCompat) downloads the baseline release and fails
+         the pack if the new public surface breaks binary/source compatibility
+         in a way a non-MAJOR bump forbids. Keep the baseline at the last
+         PUBLISHED version (see the PackageValidation baseline-timing note); bump
+         it right after each release. Intentional MAJOR-release breaks are
+         recorded via `dotnet pack -p:GenerateCompatibilitySuppressionFile=true`
+         (writes CompatibilitySuppressions.xml). -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>0.4.0</PackageValidationBaselineVersion>
     <Title>Wolfgang.Etl.SqlBulkCopy</Title>
     <Authors>Chris Wolfgang</Authors>
     <Description>Loader implementation for bulk loading data into SQL Server using SqlBulkCopy, built on Wolfgang.Etl.Abstractions.</Description>
