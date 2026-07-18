@@ -142,9 +142,21 @@ public sealed class ColumnMap
 
     private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo)
     {
-        // Expression-tree compiled getter — emits direct IL that calls the
-        // property's getter, avoiding the per-row PropertyInfo.GetValue
-        // reflection dispatch on the bulk-copy hot path.
+        // Prefer a source-generated accessor when one has been registered for
+        // this property. Generated getters are ordinary C# emitted at compile
+        // time, so they carry the same throughput as the runtime-compiled
+        // getter below without emitting IL at runtime — which is what keeps the
+        // per-row hot path Native-AOT clean. See ADR 0006.
+        if (propertyInfo.DeclaringType is not null
+            && GeneratedAccessorRegistry.TryGetGetter(propertyInfo.DeclaringType, propertyInfo.Name, out var generated))
+        {
+            return generated;
+        }
+
+        // Fallback: an expression-tree compiled getter — emits direct IL that
+        // calls the property's getter, avoiding the per-row PropertyInfo.GetValue
+        // reflection dispatch on the bulk-copy hot path. Behaviourally identical
+        // to a generated getter, but the runtime IL emission is not AOT-safe.
         return ReflectionHelpers.CompilePropertyGetter(propertyInfo);
     }
 }
