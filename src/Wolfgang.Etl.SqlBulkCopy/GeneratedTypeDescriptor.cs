@@ -26,12 +26,14 @@ public sealed class GeneratedTypeDescriptor
     (
         string? schemaName,
         string tableName,
-        IReadOnlyList<GeneratedColumnDescriptor> columns
+        IReadOnlyList<GeneratedColumnDescriptor> columns,
+        IReadOnlyList<GeneratedNestedTableDescriptor> nestedTables
     )
     {
         SchemaName = schemaName;
         TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
         Columns = columns ?? throw new ArgumentNullException(nameof(columns));
+        NestedTables = nestedTables ?? throw new ArgumentNullException(nameof(nestedTables));
     }
 
 
@@ -48,4 +50,9 @@ public sealed class GeneratedTypeDescriptor
 
     /// <summary>Gets the ordered mapped columns.</summary>
     public IReadOnlyList<GeneratedColumnDescriptor> Columns { get; }
+
+
+
+    /// <summary>Gets the nested collection-to-table mappings.</summary>
+    public IReadOnlyList<GeneratedNestedTableDescriptor> NestedTables { get; }
 }

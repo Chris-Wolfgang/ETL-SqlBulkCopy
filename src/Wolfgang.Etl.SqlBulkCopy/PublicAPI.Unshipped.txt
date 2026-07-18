@@ -11,9 +11,14 @@ Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.GeneratedColumnDescriptor(str
 Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.IsNullable.get -> bool
 Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.Ordinal.get -> int
 Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.PropertyName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor.ChildType.get -> System.Type!
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor.GeneratedNestedTableDescriptor(string! propertyName, System.Type! childType) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor.PropertyName.get -> string!
 Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor
 Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.Columns.get -> System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor!>!
-Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.GeneratedTypeDescriptor(string? schemaName, string! tableName, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor!>! columns) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.GeneratedTypeDescriptor(string? schemaName, string! tableName, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor!>! columns, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor!>! nestedTables) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.NestedTables.get -> System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor!>!
 Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.SchemaName.get -> string?
 Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.TableName.get -> string!
 Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry

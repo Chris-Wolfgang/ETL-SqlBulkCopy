@@ -229,10 +229,18 @@ internal sealed class TypeMap
             );
         }
 
-        // Generated descriptors are only registered for types with no nested
-        // tables (those still use the reflection path); nested-table generation
-        // is a follow-up. Emit an empty nested-table list to match.
-        return new TypeMap(schema, table, columns, Array.Empty<NestedTableMap>(), isMappedToTable: true);
+        // Each nested child type is itself [BulkCopyable] (the generator only
+        // emits a descriptor when the whole graph is generatable), so Create
+        // resolves the child through its own registered descriptor — the
+        // recursion stays reflection-free.
+        var nestedTables = new NestedTableMap[descriptor.NestedTables.Count];
+        for (var i = 0; i < descriptor.NestedTables.Count; i++)
+        {
+            var nested = descriptor.NestedTables[i];
+            nestedTables[i] = new NestedTableMap(type, nested.PropertyName, Create(nested.ChildType));
+        }
+
+        return new TypeMap(schema, table, columns, nestedTables, isMappedToTable: true);
     }
 
 

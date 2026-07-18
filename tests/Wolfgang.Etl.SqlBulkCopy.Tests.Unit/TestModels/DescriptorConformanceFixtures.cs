@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -56,4 +57,54 @@ public sealed class PlainAttributedFixture
     public int Id { get; set; }
 
     public string Name { get; set; } = string.Empty;
+}
+
+
+
+// Nested-table graph: a marked parent with a collection of a marked child. Both
+// the parent and child must be [BulkCopyable] for the descriptor path to apply
+// (recursive eligibility), so the whole graph maps reflection-free.
+
+/// <summary>Marked child element type for the nested-table conformance test.</summary>
+[BulkCopyable]
+[Table("Children")]
+public sealed class BulkCopyableChildFixture
+{
+    public int ParentId { get; set; }
+
+    public string Value { get; set; } = string.Empty;
+}
+
+
+
+/// <summary>Marked parent with a nested collection of <see cref="BulkCopyableChildFixture"/>.</summary>
+[BulkCopyable]
+[Table("Parents")]
+public sealed class BulkCopyableParentFixture
+{
+    public int Id { get; set; }
+
+    public IEnumerable<BulkCopyableChildFixture> Children { get; set; } = new List<BulkCopyableChildFixture>();
+}
+
+
+
+/// <summary>Reflection-path twin of <see cref="BulkCopyableChildFixture"/>.</summary>
+[Table("Children")]
+public sealed class PlainChildFixture
+{
+    public int ParentId { get; set; }
+
+    public string Value { get; set; } = string.Empty;
+}
+
+
+
+/// <summary>Reflection-path twin of <see cref="BulkCopyableParentFixture"/>.</summary>
+[Table("Parents")]
+public sealed class PlainParentFixture
+{
+    public int Id { get; set; }
+
+    public IEnumerable<PlainChildFixture> Children { get; set; } = new List<PlainChildFixture>();
 }

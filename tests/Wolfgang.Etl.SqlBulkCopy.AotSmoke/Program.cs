@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Wolfgang.Etl.SqlBulkCopy;
 
@@ -13,11 +14,25 @@ public enum SmokeKind : byte
 
 
 
+/// <summary>Marked child type — exercises the generated nested-table descriptor.</summary>
+[BulkCopyable]
+public sealed class SmokeChild
+{
+    public int ParentId { get; set; }
+
+    public string Note { get; set; } = string.Empty;
+}
+
+
+
 /// <summary>
-/// A <c>[BulkCopyable]</c> type whose accessors the source generator emits.
-/// Reached only through <c>TypeMap</c> / <c>ColumnMap</c> below — never through
-/// <c>SqlBulkCopyLoader</c> — so Microsoft.Data.SqlClient stays out of the
-/// AOT-reachable graph and the publish signal is about this library's code.
+/// A <c>[BulkCopyable]</c> type whose accessors and descriptor the source
+/// generator emits. Reached only through <c>TypeMap</c> / <c>ColumnMap</c> below
+/// — never through <c>SqlBulkCopyLoader</c> — so Microsoft.Data.SqlClient stays
+/// out of the AOT-reachable graph and the publish signal is about this library's
+/// code. The nested <see cref="Children"/> collection exercises the recursive
+/// nested-table descriptor path (both types are <c>[BulkCopyable]</c>, so the
+/// whole graph maps reflection-free).
 /// </summary>
 [BulkCopyable]
 public sealed class SmokeRow
@@ -27,6 +42,8 @@ public sealed class SmokeRow
     public string Name { get; set; } = string.Empty;
 
     public SmokeKind Kind { get; set; }
+
+    public IEnumerable<SmokeChild> Children { get; set; } = new List<SmokeChild>();
 }
 
 
@@ -60,13 +77,21 @@ public static class Program
             ? null
             : kindColumn.EnumConverter(kindBoxed);
 
+        // Nested-table descriptor: built reflection-free by resolving the child
+        // type's own generated descriptor.
+        var nestedCount = map.NestedTables.Count;
+        var childColumnCount = nestedCount == 1 ? map.NestedTables[0].ChildTypeMap.Columns.Count : -1;
+
         var ok = idValue is 7
                  && nameValue is string name && string.Equals(name, "aot", StringComparison.Ordinal)
-                 && kindUnderlying is byte kind && kind == 2;
+                 && kindUnderlying is byte kind && kind == 2
+                 && nestedCount == 1
+                 && childColumnCount == 2;
 
         Console.WriteLine
         (
-            $"AOT smoke: Id={idValue}, Name={nameValue}, Kind(underlying)={kindUnderlying}, ok={ok}"
+            $"AOT smoke: Id={idValue}, Name={nameValue}, Kind(underlying)={kindUnderlying}, " +
+            $"nested={nestedCount}, childCols={childColumnCount}, ok={ok}"
         );
 
         return ok ? 0 : 1;

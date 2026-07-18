@@ -19,6 +19,7 @@ public class DescriptorConformanceTests
     [InlineData(typeof(BulkCopyableFixture), typeof(PlainFixture))]
     [InlineData(typeof(BulkCopyableEnumFixture), typeof(PlainEnumFixture))]
     [InlineData(typeof(BulkCopyableAttributedFixture), typeof(PlainAttributedFixture))]
+    [InlineData(typeof(BulkCopyableParentFixture), typeof(PlainParentFixture))]
     public void Generated_descriptor_columns_match_reflection(Type generatedType, Type reflectionType)
     {
         var generated = TypeMap.Create(generatedType);
@@ -53,6 +54,34 @@ public class DescriptorConformanceTests
         Assert.Equal(reflection.SchemaName, generated.SchemaName);
         Assert.Equal("Widgets", generated.TableName);
         Assert.Equal("dbo", generated.SchemaName);
+    }
+
+
+
+    [Fact]
+    public void Generated_descriptor_nested_tables_match_reflection()
+    {
+        var generated = TypeMap.Create(typeof(BulkCopyableParentFixture));
+        var reflection = TypeMap.Create(typeof(PlainParentFixture));
+
+        Assert.Equal(reflection.NestedTables.Count, generated.NestedTables.Count);
+        Assert.NotEmpty(generated.NestedTables);
+
+        for (var i = 0; i < reflection.NestedTables.Count; i++)
+        {
+            var expected = reflection.NestedTables[i];
+            var actual = generated.NestedTables[i];
+
+            Assert.Equal(expected.PropertyName, actual.PropertyName);
+            Assert.Equal(expected.ChildTypeMap.TableName, actual.ChildTypeMap.TableName);
+            Assert.Equal(expected.ChildTypeMap.Columns.Count, actual.ChildTypeMap.Columns.Count);
+
+            for (var j = 0; j < expected.ChildTypeMap.Columns.Count; j++)
+            {
+                Assert.Equal(expected.ChildTypeMap.Columns[j].ColumnName, actual.ChildTypeMap.Columns[j].ColumnName);
+                Assert.Equal(expected.ChildTypeMap.Columns[j].ClrType, actual.ChildTypeMap.Columns[j].ClrType);
+            }
+        }
     }
 
 

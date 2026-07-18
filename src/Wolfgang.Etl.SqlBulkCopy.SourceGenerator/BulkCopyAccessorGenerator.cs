@@ -35,6 +35,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     private const char ColumnSeparator = (char)31;
     private const char FieldSeparator = (char)30;
     private const char HeaderSeparator = (char)29;
+    private const char GroupSeparator = (char)28;
 
 
 
@@ -156,12 +157,13 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     /// </summary>
     private static string EncodeDescriptor(INamedTypeSymbol type)
     {
-        if (HasAttribute(type, NotMappedAttributeFullName) || InheritsMappedProperty(type))
+        if (!IsFullyGeneratable(type, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)))
         {
             return string.Empty;
         }
 
         var columns = new List<string>();
+        var nested = new List<string>();
         var ordinal = 0;
 
         foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
@@ -176,9 +178,14 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
             if (IsNestedTableProperty(property))
             {
-                // Nested tables are not generated in this pass; the whole type
-                // falls back to reflection so the map stays complete.
-                return string.Empty;
+                nested.Add(string.Join
+                (
+                    FieldSeparator.ToString(),
+                    property.Name,
+                    GetEnumerableElementType(property.Type)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                ));
+
+                continue;
             }
 
             var effective = UnwrapNullable(property.Type);
@@ -187,31 +194,98 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                 continue;
             }
 
-            var columnName = GetColumnName(property) ?? property.Name;
-            var clrType = effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var isNullable = IsNullableProperty(property) ? "1" : "0";
-
             columns.Add(string.Join
             (
                 FieldSeparator.ToString(),
                 property.Name,
-                columnName,
-                clrType,
-                isNullable,
+                GetColumnName(property) ?? property.Name,
+                effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                IsNullableProperty(property) ? "1" : "0",
                 ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
             ));
 
             ordinal++;
         }
 
-        if (columns.Count == 0 || HasDuplicateColumnName(columns))
-        {
-            return string.Empty;
-        }
-
         var (schema, table) = ResolveTableName(type);
         var header = string.Join(HeaderSeparator.ToString(), schema ?? string.Empty, table);
-        return header + ColumnSeparator + string.Join(ColumnSeparator.ToString(), columns);
+        return header
+            + GroupSeparator + string.Join(ColumnSeparator.ToString(), columns)
+            + GroupSeparator + string.Join(ColumnSeparator.ToString(), nested);
+    }
+
+
+
+    /// <summary>
+    /// Returns <see langword="true"/> when the entire object graph reachable from
+    /// <paramref name="type"/> can be mapped without reflection: the type and
+    /// every nested child element type is <c>[BulkCopyable]</c>, mappable (at
+    /// least one column, no duplicate column names, no inherited mapped
+    /// properties, not <c>[NotMapped]</c>), and the graph is acyclic. If any part
+    /// fails, the whole type falls back to the reflection path so the map stays
+    /// complete and consistent.
+    /// </summary>
+    private static bool IsFullyGeneratable(INamedTypeSymbol type, HashSet<INamedTypeSymbol> inProgress)
+    {
+        if (!inProgress.Add(type))
+        {
+            return false;
+        }
+
+        try
+        {
+            if (!HasAttribute(type, BulkCopyableAttributeFullName)
+                || HasAttribute(type, NotMappedAttributeFullName)
+                || type.IsGenericType
+                || !IsAccessibleToGeneratedCode(type)
+                || InheritsMappedProperty(type))
+            {
+                return false;
+            }
+
+            var columnCount = 0;
+            var columnNames = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+            foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
+            {
+                if (property.IsStatic
+                    || property.IsIndexer
+                    || property.GetMethod is null
+                    || HasAttribute(property, NotMappedAttributeFullName))
+                {
+                    continue;
+                }
+
+                if (IsNestedTableProperty(property))
+                {
+                    if (GetEnumerableElementType(property.Type) is not INamedTypeSymbol child
+                        || !IsFullyGeneratable(child, inProgress))
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if (!IsSupportedColumnType(UnwrapNullable(property.Type)))
+                {
+                    continue;
+                }
+
+                if (!columnNames.Add(GetColumnName(property) ?? property.Name))
+                {
+                    return false;
+                }
+
+                columnCount++;
+            }
+
+            return columnCount > 0;
+        }
+        finally
+        {
+            inProgress.Remove(type);
+        }
     }
 
 
@@ -359,24 +433,6 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         }
 
         return (schema, string.IsNullOrEmpty(table) ? type.Name : table!);
-    }
-
-
-
-    private static bool HasDuplicateColumnName(List<string> encodedColumns)
-    {
-        var names = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-
-        foreach (var column in encodedColumns)
-        {
-            var columnName = column.Split(FieldSeparator)[1];
-            if (!names.Add(columnName))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 
@@ -606,32 +662,46 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
             return;
         }
 
-        var sections = model.DescriptorEncoded.Split(ColumnSeparator);
-        var header = sections[0].Split(HeaderSeparator);
-        var schema = header[0];
-        var table = header[1];
-        var schemaLiteral = schema.Length == 0 ? "null" : $"\"{Escape(schema)}\"";
+        var groups = model.DescriptorEncoded.Split(GroupSeparator);
+        var header = groups[0].Split(HeaderSeparator);
+        var schemaLiteral = header[0].Length == 0 ? "null" : $"\"{Escape(header[0])}\"";
+        var columns = groups[1].Length == 0 ? System.Array.Empty<string>() : groups[1].Split(ColumnSeparator);
+        var nested = groups[2].Length == 0 ? System.Array.Empty<string>() : groups[2].Split(ColumnSeparator);
 
         builder.AppendLine();
-        builder.AppendLine($"            global::Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry.Register(typeof({model.FullyQualifiedName}), new global::Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor({schemaLiteral}, \"{Escape(table)}\", new global::Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor[]");
-        builder.AppendLine("            {");
+        builder.AppendLine($"            global::Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry.Register(typeof({model.FullyQualifiedName}), new global::Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor");
+        builder.AppendLine("            (");
+        builder.AppendLine($"                {schemaLiteral},");
+        builder.AppendLine($"                \"{Escape(header[1])}\",");
+        builder.AppendLine("                new global::Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor[]");
+        builder.AppendLine("                {");
 
-        for (var i = 1; i < sections.Length; i++)
+        foreach (var column in columns)
         {
-            var fields = sections[i].Split(FieldSeparator);
-            var propertyName = Escape(fields[0]);
-            var columnName = Escape(fields[1]);
-            var clrType = fields[2];
+            var fields = column.Split(FieldSeparator);
             var isNullable = string.Equals(fields[3], "1", System.StringComparison.Ordinal) ? "true" : "false";
-            var ordinal = fields[4];
 
             builder.AppendLine
             (
-                $"                new global::Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor(\"{propertyName}\", \"{columnName}\", typeof({clrType}), {isNullable}, {ordinal}),"
+                $"                    new global::Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor(\"{Escape(fields[0])}\", \"{Escape(fields[1])}\", typeof({fields[2]}), {isNullable}, {fields[4]}),"
             );
         }
 
-        builder.AppendLine("            }));");
+        builder.AppendLine("                },");
+        builder.AppendLine("                new global::Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor[]");
+        builder.AppendLine("                {");
+
+        foreach (var entry in nested)
+        {
+            var fields = entry.Split(FieldSeparator);
+
+            builder.AppendLine
+            (
+                $"                    new global::Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor(\"{Escape(fields[0])}\", typeof({fields[1]})),"
+            );
+        }
+
+        builder.AppendLine("                }));");
     }
 
 
