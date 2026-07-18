@@ -19,6 +19,12 @@ on:
       - 'src/**'
       - 'tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/**'
       - '.github/workflows/aot-smoke.yaml'
+  push:
+    branches: [vNext]
+    paths:
+      - 'src/**'
+      - 'tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/**'
+      - '.github/workflows/aot-smoke.yaml'
   workflow_dispatch:
 
 permissions:
