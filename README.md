@@ -81,6 +81,7 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 | **Progress reporting** | `IProgress<SqlBulkCopyReport>` — batch count, rows written, elapsed time |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
+| **Native AOT ready** | Opt a record into compile-time source-generated accessors with `[BulkCopyable]` — no runtime IL emission on the hot path (net5.0+) |
 | **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net8.0`, `net10.0` |
 
 **Examples:**
@@ -99,6 +100,49 @@ See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) f
 | .NET Framework | .NET 4.6.2, .NET 4.8.1 |
 | .NET Standard | .NET Standard 2.0 |
 | .NET | .NET 8.0, .NET 10.0 |
+
+---
+
+## ⚡ Native AOT & trimming
+
+By default the per-row hot path compiles a property getter at runtime with
+`System.Linq.Expressions` — fast under the JIT, but it emits IL at run time, so
+under Native AOT it falls back to the slower expression *interpreter*.
+
+Opt a record into **compile-time source-generated accessors** by marking it
+`[BulkCopyable]`:
+
+```csharp
+using System.ComponentModel.DataAnnotations.Schema;
+using Wolfgang.Etl.SqlBulkCopy;
+
+[BulkCopyable]
+[Table("People")]
+public sealed class Person
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public Status Status { get; set; }   // enum columns are handled too
+}
+```
+
+The bundled source generator emits strongly-typed getters (and enum→underlying
+converters) at compile time, and the loader uses them automatically — no runtime
+`Expression.Compile`, so the marked type's hot path is AOT-clean **and** keeps
+the compiled-getter throughput.
+
+| | |
+|---|---|
+| **Opt-in & additive** | Unmarked types keep working exactly as before via the runtime-compiled getter. Marking a type never changes its mapping — only *how* the getters are produced. |
+| **One package** | The generator ships inside `Wolfgang.Etl.SqlBulkCopy`; there is nothing extra to install or reference. |
+| **`net5.0`+** | Generated registration uses module initializers. On older targets the attribute is a no-op and the type uses the runtime getter — correct on those JIT-only frameworks. |
+
+> **Note:** a full Native-AOT publish of an app that *opens a SQL connection*
+> also depends on `Microsoft.Data.SqlClient`'s own AOT support, which is outside
+> this library's control. `[BulkCopyable]` makes **this library's** mapping path
+> AOT-clean. See
+> [ADR 0006](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/main/docs/adr/0006-source-generated-property-accessors.md)
+> for the full rationale.
 
 ---
 
