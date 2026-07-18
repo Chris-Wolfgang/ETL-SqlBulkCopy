@@ -66,6 +66,66 @@ public sealed class ColumnMap
 
 
     /// <summary>
+    /// Initializes a <see cref="ColumnMap"/> from source-generated descriptor
+    /// data — no reflection over the property. The getter and enum converter are
+    /// taken from <see cref="GeneratedAccessorRegistry"/>, which the generator
+    /// populates from the same module initializer. This is the Native-AOT-clean
+    /// construction path used for <c>[BulkCopyable]</c> types. See ADR 0006.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the required generated getter (or enum converter, for an enum
+    /// column) has not been registered — which would indicate a source-generator
+    /// defect.
+    /// </exception>
+    internal ColumnMap
+    (
+        Type declaringType,
+        string propertyName,
+        string columnName,
+        Type clrType,
+        bool isNullable,
+        int ordinal
+    )
+    {
+        PropertyName = propertyName;
+        ColumnName = columnName;
+        ClrType = clrType;
+        IsNullable = isNullable;
+        Ordinal = ordinal;
+
+        if (!GeneratedAccessorRegistry.TryGetGetter(declaringType, propertyName, out var getter))
+        {
+            throw new InvalidOperationException
+            (
+                $"No source-generated getter is registered for '{declaringType}.{propertyName}'. " +
+                "This indicates a source-generator defect."
+            );
+        }
+
+        _getter = getter;
+
+        if (clrType.IsEnum)
+        {
+            if (!GeneratedAccessorRegistry.TryGetEnumConverter(clrType, out var enumConverter))
+            {
+                throw new InvalidOperationException
+                (
+                    $"No source-generated enum converter is registered for '{clrType}'. " +
+                    "This indicates a source-generator defect."
+                );
+            }
+
+            _enumConverter = enumConverter;
+        }
+        else
+        {
+            _enumConverter = null;
+        }
+    }
+
+
+
+    /// <summary>
     /// Gets the name of the .NET property.
     /// </summary>
     public string PropertyName { get; }
