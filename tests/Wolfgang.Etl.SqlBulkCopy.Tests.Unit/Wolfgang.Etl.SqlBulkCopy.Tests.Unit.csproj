@@ -12,6 +12,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Wolfgang.Etl.SqlBulkCopy\Wolfgang.Etl.SqlBulkCopy.csproj" />
+    <!-- Reference the source generator as an analyzer so [BulkCopyable] test
+         fixtures get generated accessors, exercising the generator end-to-end.
+         (Analyzers do not flow transitively through the runtime ProjectReference
+         above, so it must be referenced explicitly here.) -->
+    <ProjectReference Include="..\..\src\Wolfgang.Etl.SqlBulkCopy.SourceGenerator\Wolfgang.Etl.SqlBulkCopy.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

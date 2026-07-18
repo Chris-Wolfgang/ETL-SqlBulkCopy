@@ -1,3 +1,5 @@
 #nullable enable
+Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute
+Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.BulkCopyableAttribute() -> void
 Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry
 static Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.Register(System.Type! declaringType, string! propertyName, System.Func<object!, object?>! getter) -> void
