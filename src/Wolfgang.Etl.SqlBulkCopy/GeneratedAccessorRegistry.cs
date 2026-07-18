@@ -36,6 +36,8 @@ public static class GeneratedAccessorRegistry
 {
     private static readonly ConcurrentDictionary<(Type DeclaringType, string PropertyName), Func<object, object?>> Getters = new();
 
+    private static readonly ConcurrentDictionary<Type, Func<object, object>> EnumConverters = new();
+
 
 
     /// <summary>
@@ -79,6 +81,39 @@ public static class GeneratedAccessorRegistry
 
 
     /// <summary>
+    /// Registers a source-generated converter that maps a boxed value of the
+    /// enum <paramref name="enumType"/> to its underlying integral type (also
+    /// boxed). Intended to be called only by generated code.
+    /// </summary>
+    /// <param name="enumType">The enum type the converter accepts.</param>
+    /// <param name="converter">
+    /// A delegate equivalent to <c>boxed =&gt; (object)(TUnderlying)(TEnum)boxed</c>.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when any argument is <see langword="null"/>.
+    /// </exception>
+    public static void RegisterEnumConverter
+    (
+        Type enumType,
+        Func<object, object> converter
+    )
+    {
+        if (enumType is null)
+        {
+            throw new ArgumentNullException(nameof(enumType));
+        }
+
+        if (converter is null)
+        {
+            throw new ArgumentNullException(nameof(converter));
+        }
+
+        EnumConverters[enumType] = converter;
+    }
+
+
+
+    /// <summary>
     /// Attempts to retrieve a registered source-generated getter for the
     /// property <paramref name="propertyName"/> on <paramref name="declaringType"/>.
     /// </summary>
@@ -94,5 +129,24 @@ public static class GeneratedAccessorRegistry
     )
     {
         return Getters.TryGetValue((declaringType, propertyName), out getter!);
+    }
+
+
+
+    /// <summary>
+    /// Attempts to retrieve a registered source-generated enum-to-underlying
+    /// converter for <paramref name="enumType"/>.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> when a generated converter has been registered;
+    /// otherwise <see langword="false"/>.
+    /// </returns>
+    internal static bool TryGetEnumConverter
+    (
+        Type enumType,
+        out Func<object, object> converter
+    )
+    {
+        return EnumConverters.TryGetValue(enumType, out converter!);
     }
 }
