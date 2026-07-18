@@ -48,4 +48,23 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
+  <!-- Source generator: built alongside the runtime, packed into the same
+       NuGet under analyzers/dotnet/cs. PrivateAssets=all so consumers don't
+       transitively reference the generator project. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Wolfgang.Etl.SqlBulkCopy.SourceGenerator\Wolfgang.Etl.SqlBulkCopy.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="PackSourceGenerator" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <None Include="..\Wolfgang.Etl.SqlBulkCopy.SourceGenerator\bin\$(Configuration)\netstandard2.0\Wolfgang.Etl.SqlBulkCopy.SourceGenerator.dll"
+            Pack="true"
+            PackagePath="analyzers/dotnet/cs"
+            Visible="false" />
+    </ItemGroup>
+  </Target>
+
 </Project>
