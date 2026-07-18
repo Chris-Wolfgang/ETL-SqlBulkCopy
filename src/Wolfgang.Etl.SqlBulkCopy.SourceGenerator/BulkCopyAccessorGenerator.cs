@@ -7,8 +7,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Wolfgang.Etl.SqlBulkCopy.SourceGenerator;
 
 /// <summary>
-/// Emits compile-time property getters for every type marked
-/// <c>[BulkCopyable]</c> and registers them with
+/// Emits compile-time property getters (and enum→underlying converters) for
+/// every type marked <c>[BulkCopyable]</c> and registers them with
 /// <c>Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry</c> from a module
 /// initializer. This lets the bulk-copy hot path read property values without
 /// compiling a getter at runtime (no <c>System.Linq.Expressions</c> IL
@@ -70,28 +70,32 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
             return null;
         }
 
-        var propertyNames = GetGeneratedGetterPropertyNames(type);
-        if (propertyNames.Count == 0)
+        var properties = GetGeneratedProperties(type);
+        if (properties.Count == 0)
         {
             return null;
         }
+
+        var propertyNames = properties.Select(static p => p.Name).ToList();
+        var enumConverters = CollectEnumConverters(properties);
 
         var fullyQualified = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         return new AccessorModel
         (
             fullyQualified,
             Mangle(fullyQualified),
-            string.Join(";", propertyNames)
+            string.Join(";", propertyNames),
+            string.Join(";", enumConverters)
         );
     }
 
 
 
     /// <summary>
-    /// Returns the names of the properties the generator will emit getters for:
-    /// instance, non-indexer properties with a get accessor reachable from
-    /// generated code in the same assembly. Inherited public/internal
-    /// properties are included; a name is emitted once (most-derived wins).
+    /// Returns the properties the generator will emit getters for: instance,
+    /// non-indexer properties with a get accessor reachable from generated code
+    /// in the same assembly. Inherited public/internal properties are included;
+    /// a name is emitted once (most-derived wins).
     /// </summary>
     /// <remarks>
     /// This intentionally does not replicate the runtime column-mapping rules
@@ -101,9 +105,9 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     /// keeps the duplicated attribute-reading surface to a minimum — the
     /// mapping decisions stay single-sourced in the runtime <c>TypeMap</c>.
     /// </remarks>
-    private static List<string> GetGeneratedGetterPropertyNames(INamedTypeSymbol type)
+    private static List<IPropertySymbol> GetGeneratedProperties(INamedTypeSymbol type)
     {
-        var names = new List<string>();
+        var properties = new List<IPropertySymbol>();
         var seen = new HashSet<string>();
 
         for (var current = type; current is not null; current = current.BaseType)
@@ -125,12 +129,61 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
                 if (seen.Add(property.Name))
                 {
-                    names.Add(property.Name);
+                    properties.Add(property);
                 }
             }
         }
 
-        return names;
+        return properties;
+    }
+
+
+
+    /// <summary>
+    /// Produces one <c>enumFqn,underlyingFqn,mangledEnum</c> entry per distinct
+    /// enum type appearing (directly or as <see cref="System.Nullable{T}"/>)
+    /// among the generated properties. Mirrors the runtime, which converts enum
+    /// column values to their underlying integral type before writing.
+    /// </summary>
+    private static List<string> CollectEnumConverters(List<IPropertySymbol> properties)
+    {
+        var entries = new List<string>();
+        var seen = new HashSet<string>();
+
+        foreach (var property in properties)
+        {
+            if (UnwrapNullable(property.Type) is not INamedTypeSymbol effective
+                || effective.TypeKind != TypeKind.Enum
+                || effective.EnumUnderlyingType is null)
+            {
+                continue;
+            }
+
+            var enumFullyQualified = effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            if (!seen.Add(enumFullyQualified))
+            {
+                continue;
+            }
+
+            var underlyingFullyQualified = effective.EnumUnderlyingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            entries.Add($"{enumFullyQualified},{underlyingFullyQualified},{Mangle(enumFullyQualified)}");
+        }
+
+        return entries;
+    }
+
+
+
+    private static ITypeSymbol UnwrapNullable(ITypeSymbol type)
+    {
+        if (type is INamedTypeSymbol named
+            && named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+            && named.TypeArguments.Length == 1)
+        {
+            return named.TypeArguments[0];
+        }
+
+        return type;
     }
 
 
@@ -179,6 +232,9 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     private static void Emit(SourceProductionContext context, AccessorModel model)
     {
         var properties = model.PropertyNamesJoined.Split(';');
+        var enumConverters = model.EnumConvertersJoined.Length == 0
+            ? System.Array.Empty<string>()
+            : model.EnumConvertersJoined.Split(';');
 
         var builder = new StringBuilder();
         builder.AppendLine("// <auto-generated/>");
@@ -189,28 +245,10 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         builder.AppendLine($"    internal static class BulkCopyAccessors_{model.MangledName}");
         builder.AppendLine("    {");
 
-        foreach (var property in properties)
-        {
-            builder.AppendLine
-            (
-                $"        internal static object? Get_{property}(object instance) => (({model.FullyQualifiedName})instance).{property};"
-            );
-        }
+        AppendGetterMethods(builder, model.FullyQualifiedName, properties);
+        AppendEnumConverterMethods(builder, enumConverters);
+        AppendModuleInitializer(builder, model.FullyQualifiedName, properties, enumConverters);
 
-        builder.AppendLine();
-        builder.AppendLine("        [global::System.Runtime.CompilerServices.ModuleInitializer]");
-        builder.AppendLine("        internal static void Initialize()");
-        builder.AppendLine("        {");
-
-        foreach (var property in properties)
-        {
-            builder.AppendLine
-            (
-                $"            global::Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.Register(typeof({model.FullyQualifiedName}), \"{property}\", Get_{property});"
-            );
-        }
-
-        builder.AppendLine("        }");
         builder.AppendLine("    }");
         builder.AppendLine("}");
         builder.AppendLine("#endif");
@@ -220,10 +258,75 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
 
 
+    private static void AppendGetterMethods(StringBuilder builder, string typeFullyQualified, string[] properties)
+    {
+        foreach (var property in properties)
+        {
+            builder.AppendLine
+            (
+                $"        internal static object? Get_{property}(object instance) => (({typeFullyQualified})instance).{property};"
+            );
+        }
+    }
+
+
+
+    private static void AppendEnumConverterMethods(StringBuilder builder, string[] enumConverters)
+    {
+        foreach (var entry in enumConverters)
+        {
+            var parts = entry.Split(',');
+
+            builder.AppendLine
+            (
+                $"        internal static object ConvertEnum_{parts[2]}(object boxed) => (object)({parts[1]})({parts[0]})boxed;"
+            );
+        }
+    }
+
+
+
+    private static void AppendModuleInitializer
+    (
+        StringBuilder builder,
+        string typeFullyQualified,
+        string[] properties,
+        string[] enumConverters
+    )
+    {
+        builder.AppendLine();
+        builder.AppendLine("        [global::System.Runtime.CompilerServices.ModuleInitializer]");
+        builder.AppendLine("        internal static void Initialize()");
+        builder.AppendLine("        {");
+
+        foreach (var property in properties)
+        {
+            builder.AppendLine
+            (
+                $"            global::Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.Register(typeof({typeFullyQualified}), \"{property}\", Get_{property});"
+            );
+        }
+
+        foreach (var entry in enumConverters)
+        {
+            var parts = entry.Split(',');
+
+            builder.AppendLine
+            (
+                $"            global::Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.RegisterEnumConverter(typeof({parts[0]}), ConvertEnum_{parts[2]});"
+            );
+        }
+
+        builder.AppendLine("        }");
+    }
+
+
+
     private sealed record AccessorModel
     (
         string FullyQualifiedName,
         string MangledName,
-        string PropertyNamesJoined
+        string PropertyNamesJoined,
+        string EnumConvertersJoined
     );
 }

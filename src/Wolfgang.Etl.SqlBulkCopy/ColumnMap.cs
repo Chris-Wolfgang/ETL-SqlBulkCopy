@@ -59,7 +59,7 @@ public sealed class ColumnMap
         // is still detected here (and the per-row null check happens before
         // the converter is invoked, so we never pass null to it).
         _enumConverter = ClrType.IsEnum
-            ? ReflectionHelpers.CompileEnumToUnderlyingConverter(ClrType)
+            ? CreateEnumConverter(ClrType)
             : null;
     }
 
@@ -158,5 +158,20 @@ public sealed class ColumnMap
         // reflection dispatch on the bulk-copy hot path. Behaviourally identical
         // to a generated getter, but the runtime IL emission is not AOT-safe.
         return ReflectionHelpers.CompilePropertyGetter(propertyInfo);
+    }
+
+
+
+    private static Func<object, object> CreateEnumConverter(Type enumType)
+    {
+        // Prefer a source-generated enum→underlying converter when registered
+        // (compile-time emitted, Native-AOT clean); otherwise fall back to the
+        // runtime expression-compiled converter. See ADR 0006.
+        if (GeneratedAccessorRegistry.TryGetEnumConverter(enumType, out var generated))
+        {
+            return generated;
+        }
+
+        return ReflectionHelpers.CompileEnumToUnderlyingConverter(enumType);
     }
 }
