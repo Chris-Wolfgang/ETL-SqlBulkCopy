@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Native AOT support via source-generated accessors.** Mark a record
+  `[BulkCopyable]` to have the bundled source generator emit its property getters
+  and enum→underlying converters at compile time; the loader prefers them over
+  the runtime `Expression.Compile` getter, keeping the marked type's hot path
+  free of runtime IL emission (`net5.0`+). Opt-in and additive — unmarked types
+  are unchanged, and the generator ships inside the existing package (no second
+  NuGet). New public API: `BulkCopyableAttribute` and the
+  `GeneratedAccessorRegistry` infrastructure the generated code calls. See
+  [ADR 0006](docs/adr/0006-source-generated-property-accessors.md).
+
 ### Changed
 
 ### Deprecated
