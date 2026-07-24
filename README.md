@@ -92,15 +92,13 @@ See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) f
 
 ---
 
-## 🎯 Target Frameworks
+## 🎯 Supported Frameworks
 
-| Framework | Versions |
-|-----------|----------|
-| .NET Framework | .NET 4.6.2, .NET 4.8.1 |
-| .NET Standard | .NET Standard 2.0 |
-| .NET | .NET 8.0, .NET 10.0 |
+This library targets:
 
----
+- **.NET Framework:** 4.6.2
+
+See the [NuGet package page](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/) for the authoritative per-TFM compatibility matrix.
 
 ## 🔍 Code Quality & Static Analysis
 
