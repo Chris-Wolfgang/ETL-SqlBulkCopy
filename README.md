@@ -2,6 +2,10 @@
 
 A loader that uses SqlBulkCopy for fast inserts into a Microsoft SQL database
 
+[![NuGet](https://img.shields.io/nuget/v/Wolfgang.Etl.SqlBulkCopy.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/)
+[![Downloads](https://img.shields.io/nuget/dt/Wolfgang.Etl.SqlBulkCopy.svg?logo=nuget&label=downloads)](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/)
+[![PR build](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/ETL-SqlBulkCopy/pr.yaml?event=pull_request_target&label=PR%20build&logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/actions/workflows/pr.yaml)
+[![release](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/ETL-SqlBulkCopy/release.yaml?event=release&label=release&logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/actions/workflows/release.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-Multi--Targeted-purple.svg)](https://dotnet.microsoft.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy)
