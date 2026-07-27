@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785188562001,
+  "lastUpdate": 1785189685955,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -216,6 +216,78 @@ window.BENCHMARK_DATA = {
             "value": 10564.464579264322,
             "unit": "ns",
             "range": "± 12.535777378146674"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0564627d0df0f9bd190bc8ce19621a513b7c2b47",
+          "message": "Merge pull request #197 from Chris-Wolfgang/dependabot/nuget/dotnet-dependencies-fd4bd7f9c6\n\nBump the dotnet-dependencies group with 5 updates",
+          "timestamp": "2026-07-27T17:58:50-04:00",
+          "tree_id": "49c946243fea9b0f821df97405494b47846f58ce",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/0564627d0df0f9bd190bc8ce19621a513b7c2b47"
+        },
+        "date": 1785189684641,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 75875.04622395833,
+            "unit": "ns",
+            "range": "± 614.6157717466609"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7290926.3125,
+            "unit": "ns",
+            "range": "± 19429.75927046989"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 7.772583946585655,
+            "unit": "ns",
+            "range": "± 0.0066713320406912085"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6195074071486791,
+            "unit": "ns",
+            "range": "± 0.18800062802807072"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.149497965971628,
+            "unit": "ns",
+            "range": "± 0.13528886846881094"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 7.770555292566617,
+            "unit": "ns",
+            "range": "± 0.1431534648046935"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.8137561877568562,
+            "unit": "ns",
+            "range": "± 0.045550195485140714"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11744.738141377768,
+            "unit": "ns",
+            "range": "± 5.187821292328933"
           }
         ]
       }
