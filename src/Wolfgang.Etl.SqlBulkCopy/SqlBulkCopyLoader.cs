@@ -342,6 +342,9 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         CancellationToken token
     )
     {
+        // Pre-cancelled token: read nothing, run no pre-action (LoaderBase contract, TestKit 0.13+).
+        token.ThrowIfCancellationRequested();
+
         SqlBulkCopyLogMessages.StartingOperation(_logger, OperationName, exception: null);
 
         var typeMap = TypeMap.Create
@@ -393,6 +396,19 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             }
         }
 
+        await FinalizeLoadAsync(batch, typeMap, factory, token).ConfigureAwait(false);
+    }
+
+
+
+    private async Task FinalizeLoadAsync
+    (
+        List<TRecord> batch,
+        TypeMap typeMap,
+        ISqlBulkCopyWrapperFactory factory,
+        CancellationToken token
+    )
+    {
         if (batch.Count > 0)
         {
             await WriteBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);

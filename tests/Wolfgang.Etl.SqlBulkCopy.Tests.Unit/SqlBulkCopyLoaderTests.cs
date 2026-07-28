@@ -432,19 +432,6 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    [Fact]
-    public async Task LoadAsync_increments_CurrentItemCount()
-    {
-        var sut = CreateSut();
-        var items = CreateTestItems(5);
-
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
-
-        Assert.Equal(5, sut.CurrentItemCount);
-    }
-
-
-
     // --- Validation tests ---
 
     [Fact]
@@ -1021,41 +1008,6 @@ public class SqlBulkCopyLoaderTests
         (
             () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)))
         );
-    }
-
-
-
-    // --- MaximumItemCount tests ---
-
-    [Fact]
-    public async Task LoadAsync_stops_at_MaximumItemCount()
-    {
-        var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.MaximumItemCount = 3;
-        var items = CreateTestItems(10);
-
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
-
-        Assert.Equal(3, sut.CurrentItemCount);
-    }
-
-
-
-    // --- SkipItemCount tests ---
-
-    [Fact]
-    public async Task LoadAsync_skips_items_up_to_SkipItemCount()
-    {
-        var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.SkipItemCount = 3;
-        var items = CreateTestItems(5);
-
-        await sut.LoadAsync(ToAsyncEnumerableAsync(items));
-
-        Assert.Equal(2, sut.CurrentItemCount);
-        Assert.Equal(3, sut.CurrentSkippedItemCount);
     }
 
 

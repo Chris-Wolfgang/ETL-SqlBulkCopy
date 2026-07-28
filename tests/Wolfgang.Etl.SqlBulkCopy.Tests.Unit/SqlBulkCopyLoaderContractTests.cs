@@ -28,20 +28,14 @@ public class SqlBulkCopyLoaderContractTests
 
     protected override SqlBulkCopyLoader<TestRecord> CreateSut(int itemCount)
     {
+        // No injected timer: the loader falls through to the base progress-timer
+        // seam, which the contract's timer tests drive via ManualProgressTimerCore
+        // + WithManualProgressTimer (TestKit 0.22 — CreateSutWithTimer is retired).
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null);
     }
 
 
 
     protected override IReadOnlyList<TestRecord> CreateSourceItems() => SourceItems;
-
-
-
-    protected override SqlBulkCopyLoader<TestRecord> CreateSutWithTimer(IProgressTimer timer)
-    {
-        var factory = new FakeSqlBulkCopyWrapperFactory();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
-    }
 }
