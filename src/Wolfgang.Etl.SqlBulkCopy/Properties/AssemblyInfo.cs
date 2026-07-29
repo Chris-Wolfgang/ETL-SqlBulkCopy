@@ -5,3 +5,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Wolfgang.Etl.SqlBulkCopy.Benchmarks")]
 [assembly: InternalsVisibleTo("Wolfgang.Etl.SqlBulkCopy.AotSmoke")]
 [assembly: InternalsVisibleTo("Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz")]
+[assembly: InternalsVisibleTo("Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency")]
