@@ -672,9 +672,55 @@ jobs:
   # No NUGET_API_KEY secret required — NuGet/login exchanges the workflow's
   # OIDC token for a 1-hour temporary API key, so the login MUST run
   # immediately before the push (not at job start).
+  # Release-gate the Native AOT smoke: the same check that is required on PRs to
+  # main (aot-smoke.yaml) is re-run here from the tagged release commit, so the
+  # release cannot publish if a [BulkCopyable] type's generated accessors stop
+  # compiling / running cleanly under Native AOT. publish-nuget depends on it.
+  aot-consumer:
+    name: Publish & run Native AOT consumer
+    runs-on: ubuntu-latest
+    if: github.repository != 'Chris-Wolfgang/repo-template'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Install Native AOT prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+
+      - name: Publish Native AOT (linux-x64)
+        run: |
+          set -euo pipefail
+          dotnet publish tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/Wolfgang.Etl.SqlBulkCopy.AotSmoke.csproj \
+            -c Release -r linux-x64 -o aot-out 2>&1 | tee aot-publish.log
+
+      - name: Assert no AOT/trim warnings from this library
+        run: |
+          set -euo pipefail
+          # SqlClient is trimmed out (unreachable), so any IL2xxx/IL3xxx naming
+          # our assembly would be a real regression in the generated hot path.
+          if grep -iE 'IL[0-9]{4}' aot-publish.log | grep -i 'Wolfgang.Etl.SqlBulkCopy'; then
+            echo "::error::Native AOT publish produced trim/AOT warnings referencing Wolfgang.Etl.SqlBulkCopy"
+            exit 1
+          fi
+          echo "No AOT/trim warnings from Wolfgang.Etl.SqlBulkCopy."
+
+      - name: Run the native binary
+        run: |
+          set -euo pipefail
+          ./aot-out/Wolfgang.Etl.SqlBulkCopy.AotSmoke
+          echo "Native AOT smoke exited $?."
+
   publish-nuget:
     name: Publish to NuGet.org
-    needs: [pack-and-validate, verify-docs-build]
+    needs: [pack-and-validate, verify-docs-build, aot-consumer]
     if: needs.pack-and-validate.outputs.has-packages == 'true'
     runs-on: windows-latest
     permissions:
