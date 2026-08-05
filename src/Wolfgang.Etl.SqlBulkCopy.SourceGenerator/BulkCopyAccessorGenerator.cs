@@ -96,11 +96,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         {
             foreach (var property in current.GetMembers().OfType<IPropertySymbol>())
             {
-                if (property.IsStatic
-                    || property.IsIndexer
-                    || property.GetMethod is null
-                    || property.Type.IsRefLikeType
-                    || !IsReachableAccessibility(property.GetMethod.DeclaredAccessibility))
+                if (!IsAccessorEmittableProperty(property))
                 {
                     continue;
                 }
@@ -168,22 +164,22 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
         foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
         {
-            if (property.IsStatic
-                || property.IsIndexer
-                || property.GetMethod is null
-                || HasAttribute(property, NotMappedAttributeFullName))
+            if (!IsMappableProperty(property))
             {
                 continue;
             }
 
             if (IsNestedTableProperty(property))
             {
-                nested.Add(string.Join
+                nested.Add
                 (
-                    FieldSeparator.ToString(),
-                    property.Name,
-                    GetEnumerableElementType(property.Type)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                ));
+                    string.Join
+                    (
+                        FieldSeparator.ToString(),
+                        property.Name,
+                        GetEnumerableElementType(property.Type)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                    )
+                );
 
                 continue;
             }
@@ -194,8 +190,10 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                 continue;
             }
 
-            columns.Add(
-                string.Join(
+            columns.Add
+            (
+                string.Join
+                (
                     FieldSeparator.ToString(),
                     property.Name,
                     GetColumnName(property) ?? property.Name,
@@ -249,10 +247,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
             foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
             {
-                if (property.IsStatic
-                    || property.IsIndexer
-                    || property.GetMethod is null
-                    || HasAttribute(property, NotMappedAttributeFullName))
+                if (!IsMappableProperty(property))
                 {
                     continue;
                 }
@@ -297,7 +292,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         {
             foreach (var property in b.GetMembers().OfType<IPropertySymbol>())
             {
-                if (!property.IsStatic && !property.IsIndexer && property.GetMethod is not null)
+                if (IsReadableInstanceProperty(property))
                 {
                     return true;
                 }
@@ -305,6 +300,49 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         }
 
         return false;
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> for an instance property with a getter — the generator's
+    /// equivalent of <c>PropertyInfo</c> readability. Static properties, indexers, and
+    /// write-only properties are excluded. Mirrors <c>TypeMap.IsReadableInstanceProperty</c>
+    /// on the reflection path so both providers filter the same members.
+    /// </summary>
+    private static bool IsReadableInstanceProperty(IPropertySymbol property)
+    {
+        return !property.IsStatic
+               && !property.IsIndexer
+               && property.GetMethod is not null;
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> when <paramref name="property"/> maps to a column: a readable
+    /// instance property (<see cref="IsReadableInstanceProperty"/>) that is not marked
+    /// <c>[NotMapped]</c>.
+    /// </summary>
+    private static bool IsMappableProperty(IPropertySymbol property)
+    {
+        return IsReadableInstanceProperty(property)
+               && !HasAttribute(property, NotMappedAttributeFullName);
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> when a strongly-typed accessor can be emitted for
+    /// <paramref name="property"/>: a readable instance property whose type is not a
+    /// ref-like (<c>ref struct</c>) type and whose getter is reachable from generated code.
+    /// </summary>
+    private static bool IsAccessorEmittableProperty(IPropertySymbol property)
+    {
+        return IsReadableInstanceProperty(property)
+               && !property.Type.IsRefLikeType
+               && property.GetMethod is { } getter
+               && IsReachableAccessibility(getter.DeclaredAccessibility);
     }
 
 
