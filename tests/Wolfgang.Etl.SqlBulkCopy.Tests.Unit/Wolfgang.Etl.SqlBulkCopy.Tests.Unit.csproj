@@ -27,8 +27,8 @@
          depends on Windows-only PerformanceCounter), so those tests are scoped to
          the Windows stages. -->
     <PackageReference Include="Xunit.SkippableFact" Version="1.5.61" />
-    <PackageReference Include="Wolfgang.Etl.TestKit" Version="0.10.0" />
-    <PackageReference Include="Wolfgang.Etl.TestKit.Xunit" Version="0.10.0" />
+    <PackageReference Include="Wolfgang.Etl.TestKit" Version="0.14.0" />
+    <PackageReference Include="Wolfgang.Etl.TestKit.Xunit" Version="0.14.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" NoWarn="NU1701">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
