@@ -194,15 +194,16 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                 continue;
             }
 
-            columns.Add(string.Join
-            (
-                FieldSeparator.ToString(),
-                property.Name,
-                GetColumnName(property) ?? property.Name,
-                effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                IsNullableProperty(property) ? "1" : "0",
-                ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
-            ));
+            columns.Add(
+                string.Join(
+                    FieldSeparator.ToString(),
+                    property.Name,
+                    GetColumnName(property) ?? property.Name,
+                    effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    IsNullableProperty(property) ? "1" : "0",
+                    ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                )
+            );
 
             ordinal++;
         }
