@@ -678,8 +678,12 @@ jobs:
   # compiling / running cleanly under Native AOT. publish-nuget depends on it.
   aot-consumer:
     name: Publish & run Native AOT consumer
+    needs: pack-and-validate
+    # Skip in repos with no packages (derived / template repos) — same gate the
+    # publish job uses — so publish-nuget's dependency on this job resolves the
+    # same way (skipped, not failed) when there is nothing to release.
+    if: needs.pack-and-validate.outputs.has-packages == 'true'
     runs-on: ubuntu-latest
-    if: github.repository != 'Chris-Wolfgang/repo-template'
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -716,7 +720,7 @@ jobs:
         run: |
           set -euo pipefail
           ./aot-out/Wolfgang.Etl.SqlBulkCopy.AotSmoke
-          echo "Native AOT smoke exited $?."
+          echo "Native AOT smoke passed."
 
   publish-nuget:
     name: Publish to NuGet.org
