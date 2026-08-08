@@ -9,13 +9,15 @@ namespace Wolfgang.Etl.SqlBulkCopy.SourceGenerator;
 /// <summary>
 /// Emits, for every type marked <c>[BulkCopyable]</c>: compile-time property
 /// getters and enum→underlying converters (registered with
-/// <c>GeneratedAccessorRegistry</c>), and — for types with no nested-table
-/// properties — a full type descriptor (registered with
-/// <c>GeneratedTypeMapRegistry</c>) so the runtime builds the map without
-/// reflecting over the type. Together these keep a marked type's mapping and
-/// per-row hot path free of runtime reflection and IL emission, which is what
-/// makes it Native-AOT clean while preserving compiled-getter throughput. See
-/// ADR 0006.
+/// <c>GeneratedAccessorRegistry</c>), and — for fully-generatable types (the
+/// type and its entire nested-table graph are <c>[BulkCopyable]</c> and
+/// eligible) — a full type descriptor <em>including any nested tables</em>
+/// (registered with <c>GeneratedTypeMapRegistry</c>) so the runtime builds the
+/// map without reflecting over the type. A type that is not fully generatable
+/// still gets generated getters but falls back to the reflection map. Together
+/// these keep a marked type's mapping and per-row hot path free of runtime
+/// reflection and IL emission, which is what makes it Native-AOT clean while
+/// preserving compiled-getter throughput. See ADR 0006.
 /// </summary>
 /// <remarks>
 /// Registration uses <c>[ModuleInitializer]</c> (net5.0+); the emitted file is
@@ -145,9 +147,10 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     // ---- descriptor encoding (mirrors TypeMap's column-mapping rules) ----
 
     /// <summary>
-    /// Encodes the type's generated descriptor, or returns an empty string when
-    /// the type is not eligible for descriptor generation in this pass (has
-    /// nested-table properties, inherits mapped properties, has no mappable
+    /// Encodes the type's generated descriptor (columns and any nested tables),
+    /// or returns an empty string when the type is not fully generatable in this
+    /// pass (a nested-table child that is not itself a generatable
+    /// <c>[BulkCopyable]</c> type, inherits mapped properties, has no mappable
     /// columns, has duplicate column names, or is <c>[NotMapped]</c>). Those
     /// types fall back to the reflection path, which produces the identical map.
     /// </summary>
