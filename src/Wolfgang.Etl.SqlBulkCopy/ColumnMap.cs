@@ -25,13 +25,20 @@ public sealed class ColumnMap
     /// </summary>
     /// <param name="propertyInfo">The property to map.</param>
     /// <param name="ordinal">The zero-based ordinal position of this column.</param>
+    /// <param name="mappedType">
+    /// The type being mapped (the type whose <see cref="TypeMap"/> is being built).
+    /// Used to resolve the source-generated getter, which is registered under the
+    /// mapped type — including inherited properties. When <c>null</c>, the getter
+    /// lookup falls back to <paramref name="propertyInfo"/>'s declaring type.
+    /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="propertyInfo"/> is <c>null</c>.
     /// </exception>
     internal ColumnMap
     (
         PropertyInfo propertyInfo,
-        int ordinal
+        int ordinal,
+        Type? mappedType = null
     )
     {
         if (propertyInfo is null)
@@ -52,7 +59,7 @@ public sealed class ColumnMap
         ColumnName = columnAttribute?.Name ?? propertyInfo.Name;
         Ordinal = ordinal;
 
-        _getter = CreateGetter(propertyInfo);
+        _getter = CreateGetter(propertyInfo, mappedType);
 
         // Precompute the enum→underlying-integral converter once per column.
         // ClrType is already nullable-unwrapped, so a nullable enum property
@@ -200,15 +207,24 @@ public sealed class ColumnMap
 
 
 
-    private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo)
+    private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo, Type? mappedType)
     {
         // Prefer a source-generated accessor when one has been registered for
         // this property. Generated getters are ordinary C# emitted at compile
         // time, so they carry the same throughput as the runtime-compiled
         // getter below without emitting IL at runtime — which is what keeps the
         // per-row hot path Native-AOT clean. See ADR 0006.
-        if (propertyInfo.DeclaringType is not null
-            && GeneratedAccessorRegistry.TryGetGetter(propertyInfo.DeclaringType, propertyInfo.Name, out var generated))
+        //
+        // The generator registers getters under the *mapped* (marked) type —
+        // including inherited properties — so look up by that type when the
+        // caller knows it. When it doesn't, fall back to ReflectedType (the type
+        // the PropertyInfo was obtained through — the derived/mapped type for an
+        // inherited property) before DeclaringType (the base class), which would
+        // miss the registration and silently fall back to the runtime-compiled
+        // (non-AOT) getter.
+        var lookupType = mappedType ?? propertyInfo.ReflectedType ?? propertyInfo.DeclaringType;
+        if (lookupType is not null
+            && GeneratedAccessorRegistry.TryGetGetter(lookupType, propertyInfo.Name, out var generated))
         {
             return generated;
         }

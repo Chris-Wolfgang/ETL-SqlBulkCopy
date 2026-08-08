@@ -432,7 +432,7 @@ internal sealed class TypeMap
                      && p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
                      && IsSupportedColumnType(p.PropertyType)
             )
-            .Select(p => new ColumnMap(p, ordinal++))
+            .Select(p => new ColumnMap(p, ordinal++, type))
             .ToArray();
 
         // SqlBulkCopy column matching is case-insensitive on the source side,

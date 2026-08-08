@@ -6,7 +6,6 @@
 // behaviour under a realistic ETL pattern (not the micro-scale BDN benchmarks).
 // Prints a periodic GC snapshot to stdout for offline inspection. Refs #94.
 
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using GcProfileWorkload;
 using Microsoft.Data.SqlClient;

@@ -204,4 +204,57 @@ public class ColumnMapTests
 
         Assert.Contains("No source-generated enum converter", ex.Message, StringComparison.Ordinal);
     }
+
+
+
+    [Fact]
+    public void Constructor_reflection_for_inherited_property_uses_generated_getter_under_mapped_type()
+    {
+        // An inherited property's DeclaringType is the *base* class, but the
+        // generator registers getters under the mapped (derived) type. ColumnMap
+        // must look up by the mapped type so inherited [BulkCopyable] properties
+        // still use the generated getter instead of the reflection fallback.
+        var inheritedProperty = typeof(InheritedGetterDerivedProbe)
+            .GetProperty(nameof(InheritedGetterBaseProbe.Inherited))!;
+        Assert.Equal(typeof(InheritedGetterBaseProbe), inheritedProperty.DeclaringType);
+
+        // Sentinel getter registered under the DERIVED (mapped) type only.
+        GeneratedAccessorRegistry.Register
+        (
+            typeof(InheritedGetterDerivedProbe),
+            nameof(InheritedGetterBaseProbe.Inherited),
+            _ => 999
+        );
+
+        var sut = new ColumnMap(inheritedProperty, ordinal: 0, mappedType: typeof(InheritedGetterDerivedProbe));
+
+        // 999 (the sentinel) proves the mapped-type lookup hit; the real value (7)
+        // would mean it missed and fell back to reflection.
+        Assert.Equal(999, sut.GetValue(new InheritedGetterDerivedProbe { Inherited = 7 }));
+    }
+
+
+
+    [Fact]
+    public void Constructor_reflection_inherited_property_without_mappedType_uses_ReflectedType()
+    {
+        // No mappedType passed: the getter is obtained via the derived type, so
+        // PropertyInfo.ReflectedType is the derived (mapped) type. CreateGetter
+        // must prefer ReflectedType over DeclaringType (the base) to still find
+        // the generated getter registered under the derived type.
+        var inheritedProperty = typeof(InheritedGetterDerivedProbe)
+            .GetProperty(nameof(InheritedGetterBaseProbe.Inherited))!;
+        Assert.Same(typeof(InheritedGetterDerivedProbe), inheritedProperty.ReflectedType);
+
+        GeneratedAccessorRegistry.Register
+        (
+            typeof(InheritedGetterDerivedProbe),
+            nameof(InheritedGetterBaseProbe.Inherited),
+            _ => 999
+        );
+
+        var sut = new ColumnMap(inheritedProperty, ordinal: 0);
+
+        Assert.Equal(999, sut.GetValue(new InheritedGetterDerivedProbe { Inherited = 7 }));
+    }
 }
