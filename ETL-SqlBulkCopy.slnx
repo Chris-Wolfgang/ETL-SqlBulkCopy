@@ -58,5 +58,6 @@
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples.csproj" />
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/Wolfgang.Etl.SqlBulkCopy.AotSmoke.csproj" />
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz/Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz.csproj" />
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj" />
   </Folder>
 </Solution>
