@@ -59,7 +59,9 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           set -euo pipefail
-          git fetch origin "$BASE_REF" --depth=100
+          # Full (unshallow) fetch of the base branch: --depth=100 could miss the
+          # true merge-base on a long-lived PR. Checkout already used fetch-depth: 0.
+          git fetch origin "$BASE_REF"
           mb=$(git merge-base "origin/$BASE_REF" HEAD)
           echo "Base merge-base SHA: $mb"
           git checkout "$mb"
@@ -96,7 +98,9 @@ jobs:
 
           def load(root):
               out = {}
-              for path in glob.glob(f"{root}/results/*-report.json"):
+              # BenchmarkDotNet's JSON exporter writes *-report-full-compressed.json
+              # (matching benchmarks.yaml); *-report.json matches nothing → empty delta.
+              for path in glob.glob(f"{root}/results/*-report-full-compressed.json"):
                   with open(path, encoding="utf-8") as fp:
                       d = json.load(fp)
                   for b in d.get("Benchmarks", []):
@@ -163,7 +167,7 @@ jobs:
         run: |
           set -euo pipefail
           MARKER='<!-- pr-benchmarks-delta -->'
-          existing=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+          existing=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
             --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -1)
           if [ -n "$existing" ]; then
             gh api "repos/$REPO/issues/comments/$existing" -X PATCH -F body=@delta.md

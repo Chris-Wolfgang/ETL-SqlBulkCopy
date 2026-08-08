@@ -101,10 +101,17 @@ jobs:
             --counters System.Runtime &
           counters_pid=$!
 
-          wait "$workload_pid" || echo "Workload exit code: $?"
-          echo "Workload done, stopping counters"
+          workload_rc=0
+          wait "$workload_pid" || workload_rc=$?
+          echo "Workload done (exit $workload_rc), stopping counters"
           kill "$counters_pid" 2>/dev/null || true
           wait "$counters_pid" 2>/dev/null || true
+          # Fail the job on a workload crash (after counters are stopped) so the
+          # scheduled GC-profile signal is reliable rather than silently green.
+          if [ "$workload_rc" -ne 0 ]; then
+            echo "::error::GC-profile workload exited $workload_rc"
+            exit "$workload_rc"
+          fi
 
       - name: Summarise into Step Summary
         if: always() && steps.check.outputs.found == 'true'
