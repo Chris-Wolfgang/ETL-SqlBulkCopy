@@ -212,4 +212,22 @@ public class NestedTableMapTests
 
         Assert.Contains("cannot be enumerated", ex.Message, StringComparison.Ordinal);
     }
+
+
+
+    [Fact]
+    public void Constructor_descriptor_when_no_generated_getter_registered_throws_InvalidOperationException()
+    {
+        // The descriptor-based ctor requires a generated getter for the
+        // (parentType, propertyName) pair; a pair that was never registered is a
+        // source-generator defect and must fail loudly.
+        var childMap = TypeMap.Create(typeof(ChildRecord));
+
+        var ex = Assert.Throws<InvalidOperationException>
+        (
+            () => new NestedTableMap(typeof(object), "__no_such_generated_getter__", childMap)
+        );
+
+        Assert.Contains("No source-generated getter", ex.Message, StringComparison.Ordinal);
+    }
 }

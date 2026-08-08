@@ -80,4 +80,30 @@ public class GeneratedAccessorRegistryTests
 
         Assert.Equal("getter", ex.ParamName);
     }
+
+
+
+    [Fact]
+    public void RegisterEnumConverter_when_enumType_is_null_throws_ArgumentNullException()
+    {
+        var ex = Assert.Throws<ArgumentNullException>
+        (
+            () => GeneratedAccessorRegistry.RegisterEnumConverter(null!, _ => 0)
+        );
+
+        Assert.Equal("enumType", ex.ParamName);
+    }
+
+
+
+    [Fact]
+    public void RegisterEnumConverter_when_converter_is_null_throws_ArgumentNullException()
+    {
+        var ex = Assert.Throws<ArgumentNullException>
+        (
+            () => GeneratedAccessorRegistry.RegisterEnumConverter(typeof(Status), null!)
+        );
+
+        Assert.Equal("converter", ex.ParamName);
+    }
 }
