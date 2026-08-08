@@ -45,12 +45,16 @@ public class BulkCopyAccessorGeneratorTests
     [Fact]
     public void Generated_getter_reads_the_actual_property_value()
     {
-        GeneratedAccessorRegistry.TryGetGetter
+        var registered = GeneratedAccessorRegistry.TryGetGetter
         (
             typeof(BulkCopyableFixture),
             nameof(BulkCopyableFixture.Name),
             out var getter
         );
+
+        // Assert registration succeeded first, so a generator regression fails
+        // here clearly instead of throwing NullReferenceException on getter(...).
+        Assert.True(registered);
 
         var value = getter(new BulkCopyableFixture { Name = "Ada" });
 
