@@ -1,6 +1,6 @@
 # 0006. Source-generate property accessors for AOT-safe, zero-cost mapping
 
-- **Status:** Proposed — targeted for 0.5.0+; supersedes [0004](0004-compiled-property-getters-and-native-aot.md) on acceptance
+- **Status:** Accepted (0.5.0) — supersedes [0004](0004-compiled-property-getters-and-native-aot.md)
 - **Date:** 2026-07-17
 
 ## Context
