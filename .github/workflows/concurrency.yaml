@@ -1,0 +1,92 @@
+# Coyote systematic-concurrency testing.
+#
+# The Tests.Concurrency project drives TypeMap's cache (and, over time, other
+# race-prone internals) through Microsoft Coyote's TestingEngine. Per-PR the
+# iteration budget is small (default 100); this scheduled workflow bumps it to
+# 10,000 so each invariant is checked under a much wider set of interleavings.
+#
+# Coyote's engine explores schedules in-process — no SQL Server / Docker is
+# needed for the cache-race properties. (The realistic sustained-load /
+# allocation angle is covered by gc-profile.yaml; a dedicated concurrency soak
+# would be a follow-up.)
+#
+# Refs #89.
+
+name: Concurrency (Coyote)
+
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Coyote scheduling iterations per property (default 10000)"
+        required: false
+        default: "10000"
+        type: string
+  schedule:
+    # Weekly Sunday 09:00 UTC — after Stryker (06:00) + gc-profile (07:00) so
+    # the weeklies don't contend for the hosted-runner pool.
+    - cron: '0 9 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  concurrency:
+    name: Coyote (${{ inputs.iterations || '10000' }} iters)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      # Guard so the scheduled run on main no-ops until Tests.Concurrency merges.
+      - name: Detect Tests.Concurrency
+        id: check
+        shell: bash
+        run: |
+          if [ -f tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Tests.Concurrency not present on this ref — skipping. Merge vNext to main to enable."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup .NET
+        if: steps.check.outputs.found == 'true'
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore + Build (Release)
+        if: steps.check.outputs.found == 'true'
+        run: |
+          dotnet restore tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj
+          dotnet build tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj \
+            --no-restore --configuration Release
+
+      - name: Run Coyote concurrency suite
+        if: steps.check.outputs.found == 'true'
+        env:
+          COYOTE_ITERATIONS: ${{ inputs.iterations || '10000' }}
+        run: |
+          # pipefail so a failing dotnet test propagates through the `| tee` and
+          # fails the step, rather than the pipeline reporting tee's zero exit.
+          set -eo pipefail
+          mkdir -p reports
+          dotnet test tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj \
+            --no-build --configuration Release \
+            --filter 'Category=Concurrency' \
+            --logger "console;verbosity=detailed" \
+            --logger "trx;LogFileName=concurrency.trx" \
+            --results-directory reports/ \
+            2>&1 | tee reports/concurrency.log
+
+      - name: Upload concurrency reports
+        if: always() && steps.check.outputs.found == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: concurrency-reports
+          path: reports/
+          retention-days: 60

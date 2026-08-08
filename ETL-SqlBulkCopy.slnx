@@ -50,9 +50,14 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Wolfgang.Etl.SqlBulkCopy/Wolfgang.Etl.SqlBulkCopy.csproj" />
+    <Project Path="src/Wolfgang.Etl.SqlBulkCopy.SourceGenerator/Wolfgang.Etl.SqlBulkCopy.SourceGenerator.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj" />
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Integration/Wolfgang.Etl.SqlBulkCopy.Tests.Integration.csproj" />
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples.csproj" />
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/Wolfgang.Etl.SqlBulkCopy.AotSmoke.csproj" />
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz/Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz.csproj" />
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj" />
   </Folder>
 </Solution>

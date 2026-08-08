@@ -59,8 +59,68 @@ public sealed class ColumnMap
         // is still detected here (and the per-row null check happens before
         // the converter is invoked, so we never pass null to it).
         _enumConverter = ClrType.IsEnum
-            ? ReflectionHelpers.CompileEnumToUnderlyingConverter(ClrType)
+            ? CreateEnumConverter(ClrType)
             : null;
+    }
+
+
+
+    /// <summary>
+    /// Initializes a <see cref="ColumnMap"/> from source-generated descriptor
+    /// data — no reflection over the property. The getter and enum converter are
+    /// taken from <see cref="GeneratedAccessorRegistry"/>, which the generator
+    /// populates from the same module initializer. This is the Native-AOT-clean
+    /// construction path used for <c>[BulkCopyable]</c> types. See ADR 0006.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the required generated getter (or enum converter, for an enum
+    /// column) has not been registered — which would indicate a source-generator
+    /// defect.
+    /// </exception>
+    internal ColumnMap
+    (
+        Type declaringType,
+        string propertyName,
+        string columnName,
+        Type clrType,
+        bool isNullable,
+        int ordinal
+    )
+    {
+        PropertyName = propertyName;
+        ColumnName = columnName;
+        ClrType = clrType;
+        IsNullable = isNullable;
+        Ordinal = ordinal;
+
+        if (!GeneratedAccessorRegistry.TryGetGetter(declaringType, propertyName, out var getter))
+        {
+            throw new InvalidOperationException
+            (
+                $"No source-generated getter is registered for '{declaringType}.{propertyName}'. " +
+                "This indicates a source-generator defect."
+            );
+        }
+
+        _getter = getter;
+
+        if (clrType.IsEnum)
+        {
+            if (!GeneratedAccessorRegistry.TryGetEnumConverter(clrType, out var enumConverter))
+            {
+                throw new InvalidOperationException
+                (
+                    $"No source-generated enum converter is registered for '{clrType}'. " +
+                    "This indicates a source-generator defect."
+                );
+            }
+
+            _enumConverter = enumConverter;
+        }
+        else
+        {
+            _enumConverter = null;
+        }
     }
 
 
@@ -142,9 +202,36 @@ public sealed class ColumnMap
 
     private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo)
     {
-        // Expression-tree compiled getter — emits direct IL that calls the
-        // property's getter, avoiding the per-row PropertyInfo.GetValue
-        // reflection dispatch on the bulk-copy hot path.
+        // Prefer a source-generated accessor when one has been registered for
+        // this property. Generated getters are ordinary C# emitted at compile
+        // time, so they carry the same throughput as the runtime-compiled
+        // getter below without emitting IL at runtime — which is what keeps the
+        // per-row hot path Native-AOT clean. See ADR 0006.
+        if (propertyInfo.DeclaringType is not null
+            && GeneratedAccessorRegistry.TryGetGetter(propertyInfo.DeclaringType, propertyInfo.Name, out var generated))
+        {
+            return generated;
+        }
+
+        // Fallback: an expression-tree compiled getter — emits direct IL that
+        // calls the property's getter, avoiding the per-row PropertyInfo.GetValue
+        // reflection dispatch on the bulk-copy hot path. Behaviourally identical
+        // to a generated getter, but the runtime IL emission is not AOT-safe.
         return ReflectionHelpers.CompilePropertyGetter(propertyInfo);
+    }
+
+
+
+    private static Func<object, object> CreateEnumConverter(Type enumType)
+    {
+        // Prefer a source-generated enum→underlying converter when registered
+        // (compile-time emitted, Native-AOT clean); otherwise fall back to the
+        // runtime expression-compiled converter. See ADR 0006.
+        if (GeneratedAccessorRegistry.TryGetEnumConverter(enumType, out var generated))
+        {
+            return generated;
+        }
+
+        return ReflectionHelpers.CompileEnumToUnderlyingConverter(enumType);
     }
 }

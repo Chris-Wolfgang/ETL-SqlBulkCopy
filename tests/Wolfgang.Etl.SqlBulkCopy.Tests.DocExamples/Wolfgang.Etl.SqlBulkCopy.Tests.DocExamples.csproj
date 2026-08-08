@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Single modern TFM on purpose: this project uses Roslyn to compile the
+         library's XML-doc <example> snippets, and Microsoft.CodeAnalysis.CSharp
+         doesn't need the 13-TFM matrix the main test project carries. -->
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Doc-example harness assertions live here; not part of shipped coverage. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the library so its assembly + transitive deps (SqlClient,
+         Abstractions, Bcl.AsyncInterfaces) resolve as MetadataReferences for the
+         snippet compilation. -->
+    <ProjectReference Include="..\..\src\Wolfgang.Etl.SqlBulkCopy\Wolfgang.Etl.SqlBulkCopy.csproj" />
+  </ItemGroup>
+
+</Project>

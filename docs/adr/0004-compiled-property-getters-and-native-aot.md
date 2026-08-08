@@ -1,6 +1,6 @@
 # 0004. Compile property getters with expression trees
 
-- **Status:** Accepted
+- **Status:** Superseded by [0006](0006-source-generated-property-accessors.md) (0.5.0)
 - **Date:** 2026-07-10
 
 ## Context

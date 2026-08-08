@@ -1,0 +1,205 @@
+# Cross-platform / multi-arch differential.
+#
+# pr.yaml's staged tests verify the suite PASSES on Linux / Windows / macOS.
+# This verifies it passes the SAME WAY — that no platform silently executes a
+# different set of tests or hits different assertions. It also brings ARM64
+# (previously unverified) into the matrix.
+#
+# SqlBulkCopy wrinkle: several ctor tests are [SkippableFact] that construct a
+# real Microsoft.Data.SqlClient.SqlConnection and skip on non-Windows runners
+# (SqlClient's perf-counter cctor can't initialise there). Those skips are
+# INTENDED platform divergence, so the manifest normalises every non-failing
+# outcome (Passed / NotExecuted / Skipped) to "OK" and keeps only genuine
+# failures as "Failed". The diff therefore tolerates the SqlClient skips while
+# still catching a test that PASSES on one platform but FAILS on another, or a
+# test that is entirely absent from one platform's manifest.
+#
+# Refs #91.
+
+name: Cross-platform differential
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.Build.props"
+      - ".github/workflows/cross-platform-differential.yaml"
+  push:
+    branches: [main, vNext]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.Build.props"
+      - ".github/workflows/cross-platform-differential.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test on ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            label: linux-x64
+          - runner: ubuntu-24.04-arm
+            label: linux-arm64
+          - runner: macos-latest
+            label: macos-arm64
+          - runner: windows-latest
+            label: windows-x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          # net10.0 is the sharpest cross-platform signal; older TFMs are
+          # already covered per-platform by pr.yaml's Stage 1/2/3 matrix.
+          dotnet-version: 10.0.x
+
+      - name: Restore + Build (Release, net10.0)
+        shell: bash
+        run: |
+          dotnet restore tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj
+          dotnet build tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj \
+            --no-restore --configuration Release --framework net10.0
+
+      - name: Run tests (net10.0, TRX logger)
+        shell: bash
+        run: |
+          dotnet test tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj \
+            --no-build --configuration Release --framework net10.0 \
+            --logger "trx;LogFileName=tests.trx" \
+            --results-directory ./results
+
+      - name: Extract normalised (name, outcome) manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          trx=$(find ./results -name 'tests.trx' | head -1)
+          if [ -z "$trx" ]; then
+            echo "::error::No TRX produced by dotnet test."
+            find ./results -type f
+            exit 1
+          fi
+          mkdir -p manifests
+          python3 - "$trx" "manifests/${{ matrix.label }}.tsv" <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          trx_path, out_path = sys.argv[1], sys.argv[2]
+          tree = ET.parse(trx_path)
+          NS = '{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}'
+          FAIL = {'Failed', 'Error', 'Timeout', 'Aborted'}
+          rows = []
+          for r in tree.iter(f'{NS}UnitTestResult'):
+              name = r.get('testName') or ''
+              raw = r.get('outcome') or ''
+              # Normalise: only genuine failures are 'Failed'. Passed and the
+              # intended SqlClient platform-skips (NotExecuted) both -> 'OK'.
+              outcome = 'Failed' if raw in FAIL else 'OK'
+              rows.append(f"{name}\t{outcome}")
+          rows.sort()
+          with open(out_path, 'w', encoding='utf-8', newline='\n') as fp:
+              fp.write("\n".join(rows) + ("\n" if rows else ""))
+          print(f"{len(rows)} test result rows -> {out_path}")
+          PY
+
+      - name: Upload manifest
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: manifest-${{ matrix.label }}
+          path: manifests/${{ matrix.label }}.tsv
+          retention-days: 30
+
+  compare:
+    name: Diff manifests across platforms
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Download all manifests
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          path: manifests
+          pattern: manifest-*
+          merge-multiple: false
+
+      - name: Diff across the four cells
+        shell: bash
+        run: |
+          set -uo pipefail
+          shopt -s nullglob
+          for dir in manifests/manifest-*/; do
+            label=$(basename "$dir" | sed 's/^manifest-//')
+            src=$(find "$dir" -type f | head -1)
+            [ -n "$src" ] && cp "$src" "manifests/$label.tsv"
+          done
+
+          cells=(linux-x64 linux-arm64 macos-arm64 windows-x64)
+          missing=0
+          for c in "${cells[@]}"; do
+            if [ ! -f "manifests/$c.tsv" ]; then
+              echo "::warning::Manifest missing for cell: $c (build likely failed on that runner)."
+              missing=1
+            fi
+          done
+
+          {
+            echo "## Cross-platform differential"
+            echo ""
+            echo "| Cell | Rows |"
+            echo "|---|---|"
+            for c in "${cells[@]}"; do
+              if [ -f "manifests/$c.tsv" ]; then
+                echo "| $c | $(wc -l < "manifests/$c.tsv") |"
+              else
+                echo "| $c | (missing) |"
+              fi
+            done
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          baseline="manifests/linux-x64.tsv"
+          if [ ! -f "$baseline" ]; then
+            echo "::error::linux-x64 baseline manifest missing — can't diff."
+            exit 1
+          fi
+
+          any_diff=0
+          for c in linux-arm64 macos-arm64 windows-x64; do
+            other="manifests/$c.tsv"
+            [ -f "$other" ] || continue
+            if diff -u "$baseline" "$other" > "/tmp/$c.diff"; then
+              echo "✅ $c matches linux-x64 baseline."
+            else
+              any_diff=1
+              echo "::warning::$c diverges from linux-x64 baseline — see Step Summary."
+              {
+                echo "### ❌ $c vs linux-x64"
+                echo ""
+                echo '```diff'
+                cat "/tmp/$c.diff"
+                echo '```'
+                echo ""
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+          if [ "$any_diff" -eq 1 ] || [ "$missing" -eq 1 ]; then
+            echo ""
+            echo "❌ Cross-platform differential FAILED — a cell diverges from the linux-x64 baseline or is missing."
+            echo "Fix: investigate whether the divergent test is legitimately platform-specific (Skip attribute) or a real cross-platform bug."
+            exit 1
+          fi
+
+          echo "✅ All present cells match the linux-x64 baseline."
