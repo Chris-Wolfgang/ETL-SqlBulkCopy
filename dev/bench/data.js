@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786204251702,
+  "lastUpdate": 1786206823365,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -360,6 +360,78 @@ window.BENCHMARK_DATA = {
             "value": 12025.568349202475,
             "unit": "ns",
             "range": "± 39.96280531711449"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d2e70158026e5d7d616de967a0bed36b92b41e19",
+          "message": "Merge pull request #222 from Chris-Wolfgang/fix/inherited-generated-getter\n\nfix: generated getter lookup for inherited [BulkCopyable] properties",
+          "timestamp": "2026-08-08T12:31:08-04:00",
+          "tree_id": "d43593ef397e273d507dfcac859f03c0fa2c47dc",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/d2e70158026e5d7d616de967a0bed36b92b41e19"
+        },
+        "date": 1786206820197,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 86750.35860188802,
+            "unit": "ns",
+            "range": "± 652.1834340507343"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 9049166.9375,
+            "unit": "ns",
+            "range": "± 50341.2223840062"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 7.0780878365039825,
+            "unit": "ns",
+            "range": "± 0.1116202142678759"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 1.2089689026276271,
+            "unit": "ns",
+            "range": "± 0.005697443306882114"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.063624312480291,
+            "unit": "ns",
+            "range": "± 0.25668514402564224"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 7.049000859260559,
+            "unit": "ns",
+            "range": "± 0.012421936871189171"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.2983278185129166,
+            "unit": "ns",
+            "range": "± 0.03207492963269152"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9281.115458170572,
+            "unit": "ns",
+            "range": "± 162.88843290353194"
           }
         ]
       }
