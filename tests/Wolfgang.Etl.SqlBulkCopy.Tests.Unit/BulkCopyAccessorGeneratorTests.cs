@@ -52,9 +52,7 @@ public class BulkCopyAccessorGeneratorTests
             out var getter
         );
 
-        // Assert registration succeeded first, so a generator regression fails
-        // here clearly instead of throwing NullReferenceException on getter(...).
-        Assert.True(registered);
+        Assert.True(registered, "A generated getter should be registered for BulkCopyableFixture.Name; a false result indicates a generator/registration regression (and avoids an NRE on getter(...) below).");
 
         var value = getter(new BulkCopyableFixture { Name = "Ada" });
 
