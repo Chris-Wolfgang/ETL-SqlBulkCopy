@@ -7,16 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-07
+
 ### Added
 
 - **Native AOT support via source-generated accessors.** Mark a record
   `[BulkCopyable]` to have the bundled source generator emit its property getters
   and enum→underlying converters at compile time; the loader prefers them over
   the runtime `Expression.Compile` getter, keeping the marked type's hot path
-  free of runtime IL emission (`net5.0`+). Opt-in and additive — unmarked types
-  are unchanged, and the generator ships inside the existing package (no second
-  NuGet). New public API: `BulkCopyableAttribute` and the
-  `GeneratedAccessorRegistry` infrastructure the generated code calls. See
+  free of runtime IL emission (`net5.0`+). For `[BulkCopyable]` graphs without
+  nested-table properties, the generator additionally emits a full compile-time
+  type descriptor, so the runtime builds the entire column map with **no**
+  reflection over the type; the reflection path remains the fallback and produces
+  the identical map (guarded by a conformance test). Opt-in and additive —
+  unmarked types are unchanged, and the generator ships inside the existing
+  package (no second NuGet). New public API: `BulkCopyableAttribute`,
+  `GeneratedAccessorRegistry`, and the `GeneratedColumnDescriptor` /
+  `GeneratedNestedTableDescriptor` / `GeneratedTypeDescriptor` /
+  `GeneratedTypeMapRegistry` descriptor infrastructure the generated code
+  registers. See
   [ADR 0006](docs/adr/0006-source-generated-property-accessors.md).
 
 ### Changed
@@ -28,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Security
+
+- **SLSA build-provenance attestation on release.** Every published `.nupkg` /
+  `.snupkg` now carries a Sigstore keyless build-provenance attestation bound to
+  this repo's GitHub OIDC identity, verifiable with `gh attestation verify` —
+  proving the package was built by the release workflow at a specific commit and
+  not altered afterward. No code-signing certificate required. See `SECURITY.md`.
 
 ## [0.4.0] - 2026-07-16
 
