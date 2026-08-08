@@ -1,0 +1,147 @@
+# Sustained-load GC / allocation profiling.
+#
+# Drives SqlBulkCopyLoader against a REAL SQL Server (Testcontainers spins one
+# up in Docker on the hosted Linux runner) in a truncate-and-reload loop for
+# ~10 minutes, under dotnet-counters, so we can measure gen0/1/2 promotion, LOH
+# pressure, and heap growth under a realistic ETL pattern rather than the
+# micro-scale BDN benchmarks. Cross-platform diagnostics (dotnet-counters) are
+# used instead of Windows-only ETW, and the run is bounded to fit a hosted
+# runner (no self-hosted runner or 24h soak required).
+#
+# Gate mode: INFORMATIONAL. Reports upload as artifacts + a Step Summary; a
+# regression gate needs a stable baseline the first runs establish (same
+# land-informational-harden-later pattern as reproducible-build / stryker).
+#
+# Refs #94.
+
+name: GC / allocation profile
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration_seconds:
+        description: "Wall-clock seconds to run the workload"
+        required: false
+        default: "600"
+        type: string
+  schedule:
+    # Weekly Sunday 07:00 UTC — after the Stryker run at 06:00 so they don't
+    # fight for the hosted-runner pool.
+    - cron: '0 7 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    name: Profile ETL workload (Linux x64, Testcontainers SQL)
+    runs-on: ubuntu-latest
+    # ~10 min workload + SQL container pull/start + build + trace processing.
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      # Guard so the scheduled run on main no-ops until the workload merges there.
+      - name: Detect GcProfileWorkload
+        id: check
+        shell: bash
+        run: |
+          if [ -f tools/GcProfileWorkload/GcProfileWorkload.csproj ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::GcProfileWorkload not present on this ref — skipping. Merge vNext to main to enable."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup .NET
+        if: steps.check.outputs.found == 'true'
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install dotnet-counters
+        if: steps.check.outputs.found == 'true'
+        run: dotnet tool install --global dotnet-counters
+
+      - name: Restore + Build workload (Release)
+        if: steps.check.outputs.found == 'true'
+        run: |
+          dotnet restore tools/GcProfileWorkload/GcProfileWorkload.csproj
+          dotnet build tools/GcProfileWorkload/GcProfileWorkload.csproj \
+            --no-restore --configuration Release
+
+      - name: Run workload + capture counters
+        if: steps.check.outputs.found == 'true'
+        env:
+          GC_WORKLOAD_SECONDS: ${{ inputs.duration_seconds || '600' }}
+        run: |
+          set -uo pipefail
+          mkdir -p reports
+
+          # Launch the workload in the background so dotnet-counters can attach
+          # by PID. Its stdout (periodic GC snapshots) is captured for offline
+          # inspection.
+          dotnet run --no-build --project tools/GcProfileWorkload \
+            --configuration Release \
+            > reports/workload.log 2>&1 &
+          workload_pid=$!
+          echo "Workload PID: $workload_pid"
+
+          # Give the container + workload time to spin up before attaching.
+          sleep 60
+
+          dotnet-counters collect \
+            --process-id "$workload_pid" \
+            --refresh-interval 5 \
+            --format csv \
+            --output reports/counters.csv \
+            --counters System.Runtime &
+          counters_pid=$!
+
+          workload_rc=0
+          wait "$workload_pid" || workload_rc=$?
+          echo "Workload done (exit $workload_rc), stopping counters"
+          kill "$counters_pid" 2>/dev/null || true
+          wait "$counters_pid" 2>/dev/null || true
+          # Fail the job on a workload crash (after counters are stopped) so the
+          # scheduled GC-profile signal is reliable rather than silently green.
+          if [ "$workload_rc" -ne 0 ]; then
+            echo "::error::GC-profile workload exited $workload_rc"
+            exit "$workload_rc"
+          fi
+
+      - name: Summarise into Step Summary
+        if: always() && steps.check.outputs.found == 'true'
+        env:
+          DURATION_SECONDS: ${{ inputs.duration_seconds || '600' }}
+        run: |
+          {
+            echo "## GC / allocation profile"
+            echo ""
+            echo "Duration target: **${DURATION_SECONDS}s** · workload: truncate-and-reload into Testcontainers SQL Server."
+            echo ""
+            echo "### Workload progress (last 20 lines)"
+            echo ""
+            echo '```'
+            tail -n 20 reports/workload.log 2>/dev/null || echo "(no workload log)"
+            echo '```'
+            echo ""
+            echo "### Runtime counter head (System.Runtime)"
+            echo ""
+            echo '```'
+            head -n 30 reports/counters.csv 2>/dev/null || echo "(no counter CSV)"
+            echo '```'
+            echo ""
+            echo "Gate mode: informational."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: always() && steps.check.outputs.found == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gc-profile-reports
+          path: reports/
+          retention-days: 30
