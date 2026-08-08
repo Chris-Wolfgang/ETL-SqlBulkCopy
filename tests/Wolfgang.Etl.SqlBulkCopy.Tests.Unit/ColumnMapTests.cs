@@ -232,4 +232,29 @@ public class ColumnMapTests
         // would mean it missed and fell back to reflection.
         Assert.Equal(999, sut.GetValue(new InheritedGetterDerivedProbe { Inherited = 7 }));
     }
+
+
+
+    [Fact]
+    public void Constructor_reflection_inherited_property_without_mappedType_uses_ReflectedType()
+    {
+        // No mappedType passed: the getter is obtained via the derived type, so
+        // PropertyInfo.ReflectedType is the derived (mapped) type. CreateGetter
+        // must prefer ReflectedType over DeclaringType (the base) to still find
+        // the generated getter registered under the derived type.
+        var inheritedProperty = typeof(InheritedGetterDerivedProbe)
+            .GetProperty(nameof(InheritedGetterBaseProbe.Inherited))!;
+        Assert.Same(typeof(InheritedGetterDerivedProbe), inheritedProperty.ReflectedType);
+
+        GeneratedAccessorRegistry.Register
+        (
+            typeof(InheritedGetterDerivedProbe),
+            nameof(InheritedGetterBaseProbe.Inherited),
+            _ => 999
+        );
+
+        var sut = new ColumnMap(inheritedProperty, ordinal: 0);
+
+        Assert.Equal(999, sut.GetValue(new InheritedGetterDerivedProbe { Inherited = 7 }));
+    }
 }

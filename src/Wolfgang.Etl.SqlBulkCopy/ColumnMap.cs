@@ -217,10 +217,12 @@ public sealed class ColumnMap
         //
         // The generator registers getters under the *mapped* (marked) type —
         // including inherited properties — so look up by that type when the
-        // caller knows it. propertyInfo.DeclaringType is the base class for an
-        // inherited property and would miss the registration, silently falling
-        // back to the (non-AOT) runtime-compiled getter.
-        var lookupType = mappedType ?? propertyInfo.DeclaringType;
+        // caller knows it. When it doesn't, fall back to ReflectedType (the type
+        // the PropertyInfo was obtained through — the derived/mapped type for an
+        // inherited property) before DeclaringType (the base class), which would
+        // miss the registration and silently fall back to the runtime-compiled
+        // (non-AOT) getter.
+        var lookupType = mappedType ?? propertyInfo.ReflectedType ?? propertyInfo.DeclaringType;
         if (lookupType is not null
             && GeneratedAccessorRegistry.TryGetGetter(lookupType, propertyInfo.Name, out var generated))
         {
