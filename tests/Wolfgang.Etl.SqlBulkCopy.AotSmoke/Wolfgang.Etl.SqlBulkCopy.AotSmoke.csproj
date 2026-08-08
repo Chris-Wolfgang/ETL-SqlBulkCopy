@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Native AOT is net7.0+; net10.0 matches the library's newest target. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>true</IsPublishable>
+
+    <!-- The whole point: publish this consumer with Native AOT and verify it
+         compiles warning-free and runs. Trimming + AOT analyzers on so any
+         IL2xxx / IL3050 from the reachable graph surfaces at publish time. -->
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- This smoke reaches only the mapping + generated-accessor path
+         (TypeMap / ColumnMap). It deliberately does NOT touch
+         SqlBulkCopyLoader, so Microsoft.Data.SqlClient stays out of the
+         reachable graph and is trimmed — keeping the AOT signal about THIS
+         library's code, not SqlClient's separate AOT story (see ADR 0006). -->
+    <AssemblyName>Wolfgang.Etl.SqlBulkCopy.AotSmoke</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Wolfgang.Etl.SqlBulkCopy\Wolfgang.Etl.SqlBulkCopy.csproj" />
+    <ProjectReference Include="..\..\src\Wolfgang.Etl.SqlBulkCopy.SourceGenerator\Wolfgang.Etl.SqlBulkCopy.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

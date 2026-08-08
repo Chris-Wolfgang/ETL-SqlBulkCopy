@@ -5,10 +5,20 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Version>0.4.0</Version>
-    <AssemblyVersion>0.4.0</AssemblyVersion>
-    <FileVersion>0.4.0</FileVersion>
+    <Version>0.5.0</Version>
+    <AssemblyVersion>0.5.0</AssemblyVersion>
+    <FileVersion>0.5.0</FileVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <!-- API/ABI compatibility gate (#88). On pack, the SDK's package validation
+         (Microsoft.DotNet.ApiCompat) downloads the baseline release and fails
+         the pack if the new public surface breaks binary/source compatibility
+         in a way a non-MAJOR bump forbids. Keep the baseline at the last
+         PUBLISHED version (see the PackageValidation baseline-timing note); bump
+         it right after each release. Intentional MAJOR-release breaks are
+         recorded via `dotnet pack -p:GenerateCompatibilitySuppressionFile=true`
+         (writes CompatibilitySuppressions.xml). -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>0.4.0</PackageValidationBaselineVersion>
     <Title>Wolfgang.Etl.SqlBulkCopy</Title>
     <Authors>Chris Wolfgang</Authors>
     <Description>Loader implementation for bulk loading data into SQL Server using SqlBulkCopy, built on Wolfgang.Etl.Abstractions.</Description>
@@ -37,5 +47,24 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
+
+  <!-- Source generator: built alongside the runtime, packed into the same
+       NuGet under analyzers/dotnet/cs. PrivateAssets=all so consumers don't
+       transitively reference the generator project. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Wolfgang.Etl.SqlBulkCopy.SourceGenerator\Wolfgang.Etl.SqlBulkCopy.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="PackSourceGenerator" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <None Include="..\Wolfgang.Etl.SqlBulkCopy.SourceGenerator\bin\$(Configuration)\netstandard2.0\Wolfgang.Etl.SqlBulkCopy.SourceGenerator.dll"
+            Pack="true"
+            PackagePath="analyzers/dotnet/cs"
+            Visible="false" />
+    </ItemGroup>
+  </Target>
 
 </Project>

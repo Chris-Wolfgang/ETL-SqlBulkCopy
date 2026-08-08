@@ -48,6 +48,44 @@ internal sealed class NestedTableMap
 
 
     /// <summary>
+    /// Initializes a <see cref="NestedTableMap"/> from source-generated data — no
+    /// reflection over the property. The collection getter is taken from
+    /// <see cref="GeneratedAccessorRegistry"/>. This is the Native-AOT-clean
+    /// construction path used for <c>[BulkCopyable]</c> types. See ADR 0006.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="propertyName"/> or <paramref name="childTypeMap"/>
+    /// is <c>null</c>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the required generated getter has not been registered — which
+    /// would indicate a source-generator defect.
+    /// </exception>
+    internal NestedTableMap
+    (
+        Type parentType,
+        string propertyName,
+        TypeMap childTypeMap
+    )
+    {
+        ChildTypeMap = childTypeMap ?? throw new ArgumentNullException(nameof(childTypeMap));
+        PropertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
+
+        if (!GeneratedAccessorRegistry.TryGetGetter(parentType, propertyName, out var getter))
+        {
+            throw new InvalidOperationException
+            (
+                $"No source-generated getter is registered for '{parentType}.{propertyName}'. " +
+                "This indicates a source-generator defect."
+            );
+        }
+
+        _getValues = instance => Enumerate(getter(instance), propertyName);
+    }
+
+
+
+    /// <summary>
     /// Gets the name of the collection property on the parent type.
     /// </summary>
     public string PropertyName { get; }
@@ -95,33 +133,37 @@ internal sealed class NestedTableMap
         // in user code because it depends on the runtime value, not on
         // the property's compile-time type.
         var compiledGetter = ReflectionHelpers.CompilePropertyGetter(propertyInfo);
+        var propertyName = propertyInfo.Name;
 
-        return obj =>
+        return obj => Enumerate(compiledGetter(obj), propertyName);
+    }
+
+
+
+    private static IEnumerable<object> Enumerate(object? value, string propertyName)
+    {
+        if (value is null)
         {
-            var value = compiledGetter(obj);
-            if (value is null)
-            {
-                throw new InvalidOperationException
-                (
-                    $"Property '{propertyInfo.Name}' is null. " +
-                    "Collection properties must not be null; use an empty collection instead."
-                );
-            }
-
-            if (value is IEnumerable<object> typedEnumerable)
-            {
-                return typedEnumerable;
-            }
-
-            if (value is IEnumerable enumerable)
-            {
-                return enumerable.Cast<object>();
-            }
-
             throw new InvalidOperationException
             (
-                $"Property '{propertyInfo.Name}' cannot be enumerated."
+                $"Property '{propertyName}' is null. " +
+                "Collection properties must not be null; use an empty collection instead."
             );
-        };
+        }
+
+        if (value is IEnumerable<object> typedEnumerable)
+        {
+            return typedEnumerable;
+        }
+
+        if (value is IEnumerable enumerable)
+        {
+            return enumerable.Cast<object>();
+        }
+
+        throw new InvalidOperationException
+        (
+            $"Property '{propertyName}' cannot be enumerated."
+        );
     }
 }

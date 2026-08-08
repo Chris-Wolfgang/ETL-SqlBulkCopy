@@ -150,4 +150,58 @@ public class ColumnMapTests
 
         Assert.Null(result);
     }
+
+
+
+    [Fact]
+    public void Constructor_descriptor_when_no_generated_getter_registered_throws_InvalidOperationException()
+    {
+        // The descriptor-based ctor requires a generated getter for the
+        // (declaringType, propertyName) pair; a pair that was never registered
+        // is a source-generator defect and must fail loudly.
+        var ex = Assert.Throws<InvalidOperationException>
+        (
+            () => new ColumnMap
+            (
+                typeof(object),
+                "__no_such_generated_getter__",
+                "Col",
+                typeof(int),
+                isNullable: false,
+                ordinal: 0
+            )
+        );
+
+        Assert.Contains("No source-generated getter", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
+    public void Constructor_descriptor_when_enum_clrType_has_no_generated_converter_throws_InvalidOperationException()
+    {
+        // Register a getter so the ctor clears the getter check and reaches the
+        // enum-converter check; the enum itself has no registered converter.
+        GeneratedAccessorRegistry.Register
+        (
+            typeof(GeneratedAccessorProbeRecord),
+            "__enum_probe__",
+            _ => UnregisteredProbeEnum.One
+        );
+
+        var ex = Assert.Throws<InvalidOperationException>
+        (
+            () => new ColumnMap
+            (
+                typeof(GeneratedAccessorProbeRecord),
+                "__enum_probe__",
+                "Col",
+                typeof(UnregisteredProbeEnum),
+                isNullable: false,
+                ordinal: 0
+            )
+        );
+
+        Assert.Contains("No source-generated enum converter", ex.Message, StringComparison.Ordinal);
+    }
 }

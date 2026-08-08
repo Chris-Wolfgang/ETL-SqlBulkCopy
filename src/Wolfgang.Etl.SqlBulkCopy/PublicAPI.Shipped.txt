@@ -1,10 +1,31 @@
 #nullable enable
+Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute
+Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.BulkCopyableAttribute() -> void
 Wolfgang.Etl.SqlBulkCopy.ColumnMap
 Wolfgang.Etl.SqlBulkCopy.ColumnMap.ClrType.get -> System.Type!
 Wolfgang.Etl.SqlBulkCopy.ColumnMap.ColumnName.get -> string!
 Wolfgang.Etl.SqlBulkCopy.ColumnMap.IsNullable.get -> bool
 Wolfgang.Etl.SqlBulkCopy.ColumnMap.Ordinal.get -> int
 Wolfgang.Etl.SqlBulkCopy.ColumnMap.PropertyName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.ClrType.get -> System.Type!
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.ColumnName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.GeneratedColumnDescriptor(string! propertyName, string! columnName, System.Type! clrType, bool isNullable, int ordinal) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.IsNullable.get -> bool
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.Ordinal.get -> int
+Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor.PropertyName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor.ChildType.get -> System.Type!
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor.GeneratedNestedTableDescriptor(string! propertyName, System.Type! childType) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor.PropertyName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.Columns.get -> System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor!>!
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.GeneratedTypeDescriptor(string? schemaName, string! tableName, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor!>! columns, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor!>! nestedTables) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.NestedTables.get -> System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor!>!
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.SchemaName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.TableName.get -> string!
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry
 Wolfgang.Etl.SqlBulkCopy.PostAction
 Wolfgang.Etl.SqlBulkCopy.PostAction.CustomAction = 1 -> Wolfgang.Etl.SqlBulkCopy.PostAction
 Wolfgang.Etl.SqlBulkCopy.PostAction.None = 0 -> Wolfgang.Etl.SqlBulkCopy.PostAction
@@ -91,3 +112,6 @@ Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.ValidationResults.get ->
 Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
 Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip = 1 -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
 Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw = 0 -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
+static Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.Register(System.Type! declaringType, string! propertyName, System.Func<object!, object?>! getter) -> void
+static Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.RegisterEnumConverter(System.Type! enumType, System.Func<object!, object!>! converter) -> void
+static Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry.Register(System.Type! type, Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor! descriptor) -> void

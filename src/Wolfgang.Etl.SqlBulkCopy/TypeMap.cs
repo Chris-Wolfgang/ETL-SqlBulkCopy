@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -20,6 +21,11 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 internal sealed class TypeMap
 {
     private static readonly ConcurrentDictionary<(Type Type, string? SchemaName, string? TableName), TypeMap> Cache = new();
+
+    private const string ReflectionMappingMessage =
+        "The type map is built by reflecting over the type's public properties. " +
+        "Mark the type [BulkCopyable] to use the trim- and Native-AOT-safe " +
+        "source-generated map instead. See ADR 0006.";
 
     /// <summary>
     /// The set of CLR types that can be mapped directly to SQL Server columns.
@@ -146,6 +152,14 @@ internal sealed class TypeMap
     /// Thrown when a circular type reference is detected (e.g., a self-referential
     /// or mutually-recursive collection property).
     /// </exception>
+    [UnconditionalSuppressMessage
+    (
+        "Trimming",
+        "IL2026:RequiresUnreferencedCode",
+        Justification = "The reflection path is only reached for types without a generated " +
+                        "descriptor; Native-AOT consumers mark their types [BulkCopyable], " +
+                        "which routes through the reflection-free descriptor path. See ADR 0006."
+    )]
     internal static TypeMap Create
     (
         Type type,
@@ -164,7 +178,69 @@ internal sealed class TypeMap
         var normalizedSchema = string.IsNullOrWhiteSpace(schemaName) ? null : schemaName;
         var normalizedTable = string.IsNullOrWhiteSpace(tableName) ? null : tableName;
 
+        // Prefer a source-generated descriptor when one is registered for this
+        // type: it carries the same facts BuildTypeMap derives by reflection,
+        // so the map is built without reflecting over the type — the
+        // Native-AOT-clean path. Unregistered types use the reflection path
+        // below. See ADR 0006.
+        if (GeneratedTypeMapRegistry.TryGet(type, out var descriptor))
+        {
+            var descriptorKey = (type, normalizedSchema, normalizedTable);
+
+            return Cache.TryGetValue(descriptorKey, out var cachedFromDescriptor)
+                ? cachedFromDescriptor
+                : Cache.GetOrAdd(descriptorKey, BuildFromDescriptor(type, descriptor, normalizedSchema, normalizedTable));
+        }
+
         return Create(type, normalizedSchema, normalizedTable, typesInProgress: new HashSet<Type>());
+    }
+
+
+
+    /// <summary>
+    /// Builds a <see cref="TypeMap"/> from a source-generated descriptor without
+    /// reflecting over <paramref name="type"/>. Override resolution mirrors
+    /// <see cref="ResolveTableName"/> so the result is identical to the
+    /// reflection path (asserted by the descriptor conformance tests).
+    /// </summary>
+    private static TypeMap BuildFromDescriptor
+    (
+        Type type,
+        GeneratedTypeDescriptor descriptor,
+        string? schemaOverride,
+        string? tableOverride
+    )
+    {
+        var schema = string.IsNullOrWhiteSpace(schemaOverride) ? descriptor.SchemaName : schemaOverride;
+        var table = string.IsNullOrWhiteSpace(tableOverride) ? descriptor.TableName : tableOverride!;
+
+        var columns = new ColumnMap[descriptor.Columns.Count];
+        for (var i = 0; i < descriptor.Columns.Count; i++)
+        {
+            var column = descriptor.Columns[i];
+            columns[i] = new ColumnMap
+            (
+                type,
+                column.PropertyName,
+                column.ColumnName,
+                column.ClrType,
+                column.IsNullable,
+                column.Ordinal
+            );
+        }
+
+        // Each nested child type is itself [BulkCopyable] (the generator only
+        // emits a descriptor when the whole graph is generatable), so Create
+        // resolves the child through its own registered descriptor — the
+        // recursion stays reflection-free.
+        var nestedTables = new NestedTableMap[descriptor.NestedTables.Count];
+        for (var i = 0; i < descriptor.NestedTables.Count; i++)
+        {
+            var nested = descriptor.NestedTables[i];
+            nestedTables[i] = new NestedTableMap(type, nested.PropertyName, Create(nested.ChildType));
+        }
+
+        return new TypeMap(schema, table, columns, nestedTables, isMappedToTable: true);
     }
 
 
@@ -178,6 +254,7 @@ internal sealed class TypeMap
     /// Thrown when a circular type reference is detected (e.g., a self-referential
     /// or mutually-recursive collection property).
     /// </exception>
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
     private static TypeMap Create
     (
         Type type,
@@ -218,6 +295,7 @@ internal sealed class TypeMap
 
 
 
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
     private static TypeMap BuildTypeMap
     (
         Type type,
@@ -320,6 +398,7 @@ internal sealed class TypeMap
 
 
 
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
     private static void ValidatePropertyAttributes(Type type)
     {
         var invalidProperty = type
@@ -379,6 +458,7 @@ internal sealed class TypeMap
 
 
 
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
     private static NestedTableMap[] BuildNestedTableMaps
     (
         PropertyInfo[] properties,
@@ -467,6 +547,7 @@ internal sealed class TypeMap
     /// and are silently skipped during nested-table mapping — there is no element
     /// type to reflect over, so they cannot be mapped to a child table.
     /// </summary>
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
     private static Type? GetEnumerableElementType(Type type)
     {
         // Check for array element type first
