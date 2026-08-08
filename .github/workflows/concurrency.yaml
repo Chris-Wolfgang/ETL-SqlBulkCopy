@@ -71,6 +71,9 @@ jobs:
         env:
           COYOTE_ITERATIONS: ${{ inputs.iterations || '10000' }}
         run: |
+          # pipefail so a failing dotnet test propagates through the `| tee` and
+          # fails the step, rather than the pipeline reporting tee's zero exit.
+          set -eo pipefail
           mkdir -p reports
           dotnet test tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.csproj \
             --no-build --configuration Release \
