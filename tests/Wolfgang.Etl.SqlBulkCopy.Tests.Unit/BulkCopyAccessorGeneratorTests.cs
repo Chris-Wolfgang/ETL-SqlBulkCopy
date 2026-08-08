@@ -45,12 +45,14 @@ public class BulkCopyAccessorGeneratorTests
     [Fact]
     public void Generated_getter_reads_the_actual_property_value()
     {
-        GeneratedAccessorRegistry.TryGetGetter
+        var registered = GeneratedAccessorRegistry.TryGetGetter
         (
             typeof(BulkCopyableFixture),
             nameof(BulkCopyableFixture.Name),
             out var getter
         );
+
+        Assert.True(registered, "A generated getter should be registered for BulkCopyableFixture.Name; a false result indicates a generator/registration regression (and avoids an NRE on getter(...) below).");
 
         var value = getter(new BulkCopyableFixture { Name = "Ada" });
 
