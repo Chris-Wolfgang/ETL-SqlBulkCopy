@@ -1,0 +1,78 @@
+name: AOT Smoke
+
+# Publishes a tiny consumer with <PublishAot>true</PublishAot> and runs the
+# native binary, proving that a [BulkCopyable] type's source-generated
+# accessors compile and run under Native AOT with no trim/AOT warnings from
+# this library's code.
+#
+# The smoke reaches only the mapping + generated-accessor path (TypeMap /
+# ColumnMap) — never SqlBulkCopyLoader — so Microsoft.Data.SqlClient is trimmed
+# out of the reachable graph and the signal is about THIS library's code, not
+# SqlClient's separate AOT story (see docs/adr/0006). Native AOT needs a C++
+# toolchain (clang + zlib), which is why this runs on Linux CI rather than as a
+# local check.
+
+on:
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - 'tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/**'
+      - '.github/workflows/aot-smoke.yaml'
+  push:
+    branches: [vNext]
+    paths:
+      - 'src/**'
+      - 'tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/**'
+      - '.github/workflows/aot-smoke.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aot-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  aot-smoke:
+    name: Publish & run Native AOT consumer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Install Native AOT prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+
+      - name: Publish Native AOT (linux-x64)
+        run: |
+          set -euo pipefail
+          dotnet publish tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/Wolfgang.Etl.SqlBulkCopy.AotSmoke.csproj \
+            -c Release -r linux-x64 -o aot-out 2>&1 | tee aot-publish.log
+
+      - name: Assert no AOT/trim warnings from this library
+        run: |
+          set -euo pipefail
+          # SqlClient is trimmed out (unreachable), so any IL2xxx/IL3xxx naming
+          # our assembly would be a real regression in the generated hot path.
+          if grep -iE 'IL[0-9]{4}' aot-publish.log | grep -i 'Wolfgang.Etl.SqlBulkCopy'; then
+            echo "::error::Native AOT publish produced trim/AOT warnings referencing Wolfgang.Etl.SqlBulkCopy"
+            exit 1
+          fi
+          echo "No AOT/trim warnings from Wolfgang.Etl.SqlBulkCopy."
+
+      - name: Run the native binary
+        run: |
+          set -euo pipefail
+          ./aot-out/Wolfgang.Etl.SqlBulkCopy.AotSmoke
+          echo "Native AOT smoke exited $?."
