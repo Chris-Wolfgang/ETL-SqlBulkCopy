@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785215359253,
+  "lastUpdate": 1786249937233,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -174,6 +174,64 @@ window.BENCHMARK_DATA = {
             "value": 449203633,
             "unit": "ns",
             "range": "± 14768515.70588551"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "dd8da13e0350193530293979dcb9efa8b3068f1d",
+          "message": "Merge pull request #225 from Chris-Wolfgang/fix/generator-doc-summary\n\ndocs: correct generator descriptor summary (nested tables)",
+          "timestamp": "2026-08-08T16:47:50Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/dd8da13e0350193530293979dcb9efa8b3068f1d"
+        },
+        "date": 1786249935554,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 11537108.166666666,
+            "unit": "ns",
+            "range": "± 462575.75403098395"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 14818204.833333334,
+            "unit": "ns",
+            "range": "± 590983.3265747295"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 14644324,
+            "unit": "ns",
+            "range": "± 394461.33532705077"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 435862730.3333333,
+            "unit": "ns",
+            "range": "± 15866250.069334414"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 485712760,
+            "unit": "ns",
+            "range": "± 12653070.921478193"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 430895538.5,
+            "unit": "ns",
+            "range": "± 6516700.141568047"
           }
         ]
       }
