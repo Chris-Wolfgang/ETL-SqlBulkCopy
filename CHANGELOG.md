@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GeneratedTypeMapRegistry` descriptor infrastructure the generated code
   registers. See
   [ADR 0006](docs/adr/0006-source-generated-property-accessors.md).
+- **Dry-run support (`ISupportDryRun`).** Set `IsDryRun = true` on
+  `SqlBulkCopyLoader<TRecord>` to validate a pipeline against real data without
+  writing to SQL Server: the loader still enumerates the source, applies
+  `SkipItemCount` / `MaximumItemCount`, runs validation, increments progress, and
+  logs — but performs no SQL side effects (the pre-/post-action and the bulk
+  insert are all skipped). New public API:
+  `SqlBulkCopyLoader<TRecord>.IsDryRun`. ([#121](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/issues/121))
 
 ### Changed
 

@@ -81,6 +81,8 @@ Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.DestinationTableName.get -> 
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.DestinationTableName.set -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.EnableDataValidation.get -> bool
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.EnableDataValidation.set -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.IsDryRun.get -> bool
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.IsDryRun.set -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnNestedValidationFailed.get -> System.Action<object!, System.Collections.Generic.ICollection<System.ComponentModel.DataAnnotations.ValidationResult!>!>?
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnNestedValidationFailed.set -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.OnValidationFailed.get -> System.Action<TRecord, System.Collections.Generic.ICollection<System.ComponentModel.DataAnnotations.ValidationResult!>!>?

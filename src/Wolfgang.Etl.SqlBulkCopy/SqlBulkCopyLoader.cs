@@ -36,7 +36,7 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// await loader.LoadAsync(items, cancellationToken);
 /// </code>
 /// </example>
-public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopyReport>
+public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopyReport>, ISupportDryRun
     where TRecord : notnull
 {
     private static readonly string OperationName = $"SQL bulk copy loading of {typeof(TRecord).Name}";
@@ -253,6 +253,24 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
     /// <summary>
+    /// Gets or sets a value indicating whether the load runs as a dry run —
+    /// validating the pipeline against real data without writing to SQL Server.
+    /// </summary>
+    /// <value>The default is <c>false</c>.</value>
+    /// <remarks>
+    /// When <c>true</c>, the loader still enumerates the source, applies
+    /// <c>SkipItemCount</c> / <c>MaximumItemCount</c>, runs data
+    /// validation, increments the progress counters, and logs as usual — but
+    /// performs <b>no</b> SQL side effects: the <see cref="PreAction"/> /
+    /// <see cref="PostAction"/> (e.g. truncate / delete) and the bulk insert are
+    /// all skipped. This lets a caller confirm a pipeline runs end-to-end and
+    /// surfaces mapping / validation errors without touching the destination.
+    /// </remarks>
+    public bool IsDryRun { get; set; }
+
+
+
+    /// <summary>
     /// Gets or sets how the loader reacts to a validation failure when
     /// <see cref="EnableDataValidation"/> is <c>true</c>.
     /// </summary>
@@ -353,7 +371,12 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
         ValidateActionConfiguration(typeMap);
 
-        await ExecutePreActionAsync(typeMap, token).ConfigureAwait(false);
+        // Dry run: skip all SQL side effects (pre-action, bulk insert, post-action)
+        // but still enumerate, validate, count, and report below.
+        if (!IsDryRun)
+        {
+            await ExecutePreActionAsync(typeMap, token).ConfigureAwait(false);
+        }
 
         Volatile.Write(ref _batchCount, 0); // paired with Volatile.Read in CreateProgressReport
         var skipCounter = 0;
@@ -393,12 +416,28 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             }
         }
 
+        await FinalizeLoadAsync(batch, typeMap, factory, token).ConfigureAwait(false);
+    }
+
+
+
+    private async Task FinalizeLoadAsync
+    (
+        List<TRecord> batch,
+        TypeMap typeMap,
+        ISqlBulkCopyWrapperFactory factory,
+        CancellationToken token
+    )
+    {
         if (batch.Count > 0)
         {
             await WriteBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
         }
 
-        await ExecutePostActionAsync(typeMap, token).ConfigureAwait(false);
+        if (!IsDryRun)
+        {
+            await ExecutePostActionAsync(typeMap, token).ConfigureAwait(false);
+        }
 
         SqlBulkCopyLogMessages.BulkCopyCompleted(_logger, CurrentItemCount, CurrentSkippedItemCount, exception: null);
     }
@@ -618,7 +657,10 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 #pragma warning restore S3267
 
         using var reader = new TypeMapReader(items, typeMap);
-        await wrapper.WriteToServerAsync(reader, token).ConfigureAwait(false);
+        if (!IsDryRun)
+        {
+            await wrapper.WriteToServerAsync(reader, token).ConfigureAwait(false);
+        }
     }
 
 
