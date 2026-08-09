@@ -139,7 +139,7 @@ public class DocExampleTests
         sb.AppendLine("internal static class DocExampleHarness");
         sb.AppendLine("{");
         sb.AppendLine("    internal sealed record Person { public int Id { get; init; } public string Name { get; init; } = string.Empty; }");
-        sb.AppendLine("    internal static async Task RunAsync(SqlConnection connection, IAsyncEnumerable<Person> items, CancellationToken cancellationToken)");
+        sb.AppendLine("    internal static async Task RunAsync(SqlConnection connection, IAsyncEnumerable<Person> items, IReadOnlyList<IAsyncEnumerable<Person>> files, CancellationToken cancellationToken)");
         sb.AppendLine("    {");
         sb.AppendLine(snippet);
         sb.AppendLine("    }");
