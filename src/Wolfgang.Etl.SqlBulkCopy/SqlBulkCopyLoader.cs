@@ -110,6 +110,49 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
+    /// <example>
+    /// <code>
+    /// // One transaction spanning every file: either every file lands or none
+    /// // do (roll back on any failure).
+    /// using var transaction = connection.BeginTransaction();
+    /// try
+    /// {
+    ///     foreach (var file in files)
+    ///     {
+    ///         var loader = new SqlBulkCopyLoader&lt;Person&gt;(connection, SqlBulkCopyOptions.Default, transaction)
+    ///         {
+    ///             DestinationTableName = "People"
+    ///         };
+    ///
+    ///         await loader.LoadAsync(file, cancellationToken);
+    ///     }
+    ///
+    ///     transaction.Commit();
+    /// }
+    /// catch
+    /// {
+    ///     transaction.Rollback();
+    ///     throw;
+    /// }
+    /// </code>
+    /// </example>
+    /// <example>
+    /// <code>
+    /// // Commit after each file: a mid-run failure keeps the files already
+    /// // committed (good for large, independent files and restartability).
+    /// foreach (var file in files)
+    /// {
+    ///     using var transaction = connection.BeginTransaction();
+    ///     var loader = new SqlBulkCopyLoader&lt;Person&gt;(connection, SqlBulkCopyOptions.Default, transaction)
+    ///     {
+    ///         DestinationTableName = "People"
+    ///     };
+    ///
+    ///     await loader.LoadAsync(file, cancellationToken);
+    ///     transaction.Commit();
+    /// }
+    /// </code>
+    /// </example>
     public SqlBulkCopyLoader
     (
         SqlConnection connection,

@@ -84,6 +84,7 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 | **Pre/post actions** | Built-in `TruncateTable` / `DeleteAllRecords`; custom-action delegates for schema-aware work |
 | **Progress reporting** | `IProgress<SqlBulkCopyReport>` — batch count, rows written, elapsed time |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
+| **Dry run** | Set `IsDryRun = true` (`ISupportDryRun`) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
 | **Native AOT ready** | Opt a record into compile-time source-generated accessors with `[BulkCopyable]` — no runtime IL emission on the hot path (net5.0+) |
 | **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net8.0`, `net10.0` |
@@ -92,6 +93,8 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 - **Truncate before load:** set `PreAction = PreAction.TruncateTable` (shown above).
 - **Custom pre-action:** set `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ };`
 - **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
+- **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, SqlBulkCopyOptions.Default, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
+- **Dry run:** set `IsDryRun = true` to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.
 
 See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) for the full surface.
 
