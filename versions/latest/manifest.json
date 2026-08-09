@@ -22,6 +22,20 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.yml\" sourcestartlinenumber=\"1\">Opts a type into compile-time source-generated property accessors. When a\ntype is marked with this attribute, the <code>Wolfgang.Etl.SqlBulkCopy</code>\nsource generator emits strongly-typed getters for its mappable properties\nand registers them with <xref href=\"Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry\" data-throw-if-not-resolved=\"false\"></xref> at module\nload, so the bulk-copy hot path reads values without emitting IL at runtime.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.ColumnMap.yml",
       "output": {
         ".html": {

@@ -7,6 +7,12 @@ references:
   commentId: N:Wolfgang.Etl.SqlBulkCopy
   fullName: Wolfgang.Etl.SqlBulkCopy
   nameWithType: Wolfgang.Etl.SqlBulkCopy
+- uid: Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute
+  name: BulkCopyableAttribute
+  href: api/Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.html
+  commentId: T:Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute
+  fullName: Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute
+  nameWithType: BulkCopyableAttribute
 - uid: Wolfgang.Etl.SqlBulkCopy.ColumnMap
   name: ColumnMap
   href: api/Wolfgang.Etl.SqlBulkCopy.ColumnMap.html
@@ -550,6 +556,23 @@ references:
   fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord).EnableDataValidation
   nameWithType: SqlBulkCopyLoader<TRecord>.EnableDataValidation
   nameWithType.vb: SqlBulkCopyLoader(Of TRecord).EnableDataValidation
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.IsDryRun
+  name: IsDryRun
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1_IsDryRun
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.IsDryRun
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.IsDryRun
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord).IsDryRun
+  nameWithType: SqlBulkCopyLoader<TRecord>.IsDryRun
+  nameWithType.vb: SqlBulkCopyLoader(Of TRecord).IsDryRun
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.IsDryRun*
+  name: IsDryRun
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1_IsDryRun_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.IsDryRun
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.IsDryRun
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord).IsDryRun
+  nameWithType: SqlBulkCopyLoader<TRecord>.IsDryRun
+  nameWithType.vb: SqlBulkCopyLoader(Of TRecord).IsDryRun
 - uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.LoadWorkerAsync(System.Collections.Generic.IAsyncEnumerable{`0},System.Threading.CancellationToken)
   name: LoadWorkerAsync(IAsyncEnumerable<TRecord>, CancellationToken)
   href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1_LoadWorkerAsync_System_Collections_Generic_IAsyncEnumerable__0__System_Threading_CancellationToken_

@@ -81,6 +81,15 @@
 Classes
 </h3>
     <dl class="jumplist">
+      <dt><a class="xref" href="Wolfgang.Etl.SqlBulkCopy.BulkCopyableAttribute.html">BulkCopyableAttribute</a></dt>
+      <dd><p>Opts a type into compile-time source-generated property accessors. When a
+type is marked with this attribute, the <code>Wolfgang.Etl.SqlBulkCopy</code>
+source generator emits strongly-typed getters for its mappable properties
+and registers them with <span class="xref">Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry</span> at module
+load, so the bulk-copy hot path reads values without emitting IL at runtime.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
       <dt><a class="xref" href="Wolfgang.Etl.SqlBulkCopy.ColumnMap.html">ColumnMap</a></dt>
       <dd><p>Maps a single property on a .NET type to a column in a SQL Server table.</p>
 </dd>
