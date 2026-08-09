@@ -131,7 +131,16 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// }
     /// catch
     /// {
-    ///     transaction.Rollback();
+    ///     // Roll back, but don't let a rollback failure mask the original error.
+    ///     try
+    ///     {
+    ///         transaction.Rollback();
+    ///     }
+    ///     catch
+    ///     {
+    ///         // Ignore: rethrow the original load exception below.
+    ///     }
+    ///
     ///     throw;
     /// }
     /// </code>
