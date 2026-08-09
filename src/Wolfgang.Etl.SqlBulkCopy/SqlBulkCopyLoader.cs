@@ -657,9 +657,29 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 #pragma warning restore S3267
 
         using var reader = new TypeMapReader(items, typeMap);
-        if (!IsDryRun)
+        if (IsDryRun)
+        {
+            // Dry run: don't write, but still pull the reader so the per-row
+            // getter + enum-conversion (mapping) path runs and any mapping /
+            // value-extraction error surfaces — just without touching the server.
+            await DrainReaderAsync(reader, token).ConfigureAwait(false);
+        }
+        else
         {
             await wrapper.WriteToServerAsync(reader, token).ConfigureAwait(false);
+        }
+    }
+
+
+
+    private static async Task DrainReaderAsync(TypeMapReader reader, CancellationToken token)
+    {
+        while (await reader.ReadAsync(token).ConfigureAwait(false))
+        {
+            for (var i = 0; i < reader.FieldCount; i++)
+            {
+                _ = reader.GetValue(i);
+            }
         }
     }
 
