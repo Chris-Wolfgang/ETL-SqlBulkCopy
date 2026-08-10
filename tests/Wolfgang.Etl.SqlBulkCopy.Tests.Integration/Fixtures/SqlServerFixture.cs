@@ -132,9 +132,17 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
         // Daemon down / no Docker socket / Windows-containers mode on a
         // Linux-image pull all surface as one of these.
+        //
+        // Testcontainers' own DotNet.Testcontainers.Builders.DockerUnavailableException
+        // ("Docker is either not running or misconfigured") is the primary
+        // signal on Docker-less Windows GHA runners (npipe endpoint absent).
+        // Its FullName starts with "DotNet.Testcontainers.", NOT "Docker.DotNet.",
+        // so match it by simple type name — that survives namespace moves across
+        // Testcontainers versions and is unambiguous.
         if (inner is IOException
             || inner is SocketException
             || inner is PlatformNotSupportedException
+            || string.Equals(inner.GetType().Name, "DockerUnavailableException", StringComparison.Ordinal)
             || (inner.GetType().FullName ?? string.Empty).StartsWith("Docker.DotNet.", StringComparison.Ordinal))
         {
             return true;
