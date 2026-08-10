@@ -696,6 +696,67 @@ jobs:
             echo ""
           done
 
+      # The unit-test loop above deliberately excludes *.Tests.Integration.*
+      # (find ... -not -name). Those tests use Testcontainers to start a REAL
+      # SQL Server Linux container — and ubuntu-latest has a working Docker
+      # daemon, so this is the ONE stage that exercises them for real. The
+      # Windows / macOS stages skip the project entirely (GitHub's Windows and
+      # macOS runners can't run Linux containers), so this Linux run is the
+      # integration tests' only home.
+      #
+      # ETL_REQUIRE_DOCKER=1 flips the fixture from "skip when Docker is
+      # unavailable" to "FAIL when Docker is unavailable" — a broken/absent
+      # daemon on the one stage that is supposed to have Docker is a real defect
+      # to fix, never something to silently skip past.
+      - name: Integration tests (real SQL Server via Docker)
+        shell: bash
+        env:
+          ETL_REQUIRE_DOCKER: "1"
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' -t integ_projects < <(find ./tests -type f \( -name "*.Tests.Integration.csproj" -o -name "*.Tests.Integration.vbproj" -o -name "*.Tests.Integration.fsproj" \) -print0)
+
+          if [ ${#integ_projects[@]} -eq 0 ]; then
+            echo "ℹ️  No *.Tests.Integration.* projects found — nothing to run."
+            exit 0
+          fi
+
+          for proj in "${integ_projects[@]}"; do
+            echo "=========================================="
+            echo "Integration project: $proj"
+            echo "=========================================="
+
+            tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFrameworks 2>/dev/null \
+              | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFrameworks[=:][[:space:]]*//' | tr -d '[:space:]')
+            if [ -z "$tfm_raw" ]; then
+              tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFramework 2>/dev/null \
+                | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFramework[=:][[:space:]]*//' | tr -d '[:space:]')
+            fi
+            frameworks=$(printf '%s' "$tfm_raw" | tr ';' '\n' | grep -E '^(net(5\.0|6\.0|7\.0|8\.0|9\.0|10\.0)|netcoreapp3\.1)$' || true)
+
+            if [ -z "$frameworks" ]; then
+              echo "⊘ Skipping: no compatible .NET 5.0-10.0 target frameworks found"
+              echo ""
+              continue
+            fi
+
+            echo "Target frameworks: $(echo "$frameworks" | tr '\n' ' ')"
+            echo ""
+
+            while IFS= read -r fw; do
+              [ -z "$fw" ] && continue
+              echo "Testing framework: $fw"
+
+              dotnet test "$proj" \
+                --configuration Release \
+                --framework "$fw" \
+                --no-build --no-restore \
+                --logger "console;verbosity=minimal" || exit 1
+            done <<< "$frameworks"
+            echo ""
+          done
+
       - name: Check for coverage files
         id: check-coverage
         run: |
@@ -922,7 +983,12 @@ jobs:
             exit 0
           }
 
-          $testProjects = @(Get-ChildItem -Path './tests/*' -Recurse -File -Include '*.csproj','*.vbproj','*.fsproj')
+          # Exclude *.Tests.Integration.* — those are Testcontainers-backed and
+          # need a Linux-container Docker daemon, which GitHub's windows-latest
+          # runners don't provide. They run for real on the Linux stage (Stage 1)
+          # instead. Matches Stage 1 / Stage 3's `-not -name "*.Tests.Integration.*"`.
+          $testProjects = @(Get-ChildItem -Path './tests/*' -Recurse -File -Include '*.csproj','*.vbproj','*.fsproj' |
+            Where-Object { $_.Name -notmatch '\.Tests\.Integration\.' })
 
           if (@($testProjects).Count -eq 0) {
             if ($srcHasProjects) {
