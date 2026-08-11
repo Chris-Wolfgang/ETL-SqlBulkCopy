@@ -19,8 +19,8 @@ public sealed class GeneratedTypeDescriptor
     /// called only by generated code.
     /// </summary>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="tableName"/> or <paramref name="columns"/> is
-    /// <see langword="null"/>.
+    /// Thrown when <paramref name="tableName"/>, <paramref name="columns"/> or
+    /// <paramref name="nestedTables"/> is <see langword="null"/>.
     /// </exception>
     public GeneratedTypeDescriptor
     (

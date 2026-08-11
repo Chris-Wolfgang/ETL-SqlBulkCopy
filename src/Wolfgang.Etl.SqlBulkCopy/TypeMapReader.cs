@@ -128,7 +128,26 @@ internal sealed class TypeMapReader : DbDataReader
 
 
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Returns the zero-based ordinal of the named column, matched
+    /// case-insensitively.
+    /// </summary>
+    /// <param name="name">The column name to look up.</param>
+    /// <returns>The zero-based column ordinal.</returns>
+    /// <remarks>
+    /// Deliberately not <c>&lt;inheritdoc /&gt;</c>: the inherited
+    /// <see cref="DbDataReader.GetOrdinal(string)"/> contract documents
+    /// <see cref="IndexOutOfRangeException"/> for an unknown column, whereas this
+    /// implementation throws <see cref="ArgumentOutOfRangeException"/> (and
+    /// <see cref="ArgumentNullException"/> for a null name). Inheriting the base
+    /// docs would state an exception contract this type does not honour.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="name"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when no column matches <paramref name="name"/>.
+    /// </exception>
     public override int GetOrdinal(string name)
     {
         if (name is null)
@@ -156,7 +175,8 @@ internal sealed class TypeMapReader : DbDataReader
 
 
 
-    // --- Required overrides that SqlBulkCopy does not call ---
+    // --- State properties SqlBulkCopy does not call: sensible defaults for a
+    // single-result, in-memory reader (see the class remarks) ---
 
     /// <inheritdoc />
     public override int Depth => 0;
@@ -172,8 +192,11 @@ internal sealed class TypeMapReader : DbDataReader
 
 
 
-    /// <inheritdoc />
+    // --- Typed accessors SqlBulkCopy does not call: these throw rather than
+    // return a default, so a future caller fails loudly instead of silently
+    // reading zeros ---
 
+    /// <inheritdoc />
     public override bool GetBoolean(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />

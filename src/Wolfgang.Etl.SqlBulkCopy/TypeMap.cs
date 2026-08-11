@@ -527,7 +527,11 @@ internal sealed class TypeMap
 
     /// <summary>
     /// Returns <c>true</c> when the property can be read by <see cref="PropertyInfo.GetValue(object)"/>
-    /// without throwing — i.e. it has a public getter and takes no index parameters.
+    /// without throwing — i.e. it has a getter and takes no index parameters.
+    /// Note this is "has <em>a</em> getter", not "has a <b>public</b> getter":
+    /// <see cref="PropertyInfo.GetMethod"/> returns non-public accessors too. Callers
+    /// reach this only for members already surfaced by
+    /// <c>GetProperties(BindingFlags.Public | BindingFlags.Instance)</c>.
     /// Indexer and write-only properties would throw <see cref="TargetParameterCountException"/>
     /// or <see cref="ArgumentException"/> at read time and must be excluded from both
     /// column maps and nested-table maps.
