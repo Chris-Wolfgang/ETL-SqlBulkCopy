@@ -3,44 +3,30 @@ using Xunit;
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
 /// <summary>
-/// Collection names for tests that touch process-wide state and therefore
-/// cannot run concurrently with each other or with unrelated tests.
+/// Collection names for tests that cannot safely run concurrently.
 /// </summary>
 /// <remarks>
-/// xUnit parallelizes across test classes by default. Two categories of test in
-/// this assembly mutate state that is shared by the whole process, so they are
-/// pinned into non-parallel collections rather than left to interleave.
+/// Deliberately short. Serialization is the tool of last resort: it trades away
+/// parallelism, so it is only justified when a test mutates state that cannot be
+/// partitioned by key.
+/// <para>
+/// The registry tests are NOT here, and that is the point. They write into the
+/// static <see cref="GeneratedAccessorRegistry"/>, but each writes its own
+/// <c>(type, propertyName)</c> key on a dedicated probe type no other test reads
+/// — so they are isolated by construction and stay parallel. Keying, not
+/// serializing, is how shared-registry tests should be isolated here.
+/// </para>
 /// </remarks>
 internal static class TestCollections
 {
     /// <summary>
-    /// Tests that write into <see cref="GeneratedAccessorRegistry"/>, a static
-    /// <c>ConcurrentDictionary</c> with no removal API. They register sentinel
-    /// getters (e.g. <c>_ =&gt; 999</c>) that stay for the life of the process, so
-    /// any test building a <see cref="ColumnMap"/> for the same probe type
-    /// afterwards would silently read the sentinel instead of the real value.
-    /// </summary>
-    internal const string GeneratedAccessorRegistry = "GeneratedAccessorRegistry";
-
-    /// <summary>
-    /// Tests that swap <see cref="System.Globalization.CultureInfo.CurrentCulture"/>.
-    /// The swap is undone in a <c>finally</c>, but it spans an <c>await</c> — so
-    /// while it is in effect another test resuming on the same thread-pool thread
-    /// would observe the foreign culture.
+    /// Tests that replace <see cref="System.Globalization.CultureInfo.CurrentCulture"/>.
+    /// Ambient thread state cannot be partitioned by key — there is only one
+    /// current culture — and the swap spans an <c>await</c>, so another test
+    /// resuming on the same thread-pool thread would observe the foreign culture.
+    /// This is the case serialization genuinely fixes.
     /// </summary>
     internal const string AmbientCulture = "AmbientCulture";
-}
-
-
-
-/// <summary>
-/// Serializes the tests that register sentinel getters in the shared accessor
-/// registry.
-/// </summary>
-[CollectionDefinition(TestCollections.GeneratedAccessorRegistry, DisableParallelization = true)]
-public sealed class GeneratedAccessorRegistryCollection
-{
-    // Marker type only — xUnit uses the attribute, not the class body.
 }
 
 

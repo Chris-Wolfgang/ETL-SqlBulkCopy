@@ -4,7 +4,6 @@ using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
-[Collection(TestCollections.GeneratedAccessorRegistry)]
 public class ColumnMapTests
 {
     [Fact]
