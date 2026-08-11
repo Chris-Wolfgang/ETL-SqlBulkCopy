@@ -22,6 +22,7 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 /// and assert the observable output is identical to the invariant run, locking
 /// in the ordinal choice.
 /// </summary>
+[Collection(TestCollections.AmbientCulture)]
 public class CultureInvarianceTests
 {
     // The full hostile-culture matrix required by issue #97, each chosen for a
