@@ -53,6 +53,7 @@
     <Project Path="src/Wolfgang.Etl.SqlBulkCopy.SourceGenerator/Wolfgang.Etl.SqlBulkCopy.SourceGenerator.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots/Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots.csproj" />
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/Wolfgang.Etl.SqlBulkCopy.Tests.Unit.csproj" />
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.Integration/Wolfgang.Etl.SqlBulkCopy.Tests.Integration.csproj" />
     <Project Path="tests/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples.csproj" />

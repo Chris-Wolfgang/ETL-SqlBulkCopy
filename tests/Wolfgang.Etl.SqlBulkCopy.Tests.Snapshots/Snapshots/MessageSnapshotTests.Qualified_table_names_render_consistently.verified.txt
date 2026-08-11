@@ -1,0 +1,4 @@
+with schema:      [dbo].[Customers]
+no schema:        [NoTableAttribute]
+bracket in name:  [Weird]]Name]
+schema override:  [other].[Renamed]
