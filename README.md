@@ -33,7 +33,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 - **GitHub Repository:** [https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy)
 - **API Documentation:** https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/
-- **Formatting Guide:** [README-FORMATTING.md](README-FORMATTING.md)
+- **Formatting Guide:** [README-FORMATTING.md](docs/README-FORMATTING.md)
 - **Contributing Guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Architecture Decisions:** [docs/adr/index.md](docs/adr/index.md)
 - **Migration Guides:** [docs/migrations/](docs/migrations/)
@@ -82,7 +82,8 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 | **Type-driven mapping** | `[Table]` / `[Column]` / `[NotMapped]` attributes drive schema/table/column names — no manual `ColumnMappings` |
 | **Nested tables** | Recursively writes child collections to their own tables inside the same bulk-copy session |
 | **Pre/post actions** | Built-in `TruncateTable` / `DeleteAllRecords`; custom-action delegates for schema-aware work |
-| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — batch count, rows written, elapsed time |
+| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — rows written (`CurrentItemCount`), rows skipped, batch count |
+| **Data validation** | Opt in with `EnableDataValidation`; DataAnnotations failures throw or skip per `ValidationFailureBehavior`, with `OnValidationFailed` / `OnNestedValidationFailed` callbacks |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
 | **Dry run** | Set `IsDryRun = true` (`ISupportDryRun`) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
@@ -155,7 +156,7 @@ the compiled-getter throughput.
 
 ## 🔍 Code Quality & Static Analysis
 
-This project enforces **strict code quality standards** through **7 specialized analyzers** and custom async-first rules:
+This project enforces **strict code quality standards** through **8 specialized analyzers** and custom async-first rules:
 
 ### Analyzers in Use
 
@@ -166,6 +167,7 @@ This project enforces **strict code quality standards** through **7 specialized 
 5. **Microsoft.CodeAnalysis.BannedApiAnalyzers** - Prevents usage of banned synchronous APIs
 6. **Meziantou.Analyzer** - Comprehensive code quality rules
 7. **SonarAnalyzer.CSharp** - Industry-standard code analysis
+8. **Microsoft.CodeAnalysis.PublicApiAnalyzers** - Tracks the shipped public surface (RS0016/RS0017)
 
 ### Async-First Enforcement
 
@@ -186,7 +188,7 @@ This library uses **`BannedSymbols.txt`** to prohibit synchronous APIs and enfor
 ## 🛠️ Building from Source
 
 ### Prerequisites
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download) or later
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) or later (required — the projects target `net10.0`, so older SDKs cannot load them)
 - Optional: [PowerShell Core](https://github.com/PowerShell/PowerShell) for formatting scripts
 
 ### Build Steps
@@ -206,7 +208,7 @@ dotnet build --configuration Release
 dotnet test --configuration Release
 
 # Run code formatting (PowerShell Core)
-pwsh ./format.ps1
+pwsh ./scripts/format.ps1
 ```
 
 ### Code Formatting
@@ -221,7 +223,7 @@ dotnet format
 dotnet format --verify-no-changes
 ```
 
-See [README-FORMATTING.md](README-FORMATTING.md) for detailed formatting guidelines.
+See [README-FORMATTING.md](docs/README-FORMATTING.md) for detailed formatting guidelines.
 
 ### Building Documentation
 
