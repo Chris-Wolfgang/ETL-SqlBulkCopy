@@ -17,6 +17,12 @@ on:
   workflow_dispatch:
 
 # Top-level read-only default; jobs declare narrower writes where required.
+# Supersede in-flight runs for the same ref: rapid pushes otherwise stack
+# redundant runs of an expensive multi-job workflow.
+concurrency:
+  group: scorecard-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions: read-all
 
 jobs:

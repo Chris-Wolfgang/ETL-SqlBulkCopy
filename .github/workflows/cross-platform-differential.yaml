@@ -34,6 +34,12 @@ on:
       - ".github/workflows/cross-platform-differential.yaml"
   workflow_dispatch:
 
+# Supersede in-flight runs for the same ref: rapid pushes otherwise stack
+# redundant runs of an expensive multi-job workflow.
+concurrency:
+  group: cross-platform-differential-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

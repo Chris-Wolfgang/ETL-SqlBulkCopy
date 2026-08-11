@@ -419,6 +419,28 @@ dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
 dotnet_diagnostic.SA1602.severity = none
 
+# Merged from the former tests/.editorconfig, which duplicated this section for
+# 7 rules while uniquely carrying these 8. Two files configuring the same tree
+# is two things to keep in step, so they now live here only.
+dotnet_diagnostic.MA0003.severity = none      # Name the parameter - noisy in assertions/setup
+dotnet_diagnostic.MA0074.severity = none      # Use StringComparison overload - not critical in tests
+dotnet_diagnostic.S108.severity = none        # Empty block - sometimes needed in test setup
+dotnet_diagnostic.S1215.severity = none       # GC.GetTotalMemory - acceptable in perf/memory tests
+dotnet_diagnostic.S2699.severity = none       # Add assertion - some tests verify no-throw behaviour
+dotnet_diagnostic.S6562.severity = none       # Provide DateTimeKind - test data does not need it
+dotnet_diagnostic.S6610.severity = none       # char overload of StartsWith - not critical in tests
+dotnet_diagnostic.xUnit2013.severity = none   # Assert.Single vs Assert.Equal for collection size
+
+# Tooling projects (tools/) - not shipped, not tested; same relaxations the
+# csproj previously carried as a NoWarn list, kept with the other categories
+# so analyzer config lives in one place.
+[tools/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none      # Underscores in member names
+dotnet_diagnostic.CA2007.severity = none      # ConfigureAwait - not a library
+dotnet_diagnostic.CA1062.severity = none      # Validate public arguments
+dotnet_diagnostic.CA1303.severity = none      # Literal strings to localized parameters
+dotnet_diagnostic.MA0004.severity = none      # ConfigureAwait - not a library
+
 # Benchmark projects - relaxed naming, no doc requirements
 [benchmarks/**/*.cs]
 # Allow Benchmark_Method_Names
