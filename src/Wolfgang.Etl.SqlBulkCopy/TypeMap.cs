@@ -73,6 +73,28 @@ internal sealed class TypeMap
         Columns = columns;
         NestedTables = nestedTables;
         IsMappedToTable = isMappedToTable;
+
+        // Built once here rather than on each QualifiedTableName access: a TypeMap
+        // is immutable and cached per (type, schema, table), while the property is
+        // read at least once per batch (and again per nested batch for logging),
+        // where it was allocating two EscapeIdentifier strings plus the
+        // interpolation every time.
+        _qualifiedTableName = isMappedToTable
+            ? BuildQualifiedTableName(schemaName, tableName)
+            : null;
+    }
+
+
+
+    private readonly string? _qualifiedTableName;
+
+
+
+    private static string BuildQualifiedTableName(string? schemaName, string tableName)
+    {
+        return schemaName is not null
+            ? $"[{EscapeIdentifier(schemaName)}].[{EscapeIdentifier(tableName)}]"
+            : $"[{EscapeIdentifier(tableName)}]";
     }
 
 
@@ -109,9 +131,7 @@ internal sealed class TypeMap
                 );
             }
 
-            return SchemaName is not null
-                ? $"[{EscapeIdentifier(SchemaName)}].[{EscapeIdentifier(TableName)}]"
-                : $"[{EscapeIdentifier(TableName)}]";
+            return _qualifiedTableName!;
         }
     }
 

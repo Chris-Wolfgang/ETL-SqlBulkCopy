@@ -37,6 +37,12 @@ internal sealed class TypeMapReader : DbDataReader
     private readonly Dictionary<string, int> _ordinalLookup;
     private int _currentIndex = -1;
 
+    // Single-cell memo for GetRawValue. Keyed on row index + ordinal so
+    // advancing the cursor invalidates it without an explicit reset.
+    private int _cachedRowIndex = -1;
+    private int _cachedOrdinal = -1;
+    private object? _cachedRawValue;
+
 
 
     /// <summary>
@@ -87,7 +93,7 @@ internal sealed class TypeMapReader : DbDataReader
         ValidateOrdinal(ordinal);
 
         var column = _typeMap.Columns[ordinal];
-        var rawValue = column.GetValue(_batch[_currentIndex]);
+        var rawValue = GetRawValue(ordinal, column);
 
         if (rawValue is null)
         {
@@ -114,7 +120,42 @@ internal sealed class TypeMapReader : DbDataReader
         ValidateOrdinal(ordinal);
 
         var column = _typeMap.Columns[ordinal];
-        return column.GetValue(_batch[_currentIndex]) is null;
+        return GetRawValue(ordinal, column) is null;
+    }
+
+
+
+    /// <summary>
+    /// Reads a cell's raw value, reusing the value from the immediately preceding
+    /// read of the same cell.
+    /// </summary>
+    /// <remarks>
+    /// <c>SqlBulkCopy</c> calls <see cref="IsDBNull"/> and then
+    /// <see cref="GetValue"/> for the same nullable cell, and both used to invoke
+    /// the compiled getter — doubling the per-row getter cost (and, for value
+    /// types, the boxing) on the hottest path in the library.
+    /// <para>
+    /// The cache is keyed on the row index as well as the ordinal, so advancing
+    /// the cursor invalidates it implicitly: after <c>Read()</c> increments
+    /// <c>_currentIndex</c>, no key can match a previous row. A different ordinal
+    /// on the same row is simply a miss and re-reads, so the only behaviour change
+    /// is that consecutive reads of the same cell call the getter once.
+    /// </para>
+    /// </remarks>
+    private object? GetRawValue(int ordinal, ColumnMap column)
+    {
+        if (_cachedRowIndex == _currentIndex && _cachedOrdinal == ordinal)
+        {
+            return _cachedRawValue;
+        }
+
+        var value = column.GetValue(_batch[_currentIndex]);
+
+        _cachedRowIndex = _currentIndex;
+        _cachedOrdinal = ordinal;
+        _cachedRawValue = value;
+
+        return value;
     }
 
 
