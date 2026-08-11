@@ -1257,38 +1257,10 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    // --- Additional constructor tests ---
-
-    [Fact]
-    public void Constructor_with_logger_when_connection_is_null_throws()
-    {
-        Assert.Throws<ArgumentNullException>
-        (
-            () => new SqlBulkCopyLoader<TestRecord>
-            (
-                (Microsoft.Data.SqlClient.SqlConnection)null!,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
-            )
-        );
-    }
-
-
-
-    [Fact]
-    public void Constructor_full_when_connection_is_null_throws()
-    {
-        Assert.Throws<ArgumentNullException>
-        (
-            () => new SqlBulkCopyLoader<TestRecord>
-            (
-                null!,
-                Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
-                transaction: null
-            )
-        );
-    }
-
-
+    // (The two former "Additional constructor tests" were byte-for-byte
+    // duplicates of Constructor_with_connection_and_logger_when_connection_is_null_throws_ArgumentNullException
+    // and Constructor_full_when_connection_is_null_throws_ArgumentNullException
+    // above, differing only in `null!` vs `(SqlConnection)null!`.)
 
     // --- Report tests ---
 
