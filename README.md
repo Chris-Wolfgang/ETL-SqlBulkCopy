@@ -188,7 +188,19 @@ This library uses **`BannedSymbols.txt`** to prohibit synchronous APIs and enfor
 ## 🛠️ Building from Source
 
 ### Prerequisites
-- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) or later (required — the projects target `net10.0`, so older SDKs cannot load them)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) or later
+
+> **Why the 10.0 SDK when the library targets frameworks as old as `net462`?**
+> The SDK is the *build* toolchain, not a runtime requirement. It must be at least
+> as new as the highest framework in `<TargetFrameworks>` — `net10.0` here — because
+> an older SDK has no targeting pack for a newer framework and fails restore with
+> `NETSDK1045: The current .NET SDK does not support targeting .NET 10.0`. The SDK is
+> backward-compatible, so the single 10.0 SDK builds *every* target in the list, from
+> `net462` up.
+>
+> This applies only to **building this repository**. Consuming the package requires
+> nothing of the sort — any runtime matching one of the shipped targets works
+> (.NET Framework 4.6.2+, or anything `netstandard2.0`-compatible, or .NET 8/10).
 - Optional: [PowerShell Core](https://github.com/PowerShell/PowerShell) for formatting scripts
 
 ### Build Steps
