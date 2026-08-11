@@ -31,7 +31,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <SignAssembly>False</SignAssembly>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-    <NoWarn>NU1701</NoWarn>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
     <PackageTags>ETL;Extract-Transform-Load;SqlBulkCopy;SQL-Server;Bulk-Load</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
