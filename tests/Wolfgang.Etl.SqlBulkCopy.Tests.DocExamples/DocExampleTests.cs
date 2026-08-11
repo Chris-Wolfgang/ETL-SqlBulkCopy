@@ -53,7 +53,8 @@ public class DocExampleTests
 
             Assert.True
             (
-                errors.Count == 0,
+                errors.Count == 0,   // not Assert.Empty: the custom message below carries the harness source
+
                 $"XML-doc <example> in {Path.GetFileName(file)} does not compile:\n" +
                 string.Join("\n", errors) +
                 "\n\n--- harness source ---\n" + source
