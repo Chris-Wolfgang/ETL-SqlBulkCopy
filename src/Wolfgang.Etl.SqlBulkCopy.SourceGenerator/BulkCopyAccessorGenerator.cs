@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -245,46 +246,70 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                 return false;
             }
 
-            var columnCount = 0;
-            var columnNames = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-
-            foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
-            {
-                if (!IsMappableProperty(property))
-                {
-                    continue;
-                }
-
-                if (IsNestedTableProperty(property))
-                {
-                    if (GetEnumerableElementType(property.Type) is not INamedTypeSymbol child
-                        || !IsFullyGeneratable(child, inProgress))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                }
-
-                if (!IsSupportedColumnType(UnwrapNullable(property.Type)))
-                {
-                    continue;
-                }
-
-                if (!columnNames.Add(GetColumnName(property) ?? property.Name))
-                {
-                    return false;
-                }
-
-                columnCount++;
-            }
-
-            return columnCount > 0;
+            return HasGeneratableColumns(type, inProgress);
         }
         finally
         {
             inProgress.Remove(type);
         }
+    }
+
+
+
+    /// <summary>
+    /// The per-property half of <see cref="IsFullyGeneratable"/>: walks the type's
+    /// mappable properties, recurses into nested-table children, and returns
+    /// <c>true</c> only when every column can be emitted and at least one exists.
+    /// </summary>
+    private static bool HasGeneratableColumns(INamedTypeSymbol type, HashSet<INamedTypeSymbol> inProgress)
+    {
+        var columnCount = 0;
+        var columnNames = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
+        {
+            if (!IsMappableProperty(property))
+            {
+                continue;
+            }
+
+            if (IsNestedTableProperty(property))
+            {
+                if (GetEnumerableElementType(property.Type) is not INamedTypeSymbol child
+                    || !IsFullyGeneratable(child, inProgress))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (!IsSupportedColumnType(UnwrapNullable(property.Type)))
+            {
+                continue;
+            }
+
+            // A column we cannot emit an accessor for would land in the descriptor
+            // with no matching GeneratedAccessorRegistry entry, and ColumnMap's
+            // descriptor constructor then throws on first load ("No source-generated
+            // getter is registered ..."). A property whose getter is not reachable
+            // from generated code (private/protected get) is exactly that case, so
+            // the whole type falls back to the reflection path rather than shipping
+            // a descriptor whose accessor cannot exist.
+            if (!IsAccessorEmittableProperty(property))
+            {
+                return false;
+            }
+
+            if (!columnNames.Add(GetColumnName(property) ?? property.Name))
+            {
+                return false;
+            }
+
+            columnCount++;
+        }
+
+        return columnCount > 0;
     }
 
 
@@ -310,9 +335,17 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     /// <summary>
     /// Returns <c>true</c> for an instance property with a getter — the generator's
     /// equivalent of <c>PropertyInfo</c> readability. Static properties, indexers, and
-    /// write-only properties are excluded. Mirrors <c>TypeMap.IsReadableInstanceProperty</c>
-    /// on the reflection path so both providers filter the same members.
+    /// write-only properties are excluded.
     /// </summary>
+    /// <remarks>
+    /// This is the <em>readability</em> test only, and deliberately says nothing about
+    /// accessibility — matching <c>TypeMap.IsReadableInstanceProperty</c>, which also
+    /// checks only <c>GetMethod is not null</c>. Reachability is a separate concern
+    /// handled by <see cref="IsAccessorEmittableProperty"/>; a column whose getter is
+    /// not reachable from generated code makes the whole type not fully generatable,
+    /// so it falls back to the reflection map rather than emitting a descriptor whose
+    /// accessor cannot exist.
+    /// </remarks>
     private static bool IsReadableInstanceProperty(IPropertySymbol property)
     {
         return !property.IsStatic
@@ -586,16 +619,57 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
 
 
+    /// <summary>
+    /// Turns a fully-qualified type name into an identifier-safe token used for the
+    /// generated class name and the <c>AddSource</c> hint name.
+    /// </summary>
+    /// <remarks>
+    /// Replacing every non-alphanumeric character with <c>_</c> is not injective:
+    /// <c>Ns.A_B</c> and <c>Ns_A.B</c> both collapse to <c>global__Ns_A_B</c>. Two such
+    /// types in one compilation would produce duplicate hint names and duplicate
+    /// generated class names, breaking the consumer's build. A short hash of the
+    /// original name is appended so distinct types stay distinct.
+    /// <para>
+    /// FNV-1a is used rather than <c>string.GetHashCode()</c>, which is randomized per
+    /// process on .NET Core and would make generator output non-deterministic across
+    /// builds.
+    /// </para>
+    /// </remarks>
     private static string Mangle(string fullyQualifiedName)
     {
-        var builder = new StringBuilder(fullyQualifiedName.Length);
+        var builder = new StringBuilder(fullyQualifiedName.Length + 9);
 
         foreach (var c in fullyQualifiedName)
         {
             builder.Append(char.IsLetterOrDigit(c) ? c : '_');
         }
 
+        builder.Append('_');
+        builder.Append(StableHash(fullyQualifiedName).ToString("x8", CultureInfo.InvariantCulture));
+
         return builder.ToString();
+    }
+
+
+
+    /// <summary>
+    /// FNV-1a 32-bit hash. Deterministic across processes and runs, so generated
+    /// output is stable build-to-build.
+    /// </summary>
+    private static uint StableHash(string value)
+    {
+        const uint offsetBasis = 2166136261;
+        const uint prime = 16777619;
+
+        var hash = offsetBasis;
+
+        foreach (var c in value)
+        {
+            hash ^= c;
+            hash *= prime;
+        }
+
+        return hash;
     }
 
 
