@@ -722,9 +722,70 @@ jobs:
           ./aot-out/Wolfgang.Etl.SqlBulkCopy.AotSmoke
           echo "Native AOT smoke passed."
 
+  # ============================================================================
+  # SECURITY SCANS (release gate)
+  #
+  # pr.yaml runs gitleaks and DevSkim on every pull request, but release.yaml
+  # ran neither: a tag pushed to a commit that never went through a PR would
+  # publish to NuGet.org without either scan ever having looked at it. Mirror
+  # both here and gate publish-nuget on them, so the artifact that ships is
+  # always scanned.
+  #
+  # These run against the TAG's commit (release.yaml checks out the tag), which
+  # is exactly the tree being packed and published.
+  # ============================================================================
+  security-scan:
+    name: Security Scans (gitleaks + DevSkim)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        # CLI rather than gitleaks-action, matching pr.yaml. Pinned version with
+        # a SHA-256 checksum so a compromised release asset cannot slip through.
+        shell: bash
+        run: |
+          GITLEAKS_VERSION="8.24.0"
+          GITLEAKS_SHA256="cb49b7de5ee986510fe8666ca0273a6cc15eb82571f2f14832c9e8920751f3a4"
+          mkdir -p "$HOME/.local/bin"
+          TARBALL="$(mktemp)"
+          curl -sSfL -o "$TARBALL" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  ${TARBALL}" | sha256sum -c - || { echo "Checksum verification failed!"; exit 1; }
+          tar xzf "$TARBALL" -C "$HOME/.local/bin" gitleaks
+          rm -f "$TARBALL"
+          export PATH="$HOME/.local/bin:$PATH"
+          gitleaks detect --source . --verbose --redact
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install DevSkim CLI
+        run: dotnet tool install --global Microsoft.CST.DevSkim.CLI
+
+      - name: Run DevSkim security scan
+        # Same rule/glob configuration as pr.yaml so a release cannot fail on a
+        # finding a PR would have accepted, or vice versa.
+        run: |
+          devskim analyze             --source-code .             --file-format text             --output-file devskim-results.txt             --ignore-rule-ids DS176209             --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
+
+      - name: Display DevSkim results
+        if: always()
+        run: |
+          if [ -f devskim-results.txt ]; then
+            cat devskim-results.txt
+          fi
+
   publish-nuget:
     name: Publish to NuGet.org
-    needs: [pack-and-validate, verify-docs-build, aot-consumer]
+    needs: [pack-and-validate, verify-docs-build, aot-consumer, security-scan]
     if: needs.pack-and-validate.outputs.has-packages == 'true'
     runs-on: windows-latest
     permissions:
