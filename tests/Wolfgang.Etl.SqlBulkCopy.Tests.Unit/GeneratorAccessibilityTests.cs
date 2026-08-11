@@ -41,15 +41,39 @@ public class GeneratorAccessibilityTests
 
 
     [Fact]
+    public void Type_with_a_non_public_nested_collection_getter_does_not_get_a_generated_descriptor()
+    {
+        // The nested-table sibling of the scalar-column case above: a descriptor's
+        // nested entry needs a registered getter for the COLLECTION property, and
+        // NestedTableMap throws the same "source-generator defect" error as
+        // ColumnMap when one is missing.
+        var hasDescriptor = GeneratedTypeMapRegistry.TryGet(typeof(NonPublicNestedGetterProbe), out _);
+
+        Assert.False
+        (
+            hasDescriptor,
+            "A nested collection property the generator cannot emit an accessor for must force " +
+            "the whole type back to the reflection map."
+        );
+    }
+
+
+
+    [Fact]
     public void Every_generated_descriptor_column_has_a_registered_getter()
     {
         // The invariant itself, asserted over the fixtures that DO get a descriptor.
         foreach (var type in new[] { typeof(BulkCopyableFixture), typeof(BulkCopyableEnumFixture) })
         {
-            if (!GeneratedTypeMapRegistry.TryGet(type, out var descriptor))
-            {
-                continue;
-            }
+            // Assert rather than `continue`: these fixtures are expected to have
+            // descriptors, so a silent skip here would let a descriptor-generation
+            // regression pass the invariant check unnoticed.
+            Assert.True
+            (
+                GeneratedTypeMapRegistry.TryGet(type, out var descriptor),
+                $"Expected a generated descriptor for '{type.Name}'; without one this test would " +
+                "vacuously pass and stop guarding the column/accessor invariant."
+            );
 
             foreach (var column in descriptor.Columns)
             {

@@ -275,7 +275,16 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
             if (IsNestedTableProperty(property))
             {
-                if (GetEnumerableElementType(property.Type) is not INamedTypeSymbol child
+                // Same invariant as the column branch below, and easy to miss:
+                // the descriptor's nested-table entry needs a registered getter
+                // for the COLLECTION property itself, not just a generatable
+                // child type. Without this check a nested property with a
+                // private/protected getter yields a nested descriptor entry that
+                // GetGeneratedProperties never emits an accessor for, and
+                // NestedTableMap's descriptor path throws the same
+                // "indicates a source-generator defect" error ColumnMap does.
+                if (!IsAccessorEmittableProperty(property)
+                    || GetEnumerableElementType(property.Type) is not INamedTypeSymbol child
                     || !IsFullyGeneratable(child, inProgress))
                 {
                     return false;
