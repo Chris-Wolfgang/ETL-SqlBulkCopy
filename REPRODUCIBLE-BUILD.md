@@ -8,11 +8,17 @@ repository — nothing was injected between source and artifact.
 
 ## What is guaranteed
 
-The build enables the standard .NET determinism knobs (see `Directory.Build.props`):
+The build relies on the standard .NET determinism knobs:
 
-- `<Deterministic>true</Deterministic>` — no timestamps or machine-specific paths in the IL.
-- `<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>` — normalizes source paths.
-- **SourceLink** + `<EmbedUntrackedSources>true</EmbedUntrackedSources>` — source references resolve to this repo at the exact commit.
+- **`Deterministic`** — no timestamps or machine-specific paths in the IL. This is
+  the .NET SDK **default** (`true`); the repo does not override it, so there is no
+  such property in `Directory.Build.props`.
+- `<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>` — normalizes source
+  paths. Set in `Directory.Build.props`, conditional on `CI == 'true'`, so it applies
+  to CI/release builds; a plain local build does **not** set it, which is itself a
+  source of divergence when comparing a local build against a released artifact.
+- **SourceLink** + `<EmbedUntrackedSources>true</EmbedUntrackedSources>` — source
+  references resolve to this repo at the exact commit. Both in `Directory.Build.props`.
 
 The guarantee covers the **managed assembly** (`Wolfgang.Etl.SqlBulkCopy.dll`)
 rebuilt on the **same OS and SDK band** the release was built with.
@@ -25,8 +31,10 @@ compares the SHA-256 of the produced assembly *across* runners. Full byte-identi
 **across operating systems** is a stronger property and is currently tracked as
 **advisory** — the workflow reports a cross-OS hash divergence as a warning while
 that path is investigated (embedded path / SourceLink normalization differences).
-For now, verify against a build on the **same OS** as the release runner (Linux),
-not against a build on a different OS.
+For now, verify against a build on the **same OS** as the release runner. The jobs
+that build and pack the released artifact (`validate-release`, `pack-and-validate`,
+`publish-nuget`) all run on **`windows-latest`** — so reproduce on Windows. (Only
+the ancillary `aot-consumer` and `attest-build-provenance` jobs run on Ubuntu.)
 
 ## How to verify a released version
 
