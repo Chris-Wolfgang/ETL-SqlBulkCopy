@@ -55,9 +55,11 @@ public class LoggerObservableMutationHardeningTests
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
-        var validationEntry = Assert.Single(logger.Entries.Where(e => e.Contains("alidation", StringComparison.Ordinal)));
-        Assert.Contains("3", validationEntry, StringComparison.Ordinal);
-        Assert.DoesNotContain("-1", validationEntry, StringComparison.Ordinal);
+        // Pin the exact template ("Validation failed for item at position {Position}
+        // with {ErrorCount} errors.") rather than a bare "3", which would also match
+        // "13" or "-13" and so would not actually pin the arithmetic mutant.
+        var validationEntry = Assert.Single(logger.Entries.Where(e => e.StartsWith("Validation failed for item at position ", StringComparison.Ordinal)));
+        Assert.Equal("Validation failed for item at position 3 with 1 errors.", validationEntry);
     }
 
 
@@ -87,8 +89,18 @@ public class LoggerObservableMutationHardeningTests
         await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { parent }));
 
         // The nested-table message names the child table; the root message does not.
-        Assert.Contains(logger.Entries, e => e.Contains("[ChildRecords]", StringComparison.Ordinal));
-        Assert.Contains(logger.Entries, e => !e.Contains("[ChildRecords]", StringComparison.Ordinal));
+        // Match each template specifically. The earlier "any entry WITHOUT
+        // [ChildRecords]" form was satisfied by "Starting ..." or "Bulk copy
+        // completed ...", so it never actually proved the root batch line was
+        // emitted -- and would have survived the isRoot negation.
+        Assert.Contains
+        (
+            logger.Entries,
+            e => e.StartsWith("Nested table '", StringComparison.Ordinal)
+                 && e.Contains("[ChildRecords]", StringComparison.Ordinal)
+        );
+
+        Assert.Contains(logger.Entries, e => e.StartsWith("Batch ", StringComparison.Ordinal));
     }
 
 
@@ -111,7 +123,9 @@ public class LoggerObservableMutationHardeningTests
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
 
-        Assert.Contains(logger.Entries, e => e.Contains("aximum", StringComparison.Ordinal));
+        // Include the configured limit so the assertion pins the statement AND its
+        // argument; a bare "aximum" match would tolerate an unrelated message.
+        Assert.Contains(logger.Entries, e => string.Equals(e, "Reached maximum item count of 2. Stopping.", StringComparison.Ordinal));
     }
 
 
