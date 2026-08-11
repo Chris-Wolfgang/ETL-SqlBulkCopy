@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.0] - 2026-08-07
+## [0.5.0] - 2026-08-09
 
 ### Added
 
@@ -15,10 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[BulkCopyable]` to have the bundled source generator emit its property getters
   and enum→underlying converters at compile time; the loader prefers them over
   the runtime `Expression.Compile` getter, keeping the marked type's hot path
-  free of runtime IL emission (`net5.0`+). For `[BulkCopyable]` graphs without
-  nested-table properties, the generator additionally emits a full compile-time
-  type descriptor, so the runtime builds the entire column map with **no**
-  reflection over the type; the reflection path remains the fallback and produces
+  free of runtime IL emission (`net5.0`+). When the type and its entire
+  nested-table graph are `[BulkCopyable]` and eligible, the generator
+  additionally emits a full compile-time type descriptor — including any nested
+  tables — so the runtime builds the entire column map with **no** reflection
+  over the type; the reflection path remains the fallback and produces
   the identical map (guarded by a conformance test). Opt-in and additive —
   unmarked types are unchanged, and the generator ships inside the existing
   package (no second NuGet). New public API: `BulkCopyableAttribute`,
@@ -76,7 +77,7 @@ strengthening.
 - Test-suite strengthening: additional boundary/guard tests raised the Stryker
   mutation score (67.96% → 70.63%), and one dead test helper was removed.
 
-## [0.3.0] - 2026-07-14
+## [0.3.0] - 2026-07-15
 
 Test-quality and performance-engineering tooling. **No change to the shipped
 library API or behavior** — the compiled assembly is functionally identical to
@@ -106,7 +107,7 @@ infrastructure that guard the library's performance and test rigor.
 - Dropped the redundant `_Async` suffix from test method names across the unit
   and integration suites for naming consistency (test-only; no shipped change).
 
-## [0.2.0] - 2026-07-12
+## [0.2.0] - 2026-07-13
 
 Documentation, examples, and supply-chain tooling. **No change to the shipped
 library API or behavior** — the compiled assembly is functionally identical to
@@ -140,7 +141,7 @@ Initial release.
 ### Added
 
 - `SqlBulkCopyLoader<T>` — a `LoaderBase<T, SqlBulkCopyReport>` implementation that streams `IAsyncEnumerable<T>` into SQL Server via `Microsoft.Data.SqlClient.SqlBulkCopy`. Multi-targeted for `net462`, `net481`, `netstandard2.0`, `net8.0`, and `net10.0`.
-- Type-driven column mapping via `TypeMap` / `ColumnMap` — reads `[Table]` / `[Column]` / `[NotMapped]` attributes; ignores properties without a public getter.
+- Type-driven column mapping via `TypeMap` / `ColumnMap` — reads `[Table]` / `[Column]` / `[NotMapped]` attributes; ignores properties without a getter.
 - Nested-table support via `NestedTableMap` — recursively writes child collections to their own tables inside the same bulk-copy session.
 - Pre/post-load actions:
   - `PreAction` — `None`, `DeleteAllRecords`, `TruncateTable`, `CustomAction`.
@@ -154,7 +155,8 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.1.0...v0.2.0
