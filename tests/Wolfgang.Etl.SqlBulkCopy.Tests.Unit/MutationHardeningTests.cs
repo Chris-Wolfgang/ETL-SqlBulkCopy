@@ -154,42 +154,6 @@ public class LoaderMutationHardeningTests
         // would route all logging to NullLogger and this spy would stay empty.
         Assert.NotEmpty(logger.Entries);
     }
-
-
-
-    private sealed class RecordingLogger : ILogger
-    {
-        public List<string> Entries { get; } = new();
-
-        public IDisposable BeginScope<TState>(TState state)
-            where TState : notnull => NullScope.Instance;
-
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public void Log<TState>
-        (
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception? exception,
-            Func<TState, Exception?, string> formatter
-        )
-        {
-            Entries.Add(formatter(state, exception));
-        }
-
-
-
-        private sealed class NullScope : IDisposable
-        {
-            public static readonly NullScope Instance = new();
-
-            public void Dispose()
-            {
-                // No-op
-            }
-        }
-    }
 }
 
 
