@@ -52,12 +52,12 @@ pwsh ./scripts/format.ps1
 |---|---|
 | `src/Wolfgang.Etl.SqlBulkCopy/` | The library. |
 | `src/Wolfgang.Etl.SqlBulkCopy.SourceGenerator/` | Roslyn incremental generator emitting compile-time property accessors for `[BulkCopyable]` types. Packed **into the same NuGet package** as an analyzer — it is not shipped separately. |
-| `tests/…Tests.Unit/` | Main unit suite; gates the coverage threshold. |
-| `tests/…Tests.Integration/` | Testcontainers + real SQL Server. Runs on the **Linux** CI stage only (Windows/macOS runners can't run Linux containers). |
-| `tests/…Tests.DocExamples/` | Compiles every XML-doc `<example><code>` block via Roslyn — guards against doc rot. |
-| `tests/…Tests.Fuzz/` | CsCheck property-based tests (weekly schedule). |
-| `tests/…Tests.Concurrency/` | Coyote systematic-concurrency tests (weekly schedule). |
-| `tests/…AotSmoke/` | A `net10.0` **executable** (not a test project) published Native-AOT to prove the mapping path is AOT-clean. |
+| `tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit/` | Main unit suite; gates the coverage threshold. |
+| `tests/Wolfgang.Etl.SqlBulkCopy.Tests.Integration/` | Testcontainers + real SQL Server. Runs on the **Linux** CI stage only (Windows/macOS runners can't run Linux containers). |
+| `tests/Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples/` | Compiles every XML-doc `<example><code>` block via Roslyn — guards against doc rot. |
+| `tests/Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz/` | CsCheck property-based tests (weekly schedule). |
+| `tests/Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency/` | Coyote systematic-concurrency tests (weekly schedule). |
+| `tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/` | A `net10.0` **executable** (not a test project) published Native-AOT to prove the mapping path is AOT-clean. |
 | `benchmarks/` | BenchmarkDotNet suite. |
 | `samples/`, `examples/`, `tools/` | Supporting projects, not shipped. |
 | `docfx_project/` | DocFX source for the published docs site. |
