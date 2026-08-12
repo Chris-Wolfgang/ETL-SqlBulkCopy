@@ -29,8 +29,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.6.0" PrivateAssets="all" />
+    <!-- DO NOT BUMP without reading this.
+         This DLL ships inside the Wolfgang.Etl.SqlBulkCopy package under
+         analyzers/dotnet/cs and is loaded by the CONSUMER's compiler. A
+         generator may only reference a Roslyn version LESS THAN OR EQUAL TO
+         the compiler that loads it — otherwise every consumer whose SDK is
+         older than that Roslyn gets a hard build error:
+
+           CSC : error CS9057: Analyzer assembly '...SourceGenerator.dll'
+           cannot be used because it references version '<X>' of the
+           compiler, which is newer than the currently running version '<Y>'.
+
+         So this pin is a COMPATIBILITY FLOOR, not a stale dependency: it sets
+         the oldest SDK that can consume the package. 4.11.0 covers .NET 8 SDK
+         / VS2022 17.11 and newer, which is the support range this package
+         targets (its oldest TFM is net462, built by those SDKs).
+
+         Dependabot raised this to 5.6.0 in the #256 group bump. That version
+         requires a Roslyn 5.6 host — newer than the Roslyn 5.0.0 shipped in
+         .NET SDK 10.0.111 — so the package built fine in CI (whose SDK is
+         newer still) while breaking anyone on a current released SDK. CI
+         cannot catch this class of regression, because CI is always on the
+         newest SDK; see the dependabot.yml ignore that now holds the pin. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
