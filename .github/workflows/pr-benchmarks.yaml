@@ -68,7 +68,7 @@ jobs:
           mkdir -p bench/base
           dotnet run --project benchmarks/Wolfgang.Etl.SqlBulkCopy.Benchmarks \
             -c Release -- \
-            --filter '*PropertyGetterBenchmarks*|*SliceListBenchmarks*' \
+            --filter '*PropertyGetterBenchmarks*' '*SliceListBenchmarks*' \
             --job Short \
             --exporters json \
             --artifacts bench/base
@@ -83,7 +83,7 @@ jobs:
           mkdir -p bench/head
           dotnet run --project benchmarks/Wolfgang.Etl.SqlBulkCopy.Benchmarks \
             -c Release -- \
-            --filter '*PropertyGetterBenchmarks*|*SliceListBenchmarks*' \
+            --filter '*PropertyGetterBenchmarks*' '*SliceListBenchmarks*' \
             --job Short \
             --exporters json \
             --artifacts bench/head
