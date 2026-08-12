@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}} Documentation
+# Wolfgang.Etl.SqlBulkCopy Documentation
 
 Welcome to the documentation section. Browse the topics in the navigation menu to get started.
 
@@ -6,4 +6,3 @@ Welcome to the documentation section. Browse the topics in the navigation menu t
 
 - [Introduction](introduction.md) - Overview and introduction
 - [Getting Started](getting-started.md) - Quick start guide
-

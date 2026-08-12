@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
@@ -6,14 +5,6 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 internal sealed class FakeSqlBulkCopyWrapperFactory : ISqlBulkCopyWrapperFactory
 {
     private readonly List<FakeSqlBulkCopyWrapper> _createdWrappers = new();
-    private readonly Exception? _throwOnWrite;
-
-
-
-    internal FakeSqlBulkCopyWrapperFactory(Exception? throwOnWrite = null)
-    {
-        _throwOnWrite = throwOnWrite;
-    }
 
 
 
@@ -23,7 +14,7 @@ internal sealed class FakeSqlBulkCopyWrapperFactory : ISqlBulkCopyWrapperFactory
 
     public ISqlBulkCopyWrapper Create()
     {
-        var wrapper = new FakeSqlBulkCopyWrapper(_throwOnWrite);
+        var wrapper = new FakeSqlBulkCopyWrapper();
         _createdWrappers.Add(wrapper);
         return wrapper;
     }

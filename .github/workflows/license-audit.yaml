@@ -18,6 +18,12 @@ on:
   schedule:
     - cron: '15 6 * * 1'   # Mondays 06:15 UTC
 
+# Supersede in-flight runs for the same ref: rapid pushes otherwise stack
+# redundant runs of an expensive multi-job workflow.
+concurrency:
+  group: license-audit-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

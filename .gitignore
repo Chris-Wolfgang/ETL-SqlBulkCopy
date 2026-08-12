@@ -439,3 +439,7 @@ resharper-report.xml
 
 # Stryker.NET mutation-testing output (generated; uploaded as CI artifact)
 StrykerOutput/
+
+# Verify (snapshot testing): *.received.* are local iteration artifacts.
+# Only *.verified.* files are committed.
+*.received.*

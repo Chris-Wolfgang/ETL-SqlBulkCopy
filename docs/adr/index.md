@@ -18,9 +18,9 @@ record is marked accordingly.
 | [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Accepted |
 | [0002](0002-isolate-sqlbulkcopy-sdk-behind-wrapper-interfaces.md) | Isolate the SqlBulkCopy SDK behind wrapper interfaces | Accepted |
 | [0003](0003-enforce-async-only-io-via-banned-symbols.md) | Enforce async-only I/O via BannedSymbols.txt | Accepted |
-| [0004](0004-compiled-property-getters-and-native-aot.md) | Compile property getters with expression trees | Accepted (0006 proposed to supersede) |
+| [0004](0004-compiled-property-getters-and-native-aot.md) | Compile property getters with expression trees | Superseded by [0006](0006-source-generated-property-accessors.md) (0.5.0) |
 | [0005](0005-decouple-assemblyversion-from-package-version.md) | Decouple AssemblyVersion from the package version | Accepted |
-| [0006](0006-source-generated-property-accessors.md) | Source-generate property accessors for AOT-safe, zero-cost mapping | Proposed |
+| [0006](0006-source-generated-property-accessors.md) | Source-generate property accessors for AOT-safe, zero-cost mapping | Accepted (0.5.0) |
 
 ## Adding a new ADR
 
