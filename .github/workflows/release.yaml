@@ -825,7 +825,7 @@ jobs:
           path: ./packages
 
       - name: Attest .nupkg / .snupkg provenance
-        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v3.0.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v3.0.0
         with:
           subject-path: |
             packages/*.nupkg
