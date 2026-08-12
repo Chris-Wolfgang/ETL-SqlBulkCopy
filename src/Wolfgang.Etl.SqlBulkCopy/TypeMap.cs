@@ -458,17 +458,31 @@ internal sealed class TypeMap
         // SqlBulkCopy column matching is case-insensitive on the source side,
         // so two properties resolving to the same ColumnName (case-insensitive)
         // would create an ambiguous mapping. Reject it early with a clear error.
-        var duplicate = columns
-            .GroupBy(c => c.ColumnName, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault(g => g.Count() > 1);
+        // A HashSet pass rather than GroupBy: grouping materializes the whole
+        // grouping structure to answer a yes/no question. The (rare) failure path
+        // still gathers every colliding property name for the message, so the
+        // diagnostic is unchanged.
+        var seenColumnNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        if (duplicate is not null)
+        foreach (var column in columns)
         {
-            var propertyNames = string.Join(", ", duplicate.Select(c => $"'{c.PropertyName}'"));
+            if (seenColumnNames.Add(column.ColumnName))
+            {
+                continue;
+            }
+
+            var propertyNames = string.Join
+            (
+                ", ",
+                columns
+                    .Where(c => string.Equals(c.ColumnName, column.ColumnName, StringComparison.OrdinalIgnoreCase))
+                    .Select(c => $"'{c.PropertyName}'")
+            );
+
             throw new InvalidOperationException
             (
                 $"Type '{type.Name}' has multiple properties mapping to column " +
-                $"'{duplicate.Key}': {propertyNames}. Column names must be unique " +
+                $"'{column.ColumnName}': {propertyNames}. Column names must be unique " +
                 "(case-insensitive). Use [Column(\"...\")] to disambiguate."
             );
         }
@@ -485,39 +499,69 @@ internal sealed class TypeMap
         HashSet<Type> typesInProgress
     )
     {
-        return properties
-            .Where
+        // A foreach rather than a Where/Select/Where/Select chain: the chain had to
+        // allocate an anonymous-type instance per candidate property purely to carry
+        // (PropertyInfo, ElementType) across the two Where clauses, and the null-forgiving
+        // `pair.ElementType!` in the final Select existed only because the compiler
+        // could not see the null check in the preceding clause.
+        var nestedTableMaps = new List<NestedTableMap>();
+
+        foreach (var property in properties)
+        {
+            if (!IsNestedTableCandidate(property))
+            {
+                continue;
+            }
+
+            var elementType = GetEnumerableElementType(property.PropertyType);
+            if (elementType is null || !IsMappableElementType(elementType))
+            {
+                continue;
+            }
+
+            nestedTableMaps.Add
             (
-                p => IsReadableInstanceProperty(p)
-                     && p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
-                     && typeof(IEnumerable).IsAssignableFrom(p.PropertyType)
-                     && p.PropertyType != typeof(string)
-                     && p.PropertyType != typeof(byte[])
-            )
-            .Select
-            (
-                p => new
-                {
-                    PropertyInfo = p,
-                    ElementType = GetEnumerableElementType(p.PropertyType)
-                }
-            )
-            .Where
-            (
-                pair => pair.ElementType is not null
-                        && pair.ElementType.IsClass
-                        && !SupportedColumnTypes.Contains(pair.ElementType)
-                        && pair.ElementType.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
-            )
-            .Select
-            (
-                pair => new NestedTableMap
+                new NestedTableMap
                 (
-                    pair.PropertyInfo,
-                    Create(pair.ElementType!, schemaName: null, tableName: null, typesInProgress)
+                    property,
+                    Create(elementType, schemaName: null, tableName: null, typesInProgress)
                 )
-            )
-            .ToArray();
+            );
+        }
+
+        return nestedTableMaps.ToArray();
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> for a readable, mapped collection property — excluding
+    /// <see cref="string"/> and <c>byte[]</c>, which are <see cref="IEnumerable"/>
+    /// but map to single columns rather than child tables.
+    /// </summary>
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
+    private static bool IsNestedTableCandidate(PropertyInfo property)
+    {
+        return IsReadableInstanceProperty(property)
+               && property.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
+               && typeof(IEnumerable).IsAssignableFrom(property.PropertyType)
+               && property.PropertyType != typeof(string)
+               && property.PropertyType != typeof(byte[]);
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> when a collection's element type can itself become a
+    /// child table: a non-<c>[NotMapped]</c> class that is not already a supported
+    /// single-column type.
+    /// </summary>
+    [RequiresUnreferencedCode(ReflectionMappingMessage)]
+    private static bool IsMappableElementType(Type elementType)
+    {
+        return elementType.IsClass
+               && !SupportedColumnTypes.Contains(elementType)
+               && elementType.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null;
     }
 
 
