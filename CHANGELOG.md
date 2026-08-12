@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-12
+
 ### Fixed
 
 - **Source generator: `[BulkCopyable]` on a type with a non-public property getter
@@ -41,6 +43,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Raised the minimum `Wolfgang.Etl.Abstractions` version from 0.16.0 to 0.21.0.**
+  Consumers that pin `Wolfgang.Etl.Abstractions` directly will be moved forward five
+  minor versions by this upgrade. Because Abstractions is still pre-1.0, its minor
+  releases are permitted to contain breaking changes — review its changelog for
+  0.17.0 through 0.21.0 before upgrading if you use those types directly. This
+  package's own public API is unchanged.
+- Raised the minimum `Microsoft.Bcl.AsyncInterfaces` and
+  `Microsoft.Extensions.Logging.Abstractions` versions from 10.0.10 to 10.0.11.
 - **Performance (per-row hot path):** `IsDBNull` no longer re-invokes the compiled
   property getter for a cell that `GetValue` already read. `SqlBulkCopy` calls both
   for every nullable column of every row, so the getter ran twice per cell — and value
@@ -240,7 +250,8 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.2.0...v0.3.0
