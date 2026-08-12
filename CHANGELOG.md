@@ -7,6 +7,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Source generator: `[BulkCopyable]` on a type with a non-public property getter
+  produced a package that threw on first use.** The descriptor filter accepted any
+  readable property, while the accessor emitter additionally required the getter be
+  reachable from generated code. A `private`/`protected` getter therefore landed in
+  the generated descriptor as a column with **no registered accessor**, and the first
+  load threw `InvalidOperationException: No source-generated getter is registered for
+  '<Type>.<Property>'. This indicates a source-generator defect.` Opting a working
+  type into `[BulkCopyable]` turned it into a hard runtime failure. Such a type now
+  falls back to the reflection map — the same path every other ineligible type
+  already takes — and the mapping is unchanged.
+- **Source generator: two types whose names differed only in `.` vs `_` silently
+  disabled generation for the entire compilation.** The identifier-mangling step
+  replaced every non-alphanumeric character with `_`, so `Ns.A_B` and `Ns_A.B`
+  collapsed to the same name. The generator then added two sources under the same
+  hint name and threw, surfacing as
+  `warning CS8785: Generator 'BulkCopyAccessorGenerator' failed to generate source`.
+  Because a generator that throws contributes **nothing**, *every* `[BulkCopyable]`
+  type in that compilation quietly lost its generated accessors and descriptor and
+  fell back to reflection — no error, just the AOT-clean path disappearing. Mangled
+  names now carry a stable hash suffix. (The hash is FNV-1a rather than
+  `string.GetHashCode()`, which is randomized per process on .NET Core and would make
+  generated output differ between builds.)
+- **Source generator: the same accessor gap applied to nested-table properties.** A
+  nested collection property with a non-public getter produced a nested descriptor
+  entry with no registered accessor, failing the same way through `NestedTableMap`.
+- `ColumnMap`'s descriptor constructor validated nothing, so a null `clrType` slipped
+  past the field assignments and surfaced as a `NullReferenceException` from a
+  half-constructed instance. Arguments are now validated first and name the offending
+  parameter.
+
+### Changed
+
+- **Performance (per-row hot path):** `IsDBNull` no longer re-invokes the compiled
+  property getter for a cell that `GetValue` already read. `SqlBulkCopy` calls both
+  for every nullable column of every row, so the getter ran twice per cell — and value
+  types boxed twice. A single-cell memo keyed on `(row, ordinal)` removes the duplicate
+  call; advancing the row invalidates it implicitly.
+- **Performance:** `TypeMap.QualifiedTableName` is built once during construction
+  instead of on every access. It was allocating two escaped identifier strings plus an
+  interpolation each time, and is read at least once per batch and again per nested
+  batch. `TypeMap` is immutable and cached, so the value cannot go stale.
+- Nested-table mapping and duplicate-column detection no longer allocate an
+  anonymous-type instance per candidate property, nor a full grouping structure to
+  answer a yes/no question. Behaviour, resulting maps and error messages are unchanged.
+
+### Documentation
+
+- Replaced unfilled template scaffolding on the published documentation site — the
+  docs landing page was rendering the literal text `{{PROJECT_NAME}}`, and the Getting
+  Started and Introduction pages contained placeholder comments instead of content.
+- Corrected the README and CONTRIBUTING analyzer count (7 → 8; the list omitted
+  `Microsoft.CodeAnalysis.PublicApiAnalyzers`), the build prerequisite (.NET 8.0 SDK →
+  .NET 10.0 SDK, with an explanation of why the SDK must be newer than the oldest
+  supported target), two broken documentation links, and the `format.ps1` path.
+- Corrected the progress-reporting description: `SqlBulkCopyReport` exposes rows
+  written, rows skipped and batch count. It does **not** currently populate elapsed
+  time, despite previously being documented as doing so.
+- Documented the data-validation feature (`EnableDataValidation`,
+  `ValidationFailureBehavior`, `OnValidationFailed`, `OnNestedValidationFailed`),
+  which shipped without a README entry.
+- Corrected the release-setup guide, which still described configuring a
+  `NUGET_API_KEY` secret that the pipeline no longer uses (publishing is via NuGet
+  Trusted Publishing / OIDC), the reproducible-build guide, and the ADR index.
+- Corrected several XML doc comments whose stated behaviour had diverged from the
+  code, including exception contracts on `GeneratedTypeDescriptor`,
+  `TypeMapReader.GetOrdinal` and the loader's internal constructor.
+
+### Internal
+
+- Mutation-testing score raised to **87.22 %** with the regression gate enabled
+  (`break` threshold 80); accept-category mutants are excluded via configuration and
+  documented in `docs/mutation-testing-triage.md`.
+- Added snapshot tests (Verify) covering generated SQL identifier quoting — including
+  the `]]`-escaping of a bracket inside an identifier — and exception-message
+  formatting under a non-invariant culture.
+- Integration tests now run on the Linux CI stage against a real SQL Server container
+  and fail loudly when Docker is unavailable there, instead of being scheduled onto
+  runners that cannot host Linux containers.
+- The release pipeline now runs the same secret and static-security scans as pull
+  requests before publishing, and the per-PR benchmark workflow reports real results
+  (its filter previously matched nothing).
+
+
 ## [0.5.0] - 2026-08-09
 
 ### Added
