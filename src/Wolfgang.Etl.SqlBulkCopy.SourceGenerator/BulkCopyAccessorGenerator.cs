@@ -150,10 +150,13 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     /// <summary>
     /// Encodes the type's generated descriptor (columns and any nested tables),
     /// or returns an empty string when the type is not fully generatable in this
-    /// pass (a nested-table child that is not itself fully generatable, inherits
-    /// mapped properties, has no mappable columns, has duplicate column names, or
-    /// is <c>[NotMapped]</c>). Those
-    /// types fall back to the reflection path, which produces the identical map.
+    /// pass. A type is not fully generatable when it: lacks
+    /// <c>[BulkCopyable]</c>; is <c>[NotMapped]</c>; is generic; is not accessible
+    /// to generated code; inherits mapped properties; participates in a cyclic
+    /// nested-table graph; has a nested-table child that is not itself fully
+    /// generatable; has duplicate column names; or has no mappable columns. Those
+    /// types fall back to the
+    /// reflection path, which produces the identical map.
     /// </summary>
     private static string EncodeDescriptor(INamedTypeSymbol type)
     {

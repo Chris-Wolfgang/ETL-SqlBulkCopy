@@ -79,6 +79,11 @@ public sealed class ColumnMap
     /// populates from the same module initializer. This is the Native-AOT-clean
     /// construction path used for <c>[BulkCopyable]</c> types. See ADR 0006.
     /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="declaringType"/>, <paramref name="propertyName"/>,
+    /// <paramref name="columnName"/> or <paramref name="clrType"/> is
+    /// <see langword="null"/>.
+    /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the required generated getter (or enum converter, for an enum
     /// column) has not been registered — which would indicate a source-generator
@@ -94,6 +99,31 @@ public sealed class ColumnMap
         int ordinal
     )
     {
+        // Validate before assigning: a null clrType previously slipped past the
+        // field assignments and surfaced as a NullReferenceException from the
+        // `clrType.IsEnum` check below, after the instance was already half-built.
+        // Generated code always passes non-null values, so these guards only fire
+        // on a generator defect — where a named parameter beats an NRE.
+        if (declaringType is null)
+        {
+            throw new ArgumentNullException(nameof(declaringType));
+        }
+
+        if (propertyName is null)
+        {
+            throw new ArgumentNullException(nameof(propertyName));
+        }
+
+        if (columnName is null)
+        {
+            throw new ArgumentNullException(nameof(columnName));
+        }
+
+        if (clrType is null)
+        {
+            throw new ArgumentNullException(nameof(clrType));
+        }
+
         PropertyName = propertyName;
         ColumnName = columnName;
         ClrType = clrType;
