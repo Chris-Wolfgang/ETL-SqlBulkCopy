@@ -239,6 +239,76 @@ jobs:
             echo "has-projects=false" >> "$GITHUB_OUTPUT"
             echo "ℹ️  No .NET project files found - skipping .NET build and test jobs"
           fi
+
+      - name: Verify src/ csprojs are in the solution
+        # Guards against a class of drift that shipped a broken release
+        # in Etl-DbClient v0.5.0: a new csproj was added under src/ (a
+        # source generator) but never added to the .slnx file. Per-project
+        # `dotnet test` still triggered its ProjectReference chain, so
+        # pr.yaml never noticed; but the release pipeline's solution-level
+        # `dotnet build` skipped it, and the runtime csproj's
+        # `PackSourceGenerator` MSBuild target failed to find the missing
+        # bin/Release/ output — blocking the release. This repo has exactly
+        # that shape (Wolfgang.Etl.SqlBulkCopy.SourceGenerator + a pack
+        # target), so this step catches the same drift at PR time.
+        #
+        # Detection: for every src/**/*.csproj, verify at least one solution
+        # file at the repo root references it by path (works for both .slnx
+        # `<Project Path="…"/>` entries and .sln GUID lines). If a solution
+        # file exists and a src csproj isn't listed, fail with the specific
+        # missing entry and a `dotnet sln add` suggestion. Repos without a
+        # solution file (or with everything already listed) pass
+        # unconditionally.
+        shell: bash
+        run: |
+          shopt -s nullglob
+          slns=( *.slnx *.sln )
+          if [ ${#slns[@]} -eq 0 ]; then
+            echo "ℹ️  No solution file at repo root - skipping solution-consistency check."
+            exit 0
+          fi
+          echo "Checking solution files: ${slns[*]}"
+
+          missing=()
+          # git ls-files always emits forward-slashed paths. .slnx entries
+          # use forward slashes, but classic .sln GUID lines often use
+          # backslashes (`src\Foo\Foo.csproj`). Check both encodings so a
+          # repo with a legacy .sln at the root isn't a false positive.
+          while IFS= read -r csproj; do
+            csproj_bs="${csproj//\//\\}"
+            found=0
+            for sln in "${slns[@]}"; do
+              if grep -qF "$csproj" "$sln" || grep -qF "$csproj_bs" "$sln"; then
+                found=1
+                break
+              fi
+            done
+            if [ "$found" -eq 0 ]; then
+              missing+=("$csproj")
+            fi
+          done < <(git ls-files 'src/**/*.csproj' 'src/*.csproj')
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ SOLUTION CONSISTENCY FAILURE"
+            echo ""
+            echo "The following src/**/*.csproj files are NOT referenced by any solution file:"
+            for m in "${missing[@]}"; do
+              echo "  - $m"
+            done
+            echo ""
+            echo "This breaks solution-level \`dotnet build\` (which release.yaml relies on"
+            echo "for Pack & Validate), even though per-project \`dotnet test\` still works."
+            echo ""
+            echo "Fix: add the missing project(s) to the solution:"
+            for sln in "${slns[@]}"; do
+              echo "  dotnet sln $sln add ${missing[*]}"
+              break
+            done
+            exit 1
+          fi
+          echo "✅ All src csprojs are referenced by a solution file - solution-level builds will include them."
+
   # ============================================================================
   # INSPECTCODE: JetBrains ReSharper InspectCode parallel to the test stages.
   # Runs concurrently with Stage 1 / 2 / 3 (no `needs:` on a test job) so it
@@ -637,7 +707,27 @@ jobs:
             exit 0
           fi
 
-          mapfile -d '' -t test_projects < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -not -name "*.Tests.Integration.*" -print0)
+          mapfile -d '' -t test_projects < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -not -name "*.Tests.Integration.*" -not -name "*.AotSmoke.*" -print0)
+
+          # Report the test projects deliberately excluded from this loop, so
+          # the skip is visible rather than silent. The two exclusions are NOT
+          # the same kind of thing:
+          #   *.Tests.Integration.* — still run for real, in the dedicated
+          #     Testcontainers step further down this same job (Linux is the
+          #     only stage with a Docker daemon). Excluded here only so they
+          #     don't run twice.
+          #   *.AotSmoke.*          — a publish-and-run smoke harness, not an
+          #     xunit project; it has no tests to collect and no coverage to
+          #     contribute. It is gated by aot-smoke.yaml / release.yaml.
+          mapfile -d '' -t excluded_integration < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -name "*.Tests.Integration.*" -print0)
+          if [ ${#excluded_integration[@]} -gt 0 ]; then
+            echo "::notice::Excluded ${#excluded_integration[@]} integration test project(s) from the unit-test loop (they run in the dedicated Docker step below): ${excluded_integration[*]}"
+          fi
+
+          mapfile -d '' -t excluded_aot < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -name "*.AotSmoke.*" -print0)
+          if [ ${#excluded_aot[@]} -gt 0 ]; then
+            echo "::notice::Excluded ${#excluded_aot[@]} Native AOT smoke project(s) from the coverage gate (gated separately by aot-smoke.yaml and release.yaml): ${excluded_aot[*]}"
+          fi
 
           if [ ${#test_projects[@]} -eq 0 ]; then
             if find ./src -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -print -quit 2>/dev/null | grep -q .; then
@@ -691,6 +781,67 @@ jobs:
                 --collect:"XPlat Code Coverage" \
                 --settings coverlet.runsettings \
                 --results-directory "./TestResults" \
+                --logger "console;verbosity=minimal" || exit 1
+            done <<< "$frameworks"
+            echo ""
+          done
+
+      # The unit-test loop above deliberately excludes *.Tests.Integration.*
+      # (find ... -not -name). Those tests use Testcontainers to start a REAL
+      # SQL Server Linux container — and ubuntu-latest has a working Docker
+      # daemon, so this is the ONE stage that exercises them for real. The
+      # Windows / macOS stages skip the project entirely (GitHub's Windows and
+      # macOS runners can't run Linux containers), so this Linux run is the
+      # integration tests' only home.
+      #
+      # ETL_REQUIRE_DOCKER=1 flips the fixture from "skip when Docker is
+      # unavailable" to "FAIL when Docker is unavailable" — a broken/absent
+      # daemon on the one stage that is supposed to have Docker is a real defect
+      # to fix, never something to silently skip past.
+      - name: Integration tests (real SQL Server via Docker)
+        shell: bash
+        env:
+          ETL_REQUIRE_DOCKER: "1"
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' -t integ_projects < <(find ./tests -type f \( -name "*.Tests.Integration.csproj" -o -name "*.Tests.Integration.vbproj" -o -name "*.Tests.Integration.fsproj" \) -print0)
+
+          if [ ${#integ_projects[@]} -eq 0 ]; then
+            echo "ℹ️  No *.Tests.Integration.* projects found — nothing to run."
+            exit 0
+          fi
+
+          for proj in "${integ_projects[@]}"; do
+            echo "=========================================="
+            echo "Integration project: $proj"
+            echo "=========================================="
+
+            tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFrameworks 2>/dev/null \
+              | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFrameworks[=:][[:space:]]*//' | tr -d '[:space:]')
+            if [ -z "$tfm_raw" ]; then
+              tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFramework 2>/dev/null \
+                | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFramework[=:][[:space:]]*//' | tr -d '[:space:]')
+            fi
+            frameworks=$(printf '%s' "$tfm_raw" | tr ';' '\n' | grep -E '^(net(5\.0|6\.0|7\.0|8\.0|9\.0|10\.0)|netcoreapp3\.1)$' || true)
+
+            if [ -z "$frameworks" ]; then
+              echo "⊘ Skipping: no compatible .NET 5.0-10.0 target frameworks found"
+              echo ""
+              continue
+            fi
+
+            echo "Target frameworks: $(echo "$frameworks" | tr '\n' ' ')"
+            echo ""
+
+            while IFS= read -r fw; do
+              [ -z "$fw" ] && continue
+              echo "Testing framework: $fw"
+
+              dotnet test "$proj" \
+                --configuration Release \
+                --framework "$fw" \
+                --no-build --no-restore \
                 --logger "console;verbosity=minimal" || exit 1
             done <<< "$frameworks"
             echo ""
@@ -922,7 +1073,12 @@ jobs:
             exit 0
           }
 
-          $testProjects = @(Get-ChildItem -Path './tests/*' -Recurse -File -Include '*.csproj','*.vbproj','*.fsproj')
+          # Exclude *.Tests.Integration.* — those are Testcontainers-backed and
+          # need a Linux-container Docker daemon, which GitHub's windows-latest
+          # runners don't provide. They run for real on the Linux stage (Stage 1)
+          # instead. Matches Stage 1 / Stage 3's `-not -name "*.Tests.Integration.*"`.
+          $testProjects = @(Get-ChildItem -Path './tests/*' -Recurse -File -Include '*.csproj','*.vbproj','*.fsproj' |
+            Where-Object { $_.Name -notmatch '\.Tests\.Integration\.' })
 
           if (@($testProjects).Count -eq 0) {
             if ($srcHasProjects) {
@@ -1333,7 +1489,32 @@ jobs:
           test_projects=()
           while IFS= read -r -d '' file; do
           test_projects+=("$file")
-          done < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -not -name "*.Tests.Integration.*" -print0)
+          done < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -not -name "*.Tests.Integration.*" -not -name "*.AotSmoke.*" -print0)
+
+          # Report the test projects deliberately excluded from the coverage
+          # gate, so the skip is visible rather than silent. Unlike Stage 1,
+          # macOS has no Linux-container Docker daemon, so the integration
+          # projects genuinely do not run on this stage at all — Stage 1 is
+          # their only home. *.AotSmoke.* is a publish-and-run harness with no
+          # tests to collect, gated by aot-smoke.yaml / release.yaml.
+          # NOTE: `while read -d ''` rather than `mapfile` — macOS runners can
+          # resolve `bash` to 3.2, which has no `mapfile`. This matches the
+          # test_projects loop directly above for the same reason.
+          excluded_integration=()
+          while IFS= read -r -d '' file; do
+          excluded_integration+=("$file")
+          done < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -name "*.Tests.Integration.*" -print0)
+          if [ ${#excluded_integration[@]} -gt 0 ]; then
+            echo "::notice::Excluded ${#excluded_integration[@]} integration test project(s) from the coverage gate (Docker-backed; they run on the Linux stage): ${excluded_integration[*]}"
+          fi
+
+          excluded_aot=()
+          while IFS= read -r -d '' file; do
+          excluded_aot+=("$file")
+          done < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -name "*.AotSmoke.*" -print0)
+          if [ ${#excluded_aot[@]} -gt 0 ]; then
+            echo "::notice::Excluded ${#excluded_aot[@]} Native AOT smoke project(s) from the coverage gate (gated separately by aot-smoke.yaml and release.yaml): ${excluded_aot[*]}"
+          fi
 
           if [ ${#test_projects[@]} -eq 0 ]; then
             if find ./src -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -print -quit 2>/dev/null | grep -q .; then
@@ -1429,11 +1610,13 @@ jobs:
 
           THRESHOLD=${CODECOV_MINIMUM:-90}
           FAILED=0
+          MATCHED=0
 
           while IFS= read -r line; do
             if echo "$line" | grep -qE '^[^ ]+.*[0-9]+%$' && ! echo "$line" | grep -q '^Summary'; then
               MODULE=$(echo "$line" | awk '{print $1}')
               PERCENT=$(echo "$line" | grep -oE '[0-9]+(\.[0-9]+)?%' | tail -1 | grep -oE '^[0-9]+')
+              MATCHED=$((MATCHED + 1))
               echo "Checking module: '$MODULE' - Coverage: ${PERCENT}%"
               if [ "$PERCENT" -lt "$THRESHOLD" ]; then
                 echo "  ❌ FAIL: Below ${THRESHOLD}% threshold"
@@ -1443,6 +1626,14 @@ jobs:
               fi
             fi
           done < CoverageReport/Summary.txt
+
+          # Fail loudly when 0 modules matched — the regex is wrong or the
+          # Summary.txt format changed. Silently passing here would make Stage 3
+          # the weak link while Stages 1/2 fail loudly on the same drift.
+          if [ "$MATCHED" -eq 0 ]; then
+            echo "❌ Coverage parser matched 0 modules in Summary.txt — regex or report format is out of sync. Refusing to silently pass the gate."
+            exit 1
+          fi
 
           if [ "$FAILED" -ne 0 ]; then
             echo ""
