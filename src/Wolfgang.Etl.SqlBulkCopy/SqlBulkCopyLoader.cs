@@ -423,16 +423,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         CancellationToken token
     )
     {
+        // Pre-cancelled token: throw before any pre-action SQL or any pull from the
+        // source. WithCancellation only offers the token to GetAsyncEnumerator, so the
+        // loop below would otherwise still drain one record. (LoaderBase contract, #267.)
+        token.ThrowIfCancellationRequested();
+
         SqlBulkCopyLogMessages.StartingOperation(_logger, OperationName, exception: null);
 
-        var typeMap = TypeMap.Create
-        (
-            typeof(TRecord),
-            DestinationSchemaName,
-            DestinationTableName
-        );
-
-        ValidateActionConfiguration(typeMap);
+        var typeMap = CreateValidatedTypeMap();
 
         // Dry run: skip all SQL side effects (pre-action, bulk insert, post-action)
         // but still enumerate, validate, count, and report below.
@@ -518,6 +516,27 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             // value written by Interlocked.Increment on the loader thread.
             Volatile.Read(ref _batchCount)
         );
+
+
+
+    /// <summary>
+    /// Builds the <see cref="TypeMap"/> for <typeparamref name="TRecord"/> against the configured
+    /// destination and validates the pre/post action configuration against it.
+    /// </summary>
+    /// <returns>The validated <see cref="TypeMap"/> for this load.</returns>
+    private TypeMap CreateValidatedTypeMap()
+    {
+        var typeMap = TypeMap.Create
+        (
+            typeof(TRecord),
+            DestinationSchemaName,
+            DestinationTableName
+        );
+
+        ValidateActionConfiguration(typeMap);
+
+        return typeMap;
+    }
 
 
 
