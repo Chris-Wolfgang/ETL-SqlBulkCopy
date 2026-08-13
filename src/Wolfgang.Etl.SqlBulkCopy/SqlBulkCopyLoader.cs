@@ -189,11 +189,22 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <param name="timer">An optional progress timer to inject. When <c>null</c>, the
     /// base class creates a <c>SystemProgressTimer</c>.</param>
     /// <param name="commandExecutor">
-    /// Optional SQL command executor for pre/post actions. When <c>null</c>,
-    /// any call into the SQL path (PreAction = DeleteAllRecords / TruncateTable,
-    /// PostAction = ...) throws <see cref="InvalidOperationException"/>. Tests
-    /// that exercise SQL-issuing pre/post actions must supply a fake.
+    /// Optional SQL command executor for pre/post actions. When <c>null</c>, a
+    /// SQL-issuing pre-action (<see cref="PreAction.DeleteAllRecords"/> or
+    /// <see cref="PreAction.TruncateTable"/>) throws
+    /// <see cref="InvalidOperationException"/>. Tests that exercise those must
+    /// supply a fake.
+    /// <para>
+    /// <see cref="PostAction"/> has no SQL-issuing member — only
+    /// <see cref="PostAction.None"/> and <see cref="PostAction.CustomAction"/> —
+    /// so no post-action reaches this executor. A <c>CustomAction</c> on either
+    /// side needs a real <c>SqlConnection</c> instead, and throws from the
+    /// connection check rather than from here.
+    /// </para>
     /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="wrapperFactory"/> is <see langword="null"/>.
+    /// </exception>
     internal SqlBulkCopyLoader
     (
         ISqlBulkCopyWrapperFactory wrapperFactory,

@@ -37,6 +37,12 @@ internal sealed class TypeMapReader : DbDataReader
     private readonly Dictionary<string, int> _ordinalLookup;
     private int _currentIndex = -1;
 
+    // Single-cell memo for GetRawValue. Keyed on row index + ordinal so
+    // advancing the cursor invalidates it without an explicit reset.
+    private int _cachedRowIndex = -1;
+    private int _cachedOrdinal = -1;
+    private object? _cachedRawValue;
+
 
 
     /// <summary>
@@ -87,7 +93,7 @@ internal sealed class TypeMapReader : DbDataReader
         ValidateOrdinal(ordinal);
 
         var column = _typeMap.Columns[ordinal];
-        var rawValue = column.GetValue(_batch[_currentIndex]);
+        var rawValue = GetRawValue(ordinal, column);
 
         if (rawValue is null)
         {
@@ -114,7 +120,42 @@ internal sealed class TypeMapReader : DbDataReader
         ValidateOrdinal(ordinal);
 
         var column = _typeMap.Columns[ordinal];
-        return column.GetValue(_batch[_currentIndex]) is null;
+        return GetRawValue(ordinal, column) is null;
+    }
+
+
+
+    /// <summary>
+    /// Reads a cell's raw value, reusing the value from the immediately preceding
+    /// read of the same cell.
+    /// </summary>
+    /// <remarks>
+    /// <c>SqlBulkCopy</c> calls <see cref="IsDBNull"/> and then
+    /// <see cref="GetValue"/> for the same nullable cell, and both used to invoke
+    /// the compiled getter — doubling the per-row getter cost (and, for value
+    /// types, the boxing) on the hottest path in the library.
+    /// <para>
+    /// The cache is keyed on the row index as well as the ordinal, so advancing
+    /// the cursor invalidates it implicitly: after <c>Read()</c> increments
+    /// <c>_currentIndex</c>, no key can match a previous row. A different ordinal
+    /// on the same row is simply a miss and re-reads, so the only behaviour change
+    /// is that consecutive reads of the same cell call the getter once.
+    /// </para>
+    /// </remarks>
+    private object? GetRawValue(int ordinal, ColumnMap column)
+    {
+        if (_cachedRowIndex == _currentIndex && _cachedOrdinal == ordinal)
+        {
+            return _cachedRawValue;
+        }
+
+        var value = column.GetValue(_batch[_currentIndex]);
+
+        _cachedRowIndex = _currentIndex;
+        _cachedOrdinal = ordinal;
+        _cachedRawValue = value;
+
+        return value;
     }
 
 
@@ -128,7 +169,26 @@ internal sealed class TypeMapReader : DbDataReader
 
 
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Returns the zero-based ordinal of the named column, matched
+    /// case-insensitively.
+    /// </summary>
+    /// <param name="name">The column name to look up.</param>
+    /// <returns>The zero-based column ordinal.</returns>
+    /// <remarks>
+    /// Deliberately not <c>&lt;inheritdoc /&gt;</c>: the inherited
+    /// <see cref="DbDataReader.GetOrdinal(string)"/> contract documents
+    /// <see cref="IndexOutOfRangeException"/> for an unknown column, whereas this
+    /// implementation throws <see cref="ArgumentOutOfRangeException"/> (and
+    /// <see cref="ArgumentNullException"/> for a null name). Inheriting the base
+    /// docs would state an exception contract this type does not honour.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="name"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when no column matches <paramref name="name"/>.
+    /// </exception>
     public override int GetOrdinal(string name)
     {
         if (name is null)
@@ -156,7 +216,8 @@ internal sealed class TypeMapReader : DbDataReader
 
 
 
-    // --- Required overrides that SqlBulkCopy does not call ---
+    // --- State properties SqlBulkCopy does not call: sensible defaults for a
+    // single-result, in-memory reader (see the class remarks) ---
 
     /// <inheritdoc />
     public override int Depth => 0;
@@ -172,8 +233,11 @@ internal sealed class TypeMapReader : DbDataReader
 
 
 
-    /// <inheritdoc />
+    // --- Typed accessors SqlBulkCopy does not call: these throw rather than
+    // return a default, so a future caller fails loudly instead of silently
+    // reading zeros ---
 
+    /// <inheritdoc />
     public override bool GetBoolean(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />

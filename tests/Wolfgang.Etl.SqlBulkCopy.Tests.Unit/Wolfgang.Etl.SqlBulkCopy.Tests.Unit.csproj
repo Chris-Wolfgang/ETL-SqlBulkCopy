@@ -7,7 +7,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-    <NoWarn>NU1701</NoWarn>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +27,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <!-- Xunit.SkippableFact: lets a [SkippableFact] short-circuit at runtime via
          Skip.IfNot(...). Used by the ctor tests that build a real SqlConnection —
@@ -38,7 +37,7 @@
     <PackageReference Include="Wolfgang.Etl.TestKit" Version="0.10.0" />
     <PackageReference Include="Wolfgang.Etl.TestKit.Xunit" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" NoWarn="NU1701">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" allowedVersions="(,3.0.0)" NoWarn="NU1701">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

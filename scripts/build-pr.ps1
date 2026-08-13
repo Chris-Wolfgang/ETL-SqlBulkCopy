@@ -33,6 +33,7 @@ param(
     [switch]$SkipTests,
     [switch]$SkipCoverage,
     [switch]$SkipSecurity,
+    [switch]$SkipInspectCode,
     [int]$CoverageThreshold = 90
 )
 
@@ -326,6 +327,58 @@ if (-not $SkipSecurity) {
     }
     else {
         Write-Pass "No secrets detected"
+    }
+}
+
+# ============================================================================
+# STEP 6: ReSharper InspectCode
+#
+# pr.yaml gates PRs on error-severity InspectCode findings (the `inspectcode`
+# job). Without this step "run the full pr.yaml locally before push" could not
+# catch an InspectCode failure, so a clean local run still hit red in CI.
+# Mirrors the workflow: same tool, same --severity, same error-severity gate.
+# ============================================================================
+if (-not $SkipInspectCode) {
+    Write-Step "STEP 6: ReSharper InspectCode"
+
+    $jb = Get-Command jb -ErrorAction SilentlyContinue
+    if (-not $jb) {
+        Write-Host "Installing JetBrains.ReSharper.GlobalTools..." -ForegroundColor Yellow
+        dotnet tool install -g JetBrains.ReSharper.GlobalTools | Out-Host
+    }
+
+    $solution = Get-ChildItem -Path . -Filter '*.slnx' -File | Select-Object -First 1
+    if (-not $solution) {
+        $solution = Get-ChildItem -Path . -Filter '*.sln' -File | Select-Object -First 1
+    }
+
+    if (-not $solution) {
+        Write-Fail "No .slnx or .sln at repo root - InspectCode needs one to run"
+        $failed += 'InspectCode'
+    }
+    else {
+        Write-Host "Inspecting: $($solution.Name)" -ForegroundColor White
+        jb inspectcode $solution.FullName --output=inspect.sarif --format=sarif --severity=WARNING --no-build | Out-Host
+
+        if (Test-Path inspect.sarif) {
+            $sarif = Get-Content inspect.sarif -Raw | ConvertFrom-Json
+            $errors = @($sarif.runs.results | Where-Object { $_.level -eq 'error' })
+
+            if ($errors.Count -gt 0) {
+                Write-Fail "$($errors.Count) InspectCode error-severity finding(s)"
+                $errors | Select-Object -First 10 | ForEach-Object {
+                    Write-Host "  $($_.ruleId): $($_.message.text)" -ForegroundColor Red
+                }
+                $failed += 'InspectCode'
+            }
+            else {
+                Write-Pass "No error-severity InspectCode findings"
+            }
+        }
+        else {
+            Write-Fail "InspectCode produced no SARIF output"
+            $failed += 'InspectCode'
+        }
     }
 }
 

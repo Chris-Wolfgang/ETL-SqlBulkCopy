@@ -15,25 +15,25 @@ The release workflow triggers when you **publish a GitHub Release** and implemen
 
 Complete the following one-time setup so that the workflow can publish releases:
 
-### Add NuGet API Key Secret
+### NuGet publishing — no API-key secret required
 
-**Location:** Settings → Secrets and variables → Actions → New repository secret
+This repository publishes via **NuGet Trusted Publishing (OIDC)**. There is no
+`NUGET_API_KEY` secret to create, rotate, or expire: `release.yaml` requests an
+OIDC token (`permissions: id-token: write`) and `NuGet/login` exchanges it for a
+temporary, short-lived API key scoped to this repository.
 
-1. Click **"New repository secret"**
-2. **Name:** `NUGET_API_KEY`
-3. **Value:** Your NuGet.org API key
-   - Get your key from [NuGet.org Account → API Keys](https://www.nuget.org/account/apikeys)
-   - Recommended scopes: **Push new packages and package versions**
-   - Set expiration date (recommended: 1 year)
-4. Click **"Add secret"**
+**One-time setup on NuGet.org:** register this repository as a trusted publisher
+for the `Wolfgang.Etl.SqlBulkCopy` package (NuGet.org → Account → Trusted
+Publishing), matching the owner, repository, and workflow file name.
 
-**What this does:** Allows the workflow to authenticate with NuGet.org and publish packages. The workflow validates this secret exists before attempting to publish.
+> **If you are following an older copy of this guide:** any instruction to add a
+> `NUGET_API_KEY` repository secret is obsolete. The publish step ignores it.
 
 ### Verify Branch Protection Rules
 
 **Location:** Settings → Branches → main (or Settings → Rules → Rulesets)
 
-> **Note:** Repos created from `repo-template` ship with `scripts/Setup-BranchRuleset.ps1`, which configures branch protection interactively (option `[1]` for single-developer mode, `[2]` for multi-developer mode). The script may not be present in older repos — if it is missing, configure the equivalent settings manually using the checklist below.
+> **Note:** This repository ships `scripts/Fix-BranchRuleset.ps1` for repairing an existing ruleset. There is no `Setup-BranchRuleset.ps1` here — configure the settings below manually, or via `gh api` against the rulesets endpoint.
 
 Ensure the following settings are enabled:
 
@@ -83,9 +83,14 @@ The workflow triggers automatically when the release is published.
    - ✅ Auto-passes if packages are valid
 
 3. **Job 3: publish-nuget** (1-2 minutes)
-   - Validates NUGET_API_KEY secret
-   - Publishes packages to NuGet.org automatically
-   - ✅ Auto-completes if secret is valid
+   - Exchanges the workflow's OIDC token for a temporary NuGet API key
+   - Publishes packages to NuGet.org automatically (`--skip-duplicate`)
+   - ✅ Auto-completes when the package is accepted or already present
+
+Additional jobs run alongside these: `verify-docs-build`, `aot-consumer` (a
+release gate — `publish-nuget` depends on it), `trigger-docs` (builds and deploys
+the versioned documentation), `attest-build-provenance` (SLSA provenance
+attestation via Sigstore), and `update-release-artifacts`.
 
 ### Monitoring the Workflow
 
@@ -95,14 +100,19 @@ The workflow triggers automatically when the release is published.
 
 ## Troubleshooting
 
-### "NUGET_API_KEY secret not configured" Error
+### NuGet publish fails to authenticate
 
-**Problem:** The `publish-nuget` job fails with secret validation error.
+**Problem:** The `publish-nuget` job fails when exchanging the OIDC token.
 
 **Solution:**
-1. Verify the secret name is exactly `NUGET_API_KEY` (case-sensitive)
-2. Re-add the secret in Settings → Secrets → Actions
-3. Re-run the workflow from the Actions tab (do not re-publish the release)
+1. Confirm the package's Trusted Publishing policy on NuGet.org matches this
+   repository owner, name, **and** workflow file (`release.yaml`).
+2. Confirm the job still declares `permissions: id-token: write` — without it no
+   OIDC token is issued.
+3. Re-run the workflow from the Actions tab (do not re-publish the release).
+
+There is no API-key secret involved, so "secret not configured" is not a failure
+mode of this pipeline.
 
 ### Tests Fail on Specific Framework
 
@@ -189,7 +199,7 @@ Before creating a production GitHub Release (e.g., `v1.0.0`):
 ┌─────────────────────────────────────────────────────────────┐
 │  Job 3: publish-nuget (Windows)                             │
 │  • Download packages                                        │
-│  • Validate NUGET_API_KEY                                   │
+│  • Exchange OIDC token for a temporary NuGet key            │
 │  • Publish to NuGet.org automatically                       │
 └─────────────────────────────────────────────────────────────┘
 ```

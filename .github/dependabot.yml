@@ -7,6 +7,17 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+    # The Roslyn packages referenced by the source generator are a
+    # COMPATIBILITY FLOOR, not a dependency to keep current. The generator DLL
+    # ships inside our nupkg and is loaded by the consumer's compiler, which
+    # refuses (CS9057) any analyzer built against a newer Roslyn than itself.
+    # Raising these narrows the set of SDKs that can consume the package, and
+    # CI cannot detect it because CI always runs the newest SDK. This exact
+    # bump shipped in #256 and broke local builds on .NET SDK 10.0.111.
+    # See src/Wolfgang.Etl.SqlBulkCopy.SourceGenerator/*.csproj for the rationale.
+    ignore:
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp"
+      - dependency-name: "Microsoft.CodeAnalysis.Analyzers"
     groups:
       dotnet-dependencies:
         patterns:

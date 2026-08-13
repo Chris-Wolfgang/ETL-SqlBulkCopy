@@ -30,6 +30,17 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
 
 
+    // When ETL_REQUIRE_DOCKER is set (the Linux CI stage, where Docker IS
+    // available and the integration tests are meant to run for real), a
+    // missing or broken Docker daemon must be a HARD failure — never a silent
+    // skip — so Docker problems get fixed instead of ignored. When it is unset
+    // (local dev without Docker; the Windows/macOS stages, which don't run
+    // these tests at all) the graceful skip below still applies.
+    private static readonly bool RequireDocker =
+        !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ETL_REQUIRE_DOCKER"));
+
+
+
     /// <summary>
     /// Gets a value indicating whether the SQL Server container started
     /// successfully and is available for tests to use.
@@ -94,7 +105,7 @@ public sealed class SqlServerFixture : IAsyncLifetime
             await _container.StartAsync().ConfigureAwait(false);
             IsAvailable = true;
         }
-        catch (Exception ex) when (IsDockerUnavailable(ex))
+        catch (Exception ex) when (!RequireDocker && IsDockerUnavailable(ex))
         {
             // Unwrap one level of AggregateException so the skip reason
             // surfaces the actionable inner message ("Docker is not running...")
@@ -132,9 +143,17 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
         // Daemon down / no Docker socket / Windows-containers mode on a
         // Linux-image pull all surface as one of these.
+        //
+        // Testcontainers' own DotNet.Testcontainers.Builders.DockerUnavailableException
+        // ("Docker is either not running or misconfigured") is the primary
+        // signal on Docker-less Windows GHA runners (npipe endpoint absent).
+        // Its FullName starts with "DotNet.Testcontainers.", NOT "Docker.DotNet.",
+        // so match it by simple type name — that survives namespace moves across
+        // Testcontainers versions and is unambiguous.
         if (inner is IOException
             || inner is SocketException
             || inner is PlatformNotSupportedException
+            || string.Equals(inner.GetType().Name, "DockerUnavailableException", StringComparison.Ordinal)
             || (inner.GetType().FullName ?? string.Empty).StartsWith("Docker.DotNet.", StringComparison.Ordinal))
         {
             return true;

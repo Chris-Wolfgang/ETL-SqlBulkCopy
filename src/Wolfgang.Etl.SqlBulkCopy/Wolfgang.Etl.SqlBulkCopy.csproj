@@ -5,9 +5,9 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Version>0.5.0</Version>
-    <AssemblyVersion>0.5.0</AssemblyVersion>
-    <FileVersion>0.5.0</FileVersion>
+    <Version>0.6.0</Version>
+    <AssemblyVersion>0.6.0</AssemblyVersion>
+    <FileVersion>0.6.0</FileVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <!-- API/ABI compatibility gate (#88). On pack, the SDK's package validation
          (Microsoft.DotNet.ApiCompat) downloads the baseline release and fails
@@ -31,7 +31,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <SignAssembly>False</SignAssembly>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-    <NoWarn>NU1701</NoWarn>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
     <PackageTags>ETL;Extract-Transform-Load;SqlBulkCopy;SQL-Server;Bulk-Load</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -41,10 +41,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Wolfgang.Etl.Abstractions" Version="0.16.0" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.10" />
+    <PackageReference Include="Wolfgang.Etl.Abstractions" Version="0.21.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.11" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 

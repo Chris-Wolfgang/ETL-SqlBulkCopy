@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
@@ -10,14 +9,6 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 {
     private readonly List<(string Source, string Destination)> _columnMappings = new();
     private readonly List<int> _batchRowCounts = new();
-    private readonly Exception? _throwOnWrite;
-
-
-
-    internal FakeSqlBulkCopyWrapper(Exception? throwOnWrite = null)
-    {
-        _throwOnWrite = throwOnWrite;
-    }
 
 
 
@@ -44,11 +35,6 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 
     public async Task WriteToServerAsync(DbDataReader reader, CancellationToken cancellationToken)
     {
-        if (_throwOnWrite is not null)
-        {
-            throw _throwOnWrite;
-        }
-
         var rowCount = 0;
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
