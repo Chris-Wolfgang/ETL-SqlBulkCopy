@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.5.0/docfx_project/docs/getting-started.md/#L1">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.6.0/docfx_project/docs/getting-started.md/#L1">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -75,10 +75,14 @@
 
 <p>This guide will help you quickly get up and running with Wolfgang.Etl.SqlBulkCopy.</p>
 <h2 id="prerequisites">Prerequisites</h2>
-<!-- List any prerequisites needed. For example:
-- .NET 8.0 or later
-- Visual Studio 2022 or Visual Studio Code
--->
+<ul>
+<li><strong>.NET</strong> — the package targets <code>net462</code>, <code>net481</code>, <code>netstandard2.0</code>, <code>net8.0</code>
+and <code>net10.0</code>. The <code>netstandard2.0</code> build covers runtimes between those direct
+targets (.NET Core 2.0+, .NET 5/6/7), so .NET Framework 4.6.2+ and any modern
+.NET can consume it.</li>
+<li><strong>A reachable Microsoft SQL Server</strong> and a destination table whose columns match
+the record type you intend to load.</li>
+</ul>
 <h2 id="installation">Installation</h2>
 <h3 id="via-nuget-package-manager">Via NuGet Package Manager</h3>
 <pre><code class="lang-bash">dotnet add package Wolfgang.Etl.SqlBulkCopy
@@ -87,13 +91,65 @@
 <pre><code class="lang-powershell">Install-Package Wolfgang.Etl.SqlBulkCopy
 </code></pre>
 <h2 id="quick-start">Quick Start</h2>
-<!-- Add a quick start example. For example: -->
-<pre><code class="lang-csharp">// Add your quick start code example here
-// This should show the simplest way to use your library
-
+<p>Describe the destination with attributes, then hand the loader an
+<code>IAsyncEnumerable&lt;TRecord&gt;</code>:</p>
+<pre><code class="lang-csharp">using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
+using Microsoft.Data.SqlClient;
 using Wolfgang.Etl.SqlBulkCopy;
 
-// Example usage
+[Table(&quot;Customers&quot;, Schema = &quot;dbo&quot;)]
+public sealed record Customer
+{
+    public int Id { get; init; }
+
+    public string Name { get; init; } = string.Empty;
+
+    public decimal Balance { get; init; }
+}
+
+async IAsyncEnumerable&lt;Customer&gt; ReadSourceAsync()
+{
+    // your source: file, API, another database, etc.
+    yield return new Customer { Id = 1, Name = &quot;Acme&quot;, Balance = 100m };
+    yield return new Customer { Id = 2, Name = &quot;Contoso&quot;, Balance = 250m };
+}
+
+using var connection = new SqlConnection(&quot;Server=.;Database=Sandbox;Integrated Security=True;Encrypt=True;&quot;);
+await connection.OpenAsync();
+
+var loader = new SqlBulkCopyLoader&lt;Customer&gt;(connection)
+{
+    BatchSize = 10_000,
+    PreAction = PreAction.TruncateTable
+};
+
+await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
+</code></pre>
+<h2 id="common-tasks">Common Tasks</h2>
+<h3 id="report-progress">Report progress</h3>
+<pre><code class="lang-csharp">var progress = new Progress&lt;SqlBulkCopyReport&gt;(r =&gt;
+    Console.WriteLine($&quot;{r.CurrentItemCount} rows in {r.BatchCount} batch(es), {r.CurrentSkippedItemCount} skipped&quot;));
+
+await loader.LoadAsync(ReadSourceAsync(), progress, CancellationToken.None);
+</code></pre>
+<h3 id="validate-rows-before-loading">Validate rows before loading</h3>
+<pre><code class="lang-csharp">var loader = new SqlBulkCopyLoader&lt;Customer&gt;(connection)
+{
+    EnableDataValidation = true,
+    ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+    OnValidationFailed = (item, errors) =&gt; Console.WriteLine($&quot;skipped: {errors.Count} error(s)&quot;)
+};
+</code></pre>
+<h3 id="rehearse-without-writing">Rehearse without writing</h3>
+<pre><code class="lang-csharp">var loader = new SqlBulkCopyLoader&lt;Customer&gt;(connection)
+{
+    IsDryRun = true
+};
+
+// Enumerates, maps, validates, counts and logs — but issues no SQL.
+await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 </code></pre>
 <h2 id="next-steps">Next Steps</h2>
 <ul>
@@ -102,7 +158,16 @@ using Wolfgang.Etl.SqlBulkCopy;
 <li>Check out example projects in the <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy">GitHub repository</a></li>
 </ul>
 <h2 id="common-issues">Common Issues</h2>
-<!-- Add common issues and their solutions here -->
+<ul>
+<li><strong><code>InvalidOperationException</code> about a missing connection</strong> — <code>PreAction</code> /
+<code>PostAction</code> values that issue SQL need a loader constructed with a
+<code>SqlConnection</code>.</li>
+<li><strong>Column not loaded</strong> — check the property has a getter and is not marked
+<code>[NotMapped]</code>; the column name comes from <code>[Column]</code> when present, otherwise
+the property name.</li>
+<li><strong>Native AOT falls back to reflection</strong> — mark the record <code>[BulkCopyable]</code> so
+the bundled source generator emits accessors at compile time.</li>
+</ul>
 <h2 id="additional-resources">Additional Resources</h2>
 <ul>
 <li><a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy">GitHub Repository</a></li>
@@ -113,7 +178,7 @@ using Wolfgang.Etl.SqlBulkCopy;
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.5.0/docfx_project/docs/getting-started.md/#L1" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.6.0/docfx_project/docs/getting-started.md/#L1" class="edit-link">Edit this page</a>
         </div>
 
         <div class="next-article d-print-none border-top" id="nextArticle"></div>
