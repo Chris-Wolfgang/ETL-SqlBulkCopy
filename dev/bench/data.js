@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786581236433,
+  "lastUpdate": 1786584586772,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -792,6 +792,78 @@ window.BENCHMARK_DATA = {
             "value": 10622.496047973633,
             "unit": "ns",
             "range": "± 36.80364251784241"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "972793bf8c196d37890fe5d43aabb122c8dbef09",
+          "message": "Merge pull request #265 from Chris-Wolfgang/chore/pkgvalidation-baseline-0.6.0-v2\n\nchore: bump PackageValidation baseline 0.5.0 -> 0.6.0 (post-release)",
+          "timestamp": "2026-08-12T21:27:12-04:00",
+          "tree_id": "9dd02789ae2df4a1253766ae7d3f1adbeaa8eb4c",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/972793bf8c196d37890fe5d43aabb122c8dbef09"
+        },
+        "date": 1786584584028,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 90666.53023274739,
+            "unit": "ns",
+            "range": "± 344.3756692546741"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 9423789.6875,
+            "unit": "ns",
+            "range": "± 57779.33344851883"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 6.951484476526578,
+            "unit": "ns",
+            "range": "± 0.05367471235297203"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 1.0819644778966904,
+            "unit": "ns",
+            "range": "± 0.0004898397279285951"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 12.046142041683197,
+            "unit": "ns",
+            "range": "± 0.08222470879915228"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 6.580554624398549,
+            "unit": "ns",
+            "range": "± 0.08364494568317128"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.3020185033480325,
+            "unit": "ns",
+            "range": "± 0.025336114053617898"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9595.412170410156,
+            "unit": "ns",
+            "range": "± 98.23760308446307"
           }
         ]
       }
