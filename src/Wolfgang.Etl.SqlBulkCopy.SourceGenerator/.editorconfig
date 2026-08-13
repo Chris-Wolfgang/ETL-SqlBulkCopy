@@ -1,0 +1,16 @@
+# Analyzer rules relaxed for the SourceGenerator project.
+#
+# This project ships as embedded analyzer content (analyzers/dotnet/cs)
+# inside the Wolfgang.Etl.SqlBulkCopy NuGet — it is NOT a public library
+# API, so the PublicApiAnalyzer should not fire. MSBuild <NoWarn> in
+# the csproj already covers RS0016/RS0037 for compilation, but InspectCode
+# doesn't read csproj <NoWarn>, so we silence explicitly here.
+
+[*.cs]
+
+dotnet_diagnostic.RS0016.severity = none
+dotnet_diagnostic.RS0037.severity = none
+
+# Note: CheckNamespace/RedundantNameQualifier for the polyfill shim under
+# Polyfills/ are silenced by the nested Polyfills/.editorconfig, which
+# scopes to the BCL-mirror files only rather than the whole SourceGenerator.

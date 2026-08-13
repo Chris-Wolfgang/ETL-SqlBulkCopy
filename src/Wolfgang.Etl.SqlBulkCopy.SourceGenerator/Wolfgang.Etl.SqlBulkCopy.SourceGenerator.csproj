@@ -19,8 +19,11 @@
          doesn't need to satisfy the runtime-library rule set. -->
     <!-- MA0028: interpolated StringBuilder.AppendLine calls — this is a
          source-emitting generator, not a runtime hot path, so the micro-opt
-         does not apply. -->
-    <NoWarn>$(NoWarn);RS1036;RS2008;NU1701;MA0028</NoWarn>
+         does not apply.
+         RS0016 / RS0037: PublicApiAnalyzer — this project ships as embedded
+         analyzer content (analyzers/dotnet/cs), not a public library API;
+         it has no PublicAPI.Shipped.txt and the analyzer should not fire. -->
+    <NoWarn>$(NoWarn);RS0016;RS0037;RS1036;RS2008;NU1701;MA0028</NoWarn>
 
     <!-- No XML doc generation for the analyzer DLL. The user-facing API
          (BulkCopyableAttribute) lives in the main runtime assembly and is

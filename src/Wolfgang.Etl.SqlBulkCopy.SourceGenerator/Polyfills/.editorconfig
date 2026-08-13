@@ -1,0 +1,15 @@
+# Analyzer rules relaxed for BCL polyfill shims inside the SourceGenerator.
+#
+# Same rationale as src/Wolfgang.Etl.SqlBulkCopy/Polyfills/.editorconfig —
+# polyfills mirror BCL types verbatim and MUST use System.* namespaces
+# regardless of file path.
+
+[*.cs]
+
+# CheckNamespace: polyfills MUST use System.* namespaces regardless of
+# their location in the project tree.
+dotnet_diagnostic.CheckNamespace.severity = none
+
+# RedundantNameQualifier: polyfills mirror BCL source verbatim to keep
+# them line-comparable against the reference type.
+dotnet_diagnostic.RedundantNameQualifier.severity = none

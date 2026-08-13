@@ -1,0 +1,64 @@
+# Analyzer rules relaxed for test projects.
+#
+# Only rules the analyzer is genuinely wrong about for test code live here.
+# Anything an analyzer catches that's a real code smell — unused usings,
+# unused private members, redundant casts, redundant qualifiers, dead
+# defensive guards — is fixed in the test source, not silenced.
+
+[*.cs]
+
+# AsyncFixer01: Remove async/await for single-expression methods — Assert.ThrowsAsync
+# requires an async lambda even when the body is a single expression.
+dotnet_diagnostic.AsyncFixer01.severity = none
+
+# MA0004: Use ConfigureAwait(false) — not needed in test code (no captured sync context).
+dotnet_diagnostic.MA0004.severity = none
+
+# MA0011: Use IFormatProvider overload of ToString — not needed in test assertions
+# where formatting is invariant.
+dotnet_diagnostic.MA0011.severity = none
+
+# MA0048: File name must match type name — test files contain multiple helper
+# types and probe fixtures alongside the SUT.
+dotnet_diagnostic.MA0048.severity = none
+
+# MA0051: Method is too long — test methods can be longer for readability.
+dotnet_diagnostic.MA0051.severity = none
+
+# MA0009: Regex DoS — regexes in DocExample tests are hand-crafted, bounded,
+# and applied to controlled sample text; the timeout parameter would obscure
+# the test intent.
+dotnet_diagnostic.MA0009.severity = none
+
+# VSTHRD200: Use Async suffix — test methods follow xunit naming conventions.
+dotnet_diagnostic.VSTHRD200.severity = none
+
+# VSTHRD002: sync-wait on tasks — concurrency tests deliberately use
+# .Wait()/.Result to force the sync path being probed.
+dotnet_diagnostic.VSTHRD002.severity = none
+
+# xUnit2031: Assert.Single with Where — collapsing to the overload adds
+# nothing when the filter is a one-liner readable at the call site.
+dotnet_diagnostic.xUnit2031.severity = none
+
+# S2325: could-be-static — test properties consumed via reflection can't be
+# safely made static without breaking the probe.
+dotnet_diagnostic.S2325.severity = none
+
+# S2344: enum name ending in 'Enum' — test probe types intentionally use
+# suffix to disambiguate from production enums with the same base name.
+dotnet_diagnostic.S2344.severity = none
+
+# UnusedAutoPropertyAccessor.Local: test-scaffolding types have getters
+# consumed by xunit theory data reflection or Assert record-equality.
+dotnet_diagnostic.UnusedAutoPropertyAccessor.Local.severity = none
+
+# UnusedAutoPropertyAccessor.Global: test-scaffolding public types expose
+# properties consumed via reflection (theory data, xunit serializers).
+dotnet_diagnostic.UnusedAutoPropertyAccessor.Global.severity = none
+
+# UnusedMember.Local: test probe types deliberately declare enum members,
+# properties, and indexers that are exercised via reflection by the SUT
+# (e.g., ReflectionHelpersTests, MessageSnapshotTests) — the "unused"
+# label is what the test is proving is discovered.
+dotnet_diagnostic.UnusedMember.Local.severity = none

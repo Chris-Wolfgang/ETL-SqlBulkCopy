@@ -1,0 +1,23 @@
+# Analyzer rules relaxed for BCL polyfill shims.
+#
+# Files under Polyfills/ deliberately declare types in System.* namespaces
+# so downstream code can use them under the same name the runtime exposes
+# on newer TFMs. Their public members are consumed by the compiler/runtime
+# via reflection, not from source. That combination trips several
+# InspectCode heuristics that are correct for hand-written first-party code
+# but wrong for BCL-mirror shims.
+
+[*.cs]
+
+# CheckNamespace: polyfills MUST use System.* namespaces regardless of
+# their location in the project tree.
+dotnet_diagnostic.CheckNamespace.severity = none
+
+# UnusedAutoPropertyAccessor.Global: polyfill attribute getters (Message,
+# Category, CheckId, Justification) are consumed by tooling that reflects
+# over the attribute, not by source code in this assembly.
+dotnet_diagnostic.UnusedAutoPropertyAccessor.Global.severity = none
+
+# RedundantNameQualifier: polyfills mirror BCL source verbatim to keep
+# them line-comparable against the reference type.
+dotnet_diagnostic.RedundantNameQualifier.severity = none
