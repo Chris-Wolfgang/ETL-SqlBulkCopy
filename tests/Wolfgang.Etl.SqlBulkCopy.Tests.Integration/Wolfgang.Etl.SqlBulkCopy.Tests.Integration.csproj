@@ -22,6 +22,25 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="Testcontainers.MsSql" Version="4.13.0" />
+    <!-- SECURITY PIN, not a feature bump. Testcontainers 4.13.0 (the latest at
+         time of writing) depends transitively on SSH.NET 2025.1.0, which has a
+         known HIGH-severity advisory: GHSA-q939-rpr3-3284. NuGet audit surfaces
+         that as NU1903, which is an ERROR here because the repo treats warnings
+         as errors — so it fails restore outright.
+
+         There is no upstream fix to take: Testcontainers 4.11/4.12/4.13 all pin
+         SSH.NET 2025.1.0, so bumping Testcontainers does not help. Pinning the
+         transitive dependency forward is the remedy; suppressing NU1903 is not,
+         and would also re-introduce exactly the kind of dead suppression that
+         #246 removed.
+
+         SSH.NET is only used by Testcontainers for driving a REMOTE Docker
+         daemon over SSH. These tests use a local daemon, so the package is not
+         on any path they exercise.
+
+         REMOVE this line once Testcontainers ships a release that depends on a
+         patched SSH.NET. -->
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.5.61" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" allowedVersions="(,3.0.0)" NoWarn="NU1701">
