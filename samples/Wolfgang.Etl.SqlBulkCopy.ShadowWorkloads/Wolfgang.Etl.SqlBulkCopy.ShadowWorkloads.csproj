@@ -15,6 +15,13 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageReference Include="Testcontainers.MsSql" Version="4.13.0" />
+    <!-- SECURITY PIN — see the fuller note in
+         tests/Wolfgang.Etl.SqlBulkCopy.Tests.Integration. Testcontainers 4.13.0
+         pulls SSH.NET 2025.1.0, which carries the HIGH-severity advisory
+         GHSA-q939-rpr3-3284 and therefore fails restore as NU1903 under
+         warnings-as-errors. No upstream fix exists yet; remove this line when
+         Testcontainers depends on a patched SSH.NET. -->
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
   </ItemGroup>
 
