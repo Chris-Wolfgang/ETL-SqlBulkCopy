@@ -6,8 +6,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Version>0.7.0</Version>
-    <AssemblyVersion>0.6.0</AssemblyVersion>
-    <FileVersion>0.6.0</FileVersion>
+    <!-- AssemblyVersion tracks 0.{Minor} during 0.x (ADR-0011 in ETL-Abstractions).
+         The minor is SemVer's breaking position pre-1.0, and AssemblyVersion is
+         bind-time identity on net462/net481, so it MUST move with every minor —
+         otherwise a binary-breaking change is invisible at bind time on .NET
+         Framework and surfaces as a runtime MissingMethodException instead.
+         Bump this together with <Version> in every release-prep PR. -->
+    <AssemblyVersion>0.7.0</AssemblyVersion>
+    <FileVersion>0.7.0</FileVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <!-- API/ABI compatibility gate (#88). On pack, the SDK's package validation
          (Microsoft.DotNet.ApiCompat) downloads the baseline release and fails
