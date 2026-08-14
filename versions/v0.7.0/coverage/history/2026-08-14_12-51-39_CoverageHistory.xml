@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<coverage version="1.0" date="2026-08-14_12-15-24" tag="">
+<coverage version="1.0" date="2026-08-14_12-51-39" tag="">
   <assembly name="Wolfgang.Etl.SqlBulkCopy">
     <class name="Wolfgang.Etl.SqlBulkCopy.ColumnMap" coveredlines="72" coverablelines="76" totallines="283" coveredbranches="31" totalbranches="36" coveredcodeelements="11" fullcoveredcodeelements="10" totalcodeelements="11" />
     <class name="Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry" coveredlines="18" coverablelines="18" totallines="152" coveredbranches="10" totalbranches="10" coveredcodeelements="5" fullcoveredcodeelements="5" totalcodeelements="5" />
