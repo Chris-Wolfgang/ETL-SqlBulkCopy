@@ -29,19 +29,10 @@ public class SqlBulkCopyLoaderContractTests
     protected override SqlBulkCopyLoader<TestRecord> CreateSut(int itemCount)
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null);
     }
 
 
 
     protected override IReadOnlyList<TestRecord> CreateSourceItems() => SourceItems;
-
-
-
-    protected override SqlBulkCopyLoader<TestRecord> CreateSutWithTimer(IProgressTimer timer)
-    {
-        var factory = new FakeSqlBulkCopyWrapperFactory();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
-    }
 }
