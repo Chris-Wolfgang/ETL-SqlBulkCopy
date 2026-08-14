@@ -886,7 +886,14 @@ jobs:
           threshold=${CODECOV_MINIMUM:-90}
           matched_count=0
 
-          while read -r line; do
+          # IFS= is REQUIRED. ReportGenerator's Summary.txt indents per-class
+          # rows two spaces beneath their parent assembly row, and the filter
+          # below anchors on `^[^ ]` to skip them. A bare `read -r line` strips
+          # leading IFS whitespace, so the indentation is gone before grep ever
+          # sees it and every class row matches — which gated individual test
+          # classes as if they were projects (e.g. a test class at 89% failed
+          # the whole release while both real assemblies were above 97%).
+          while IFS= read -r line; do
             # Match lines with module names and percentages. The percent
             # capture is the LAST %-suffixed number on the line, matching
             # Stage 2's behavior — ReportGenerator Summary.txt rows often
@@ -1211,7 +1218,10 @@ jobs:
             # the gate on actually-100%-covered modules. Two changes:
             #  - Anchor on `^(\S+)` so indented sub-class rows are skipped
             #    (their parent assembly row carries the same number, so
-            #    nothing is lost — and Stage 1 ignores them too).
+            #    nothing is lost). Stage 1 skips them too, but ONLY because
+            #    its loop uses `IFS= read -r` — a bare `read -r` would strip
+            #    the indentation and defeat its `^[^ ]` anchor. Keep both in
+            #    sync if either parser changes.
             #  - Require whitespace immediately before the final `\d+%`
             #    (`\s(\d+...)%\s*$`). This still allows intermediate
             #    columns between the module name and the final percent
