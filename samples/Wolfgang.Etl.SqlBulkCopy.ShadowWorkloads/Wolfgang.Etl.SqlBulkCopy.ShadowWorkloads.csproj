@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.13.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.14.0" />
     <!-- SECURITY PIN — see the fuller note in
          tests/Wolfgang.Etl.SqlBulkCopy.Tests.Integration. Testcontainers 4.13.0
          pulls SSH.NET 2025.1.0, which carries the HIGH-severity advisory
