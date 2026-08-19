@@ -13,12 +13,25 @@ name: AOT Smoke
 # local check.
 
 on:
+  # NO `paths:` FILTER ON pull_request -- INTENTIONAL, DO NOT ADD ONE.
+  #
+  # "Publish & run Native AOT consumer" is a REQUIRED status check on main
+  # (ruleset "Protect main branch"). GitHub blocks a PR until every required
+  # check reports, and a workflow skipped by a paths filter reports NOTHING --
+  # it does not report "skipped", it simply never arrives. So any PR that did
+  # not touch the filtered paths sat in "Blocked" forever with all other checks
+  # green, and the only way out was an admin bypass.
+  #
+  # That is exactly what happened to every workflow-only / docs-only /
+  # config-only PR, e.g. the Dependabot github-actions bumps (#277).
+  #
+  # Rule of thumb: a required check must run unconditionally. Cost is not a
+  # reason to filter here -- this job takes ~45s.
+  #
+  # The `push:` trigger below keeps its filter: pushes are not gated by the
+  # ruleset, so skipping the job there costs nothing and blocks nothing.
   pull_request:
     branches: [main, vNext]
-    paths:
-      - 'src/**'
-      - 'tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke/**'
-      - '.github/workflows/aot-smoke.yaml'
   push:
     branches: [vNext]
     paths:
