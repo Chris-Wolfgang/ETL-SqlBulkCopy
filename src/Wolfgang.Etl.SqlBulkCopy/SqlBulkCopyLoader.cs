@@ -41,7 +41,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 {
     private static readonly string OperationName = $"SQL bulk copy loading of {typeof(TRecord).Name}";
     private readonly SqlConnection? _connection;
-    private readonly SqlBulkCopyOptions _options;
     private readonly SqlTransaction? _transaction;
     private readonly ILogger _logger;
     private readonly IProgressTimer? _progressTimer;
@@ -68,8 +67,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     {
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _logger = NullLogger.Instance;
-        _options = SqlBulkCopyOptions.Default;
-        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, _options, transaction: null);
+        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, SqlBulkCopyOptions.Default, transaction: null);
         _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
 
@@ -92,8 +90,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     {
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _options = SqlBulkCopyOptions.Default;
-        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, _options, transaction: null);
+        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, SqlBulkCopyOptions.Default, transaction: null);
         _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
 
@@ -171,7 +168,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     )
     {
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _options = options;
         _transaction = transaction;
         _logger = logger ?? (ILogger)NullLogger.Instance;
         _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, options, transaction);
@@ -217,7 +213,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         _logger = logger ?? NullLogger.Instance;
         _progressTimer = timer;
         _commandExecutor = commandExecutor;
-        _options = SqlBulkCopyOptions.Default;
     }
 
 
@@ -963,6 +958,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
             case PreAction.CustomAction:
                 EnsureConnectionAvailable("PreAction.CustomAction");
+                var preAction = PreLoadCustomAction
+                    ?? throw new InvalidOperationException("PreAction is CustomAction but PreLoadCustomAction is null.");
                 var parameters = new PreLoadActionParameters
                 (
                     _connection!,
@@ -974,7 +971,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                     _logger,
                     token
                 );
-                await PreLoadCustomAction!(parameters).ConfigureAwait(false);
+                await preAction(parameters).ConfigureAwait(false);
                 break;
         }
     }
@@ -994,6 +991,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         {
             case PostAction.CustomAction:
                 EnsureConnectionAvailable("PostAction.CustomAction");
+                var postAction = PostLoadCustomAction
+                    ?? throw new InvalidOperationException("PostAction is CustomAction but PostLoadCustomAction is null.");
                 var parameters = new PostLoadActionParameters
                 (
                     _connection!,
@@ -1005,7 +1004,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                     _logger,
                     token
                 );
-                await PostLoadCustomAction!(parameters).ConfigureAwait(false);
+                await postAction(parameters).ConfigureAwait(false);
                 break;
         }
     }
