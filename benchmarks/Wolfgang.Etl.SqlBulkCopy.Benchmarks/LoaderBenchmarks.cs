@@ -17,6 +17,9 @@ namespace Wolfgang.Etl.SqlBulkCopy.Benchmarks;
 [MemoryDiagnoser]
 public class LoaderBenchmarks
 {
+    // ReSharper disable UnusedAutoPropertyAccessor.Global -- BenchRow's
+    // property getters are read by the loader via SqlBulkCopy reflection,
+    // not from source in this assembly.
     [Table("BenchRows", Schema = "dbo")]
     public sealed record BenchRow
     {
@@ -29,6 +32,7 @@ public class LoaderBenchmarks
 
         public DateTime CreatedUtc { get; init; }
     }
+    // ReSharper restore UnusedAutoPropertyAccessor.Global
 
     private BenchRow[] _rows = Array.Empty<BenchRow>();
 

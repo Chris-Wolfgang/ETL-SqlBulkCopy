@@ -17,6 +17,8 @@ public class SliceListBenchmarks
 {
     private IReadOnlyList<object> _source = Array.Empty<object>();
 
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global -- BDN
+    // populates [Params] properties via reflection, not from source.
     [Params(10_000)]
     public int Size { get; set; }
 

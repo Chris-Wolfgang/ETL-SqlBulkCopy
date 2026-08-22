@@ -2,8 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+// ReSharper disable RedundantUsingDirective -- Verifier.DerivePathInfo /
+// Verifier.Verify (VerifyXunit) and [Fact] (Xunit) are used below; InspectCode
+// is TFM-blind and mis-flags these on the modern-TFM view.
 using VerifyXunit;
 using Xunit;
+// ReSharper restore RedundantUsingDirective
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots;
 
