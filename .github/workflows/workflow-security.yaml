@@ -15,13 +15,11 @@ on:
     paths:
       - '.github/workflows/**'
       - '.github/actionlint.yaml'
-      - '.zizmor.yml'
   push:
     branches: [main, vNext]
     paths:
       - '.github/workflows/**'
       - '.github/actionlint.yaml'
-      - '.zizmor.yml'
   workflow_dispatch:
 
 permissions:
@@ -85,11 +83,12 @@ jobs:
         # --offline avoids GitHub API calls during the lint (no rate-limit
         # surprises on busy days). --persona auditor enables stricter rules
         # appropriate for a library shipping to the public NuGet feed.
-        # --config loads .zizmor.yml explicitly: zizmor only auto-discovers
-        # .github/zizmor.yml, so without this the root .zizmor.yml (where
-        # accepted findings are suppressed) is silently ignored.
+        # No --config: accepted findings are now suppressed per-line via
+        # `# zizmor: ignore[rule]` inline comments in the workflow files
+        # themselves (see pr.yaml, codeql.yaml, scorecard.yaml). The old
+        # root .zizmor.yml was removed once every ignore was inlined.
         run: |
-          zizmor --config .zizmor.yml --offline --persona auditor --format sarif \
+          zizmor --offline --persona auditor --format sarif \
             .github/workflows/ > zizmor.sarif || true
         # `|| true` keeps the step from short-circuiting on findings, so the
         # full SARIF still uploads (all severities surface as PR annotations).
