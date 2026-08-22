@@ -235,7 +235,9 @@ internal sealed class TypeMap
         // `!` retained because net462/netstandard2.0 System.String lacks
         // [NotNullWhen(false)] on IsNullOrWhiteSpace's parameter; the modern-TFM
         // compiler narrows without it, but the older TFMs still emit CS8604.
-        var table = string.IsNullOrWhiteSpace(tableOverride) ? descriptor.TableName : tableOverride!;
+        var table = tableOverride is not null && !string.IsNullOrWhiteSpace(tableOverride)
+            ? tableOverride
+            : descriptor.TableName;
 
         var columns = new ColumnMap[descriptor.Columns.Count];
         for (var i = 0; i < descriptor.Columns.Count; i++)
@@ -414,8 +416,8 @@ internal sealed class TypeMap
 
         // See TypeMap.BuildFromDescriptor for the `!` rationale (older-TFM
         // System.String lacks [NotNullWhen(false)] on IsNullOrWhiteSpace).
-        var resolvedTableName = !string.IsNullOrWhiteSpace(tableName)
-            ? tableName!
+        var resolvedTableName = tableName is not null && !string.IsNullOrWhiteSpace(tableName)
+            ? tableName
             : tableAttribute?.Name ?? type.Name;
 
         return (resolvedSchemaName, resolvedTableName);
