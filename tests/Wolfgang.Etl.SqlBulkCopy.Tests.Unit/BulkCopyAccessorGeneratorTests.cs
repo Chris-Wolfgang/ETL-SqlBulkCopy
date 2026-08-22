@@ -1,4 +1,6 @@
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
+// ReSharper disable once RedundantUsingDirective -- required on older TFMs
+// (net5.0/net6.0) that lack xunit's global usings; InspectCode is TFM-blind.
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;

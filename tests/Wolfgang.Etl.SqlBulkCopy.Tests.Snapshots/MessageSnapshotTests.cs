@@ -2,12 +2,17 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using VerifyTests;
 using VerifyXunit;
-using Wolfgang.Etl.SqlBulkCopy;
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots;
+
+// ReSharper disable UnusedMember.Local -- probe types (Customer, BracketedTable,
+// NoTableAttribute, Validatable) below expose properties consumed by TypeMap /
+// SqlBulkCopyValidationException via reflection or attribute construction,
+// not from source in this file. Scoped to the whole file.
+
+// ReSharper disable UnusedAutoPropertyAccessor.Local -- same rationale as above.
 
 /// <summary>
 /// Snapshot coverage for the library's inspectable text output: the SQL command
@@ -185,3 +190,6 @@ public class MessageSnapshotTests
         }
     }
 }
+
+// ReSharper restore UnusedAutoPropertyAccessor.Local
+// ReSharper restore UnusedMember.Local

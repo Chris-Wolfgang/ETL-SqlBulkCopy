@@ -15,6 +15,8 @@ public sealed class NonPublicGetterProbe
 
     /// <summary>
     /// Publicly settable, but the getter is private, so generated code cannot read it.
+    /// The private-getter accessibility IS the shape under test.
     /// </summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Local
     public string Secret { private get; set; } = string.Empty;
 }

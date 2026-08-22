@@ -206,7 +206,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                     GetColumnName(property) ?? property.Name,
                     effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                     IsNullableProperty(property) ? "1" : "0",
-                    ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    ordinal.ToString(CultureInfo.InvariantCulture)
                 )
             );
 
@@ -330,12 +330,9 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     {
         for (var b = type.BaseType; b is not null && b.SpecialType != SpecialType.System_Object; b = b.BaseType)
         {
-            foreach (var property in b.GetMembers().OfType<IPropertySymbol>())
+            if (b.GetMembers().OfType<IPropertySymbol>().Any(IsReadableInstanceProperty))
             {
-                if (IsReadableInstanceProperty(property))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

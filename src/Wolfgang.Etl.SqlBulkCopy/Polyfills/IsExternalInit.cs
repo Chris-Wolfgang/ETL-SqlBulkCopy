@@ -1,10 +1,10 @@
 #if !NET5_0_OR_GREATER
 
-// ReSharper disable once CheckNamespace
-namespace System.Runtime.CompilerServices;
-
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+
+// ReSharper disable once CheckNamespace -- polyfill mirrors BCL type location.
+namespace System.Runtime.CompilerServices;
 
 /// <summary>
 /// Polyfill for <c>init</c>-only properties on older target frameworks.

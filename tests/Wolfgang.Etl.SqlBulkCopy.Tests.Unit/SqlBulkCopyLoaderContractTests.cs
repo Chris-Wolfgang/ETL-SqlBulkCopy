@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Wolfgang.Etl.Abstractions;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Wolfgang.Etl.TestKit.Xunit;

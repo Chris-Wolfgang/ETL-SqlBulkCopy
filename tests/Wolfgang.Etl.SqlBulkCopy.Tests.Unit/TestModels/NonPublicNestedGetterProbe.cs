@@ -17,8 +17,10 @@ public sealed class NonPublicNestedGetterProbe
 
     /// <summary>
     /// Publicly settable, but the getter is private, so generated code cannot
-    /// enumerate the children.
+    /// enumerate the children. The private-getter accessibility IS the shape
+    /// under test.
     /// </summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Local
     public IList<NonPublicNestedChild> Children { private get; set; } = new List<NonPublicNestedChild>();
 }
 
