@@ -21,7 +21,3 @@ dotnet_diagnostic.CA2007.severity = none
 # lifecycle here: [GlobalSetup] creates the container/connection and [GlobalCleanup]
 # disposes them. The benchmark class itself is never disposed by a caller.
 dotnet_diagnostic.CA1001.severity = none
-
-# UnusedAutoPropertyAccessor.Global: BenchmarkDotNet sets [Params] public
-# properties via reflection; the setter is not called from source.
-resharper_unused_auto_property_accessor_global_highlighting = none

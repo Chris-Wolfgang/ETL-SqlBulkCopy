@@ -13,7 +13,3 @@ dotnet_diagnostic.S1215.severity = none
 
 # VSTHRD200: Use Async suffix — benchmark methods follow BenchmarkDotNet naming conventions
 dotnet_diagnostic.VSTHRD200.severity = none
-
-# UnusedAutoPropertyAccessor.Global: BenchmarkDotNet sets [Params] public
-# properties via reflection; the setter is not called from source.
-resharper_unused_auto_property_accessor_global_highlighting = none
