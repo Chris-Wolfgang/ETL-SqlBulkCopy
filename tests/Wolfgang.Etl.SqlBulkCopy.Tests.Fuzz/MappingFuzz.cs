@@ -9,9 +9,9 @@
 //
 // Refs #81.
 
+using System;
 using System.Text;
 using CsCheck;
-using Wolfgang.Etl.SqlBulkCopy;
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz;
@@ -40,8 +40,8 @@ public class MappingFuzz
             var map = TypeMap.Create(typeof(FuzzRecord), schema, table);
             var (recoveredSchema, recoveredTable) = Unbracket(map.QualifiedTableName);
 
-            return string.Equals(recoveredSchema, schema, System.StringComparison.Ordinal)
-                   && string.Equals(recoveredTable, table, System.StringComparison.Ordinal);
+            return string.Equals(recoveredSchema, schema, StringComparison.Ordinal)
+                   && string.Equals(recoveredTable, table, StringComparison.Ordinal);
         });
     }
 
@@ -60,7 +60,7 @@ public class MappingFuzz
 
         Gen.Select(Gen.Int, Gen.String, nullableInt, Gen.Bool).Sample((a, b, c, d) =>
         {
-            var instance = new FuzzRecord { A = a, B = b ?? string.Empty, C = c, D = d };
+            var instance = new FuzzRecord { A = a, B = b, C = c, D = d };
             var map = TypeMap.Create(typeof(FuzzRecord));
 
             foreach (var column in map.Columns)

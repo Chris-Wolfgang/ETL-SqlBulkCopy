@@ -30,9 +30,8 @@ public class ReflectionHelpersTests
 
         public string SetOnly
         {
-            set { _setOnlyBacking = value; }
+            set { _ = value; }
         }
-        private string _setOnlyBacking = string.Empty;
     }
 #pragma warning restore S1144, S2376, S4487
 

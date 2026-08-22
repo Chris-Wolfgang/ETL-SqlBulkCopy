@@ -97,15 +97,12 @@ public class BulkLoadShadowWorkloads
     [GlobalCleanup]
     public async Task GlobalCleanupAsync()
     {
-        if (_connection is not null)
-        {
-            await _connection.DisposeAsync();
-        }
-
-        if (_container is not null)
-        {
-            await _container.DisposeAsync();
-        }
+        // The `= null!` on the field declarations promises non-null, so the
+        // BDN [GlobalSetup] contract runs before this. If setup throws, BDN
+        // skips the benchmark AND its cleanup, so we can't observe the
+        // half-initialized case here.
+        await _connection.DisposeAsync();
+        await _container.DisposeAsync();
     }
 
 

@@ -206,7 +206,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                     GetColumnName(property) ?? property.Name,
                     effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                     IsNullableProperty(property) ? "1" : "0",
-                    ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    ordinal.ToString(CultureInfo.InvariantCulture)
                 )
             );
 

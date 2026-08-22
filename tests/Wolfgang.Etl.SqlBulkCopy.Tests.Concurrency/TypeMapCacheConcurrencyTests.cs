@@ -19,7 +19,6 @@ using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.Coyote;
 using Microsoft.Coyote.SystematicTesting;
-using Wolfgang.Etl.SqlBulkCopy;
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency;
@@ -89,7 +88,7 @@ public class TypeMapCacheConcurrencyTests
         var config = Configuration.Create()
             .WithTestingIterations((uint)Iterations)
             .WithMaxSchedulingSteps(500)
-            .WithVerbosityEnabled(Microsoft.Coyote.Logging.VerbosityLevel.Info);
+            .WithVerbosityEnabled();
 
         using var engine = TestingEngine.Create(config, body);
         engine.Run();
