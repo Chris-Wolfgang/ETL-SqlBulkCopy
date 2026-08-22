@@ -73,14 +73,19 @@ public class SqlBulkCopyLoaderSupportsDryRunTests
 
 
 
-    // ReSharper disable UnusedMember.Local -- probe fixture; the "Boom"
-    // getter IS the shape under test (a throwing property that the loader
-    // must surface, not swallow).
+    // ReSharper disable UnusedMember.Local
+    // ReSharper disable UnusedAutoPropertyAccessor.Local
+    // Probe fixture; the "Boom" getter IS the shape under test (a throwing
+    // property that the loader must surface, not swallow). Id's setter is
+    // present for record-style initialization the test doesn't exercise.
+#pragma warning disable S2325 // probe methods intentionally instance-scoped
     private sealed class ThrowingGetterRecord
     {
         public int Id { get; set; }
 
         public int Boom => throw new InvalidOperationException("mapping boom");
     }
+#pragma warning restore S2325
+    // ReSharper restore UnusedAutoPropertyAccessor.Local
     // ReSharper restore UnusedMember.Local
 }

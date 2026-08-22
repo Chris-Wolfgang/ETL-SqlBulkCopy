@@ -20,7 +20,7 @@ public class ReflectionHelpersTests
     //   S1144 — unused private member (the indexer)
     //   S2376 — write-only property (SetOnly, intentional)
     //   S4487 — unread private field (_setOnlyBacking, backs SetOnly)
-#pragma warning disable S1144, S2376, S4487
+#pragma warning disable S1144, S2376, S4487, S2325 // S2325: probe indexer/set-only exercise instance-member reflection paths
     private sealed class Sample
     {
         public int IntProp { get; init; }
@@ -38,7 +38,7 @@ public class ReflectionHelpersTests
             set { _ = value; }
         }
     }
-#pragma warning restore S1144, S2376, S4487
+#pragma warning restore S1144, S2376, S4487, S2325
 
 
 

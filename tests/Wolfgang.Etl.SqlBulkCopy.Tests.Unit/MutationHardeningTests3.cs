@@ -58,7 +58,7 @@ public class LoggerObservableMutationHardeningTests
         // Pin the exact template ("Validation failed for item at position {Position}
         // with {ErrorCount} errors.") rather than a bare "3", which would also match
         // "13" or "-13" and so would not actually pin the arithmetic mutant.
-        var validationEntry = Assert.Single(logger.Entries.Where(e => e.StartsWith("Validation failed for item at position ", StringComparison.Ordinal)));
+        var validationEntry = Assert.Single(logger.Entries, e => e.StartsWith("Validation failed for item at position ", StringComparison.Ordinal));
         Assert.Equal("Validation failed for item at position 3 with 1 errors.", validationEntry);
     }
 

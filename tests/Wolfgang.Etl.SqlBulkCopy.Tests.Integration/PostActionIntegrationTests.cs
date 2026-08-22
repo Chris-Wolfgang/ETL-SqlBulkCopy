@@ -46,7 +46,9 @@ public class PostActionIntegrationTests
             {
                 using var command = parameters.Connection.CreateCommand();
                 command.CommandText = "SELECT COUNT(*) FROM [dbo].[Widgets]";
+#pragma warning disable S8969 // ExecuteScalarAsync's [NotNullWhen] not honored across all TFMs; SELECT COUNT(*) is non-null by contract
                 rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken).ConfigureAwait(false))!;
+#pragma warning restore S8969
             }
         };
 
