@@ -23,6 +23,12 @@ concurrency:
   group: scorecard-${{ github.ref }}
   cancel-in-progress: true
 
+# zizmor: ignore[excessive-permissions] -- top-level `read-all` is what the
+# Scorecard action needs to inspect all read-scoped repository facets (branch
+# protection, workflow contents, releases, code, actions, security events for
+# its own upload). The write scopes are declared narrowly on the analysis job
+# below (security-events: write, id-token: write for OIDC publish). This is
+# the pattern documented in ossf/scorecard-action's own README.
 permissions: read-all
 
 jobs:
@@ -60,11 +66,45 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
+          # Unfiltered SARIF, retained for audit / debugging even though the
+          # code-scanning upload below is filtered.
           name: SARIF file
           path: results.sarif
           retention-days: 5
 
+      # Strip won't-fix rule IDs from the SARIF before the code-scanning upload.
+      # These rules are structurally unfixable for this repo:
+      #   - DangerousWorkflowID: flags the `refs/pull/{n}/head` checkout in
+      #     pr.yaml, which is the documented secure pattern for
+      #     `pull_request_target` and the whole point of the guard.
+      #   - PinnedDependenciesID: flags `dotnet tool install --global` and
+      #     `pip install` calls whose ecosystems provide no hash-pin mechanism.
+      #   - BranchProtectionID / CodeReviewID: solo-dev repo with no separate
+      #     reviewer pool — the "require approvers" checkbox would either be
+      #     satisfied by self-approval (defeating the point) or block every
+      #     merge.
+      #   - CIIBestPracticesID: no OpenSSF badge (chore, not code).
+      #   - FuzzingID: repo does have `tests/Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz`,
+      #     but Scorecard only recognizes OSS-Fuzz-registered projects.
+      #   - SASTID: rolling-window commit coverage above the concern threshold;
+      #     nothing to actually fix.
+      # These are the same rules that a per-alert `gh api dismiss` would cover,
+      # but per reference_scorecard_dismissal_not_durable the dismissals decay
+      # across weekly re-runs (SARIF fingerprint drift). Filtering at upload
+      # time is durable across runs.
+      # Note: `publish_results: true` above still sends the ORIGINAL (unfiltered)
+      # results to the public Scorecard registry — the badge score reflects
+      # reality; this filter only affects the code-scanning alert list.
+      - name: Filter won't-fix rule IDs from SARIF before code-scanning upload
+        run: |
+          jq --argjson exclude '["BranchProtectionID","CIIBestPracticesID","CodeReviewID","DangerousWorkflowID","FuzzingID","PinnedDependenciesID","SASTID"]' \
+             '(.runs[]?.results) |= map(select([.ruleId] - $exclude | length > 0))' \
+             results.sarif > results.filtered.sarif
+          echo "SARIF result counts before vs after filter:"
+          echo "  before: $(jq '[.runs[]?.results // [] | length] | add' results.sarif)"
+          echo "  after:  $(jq '[.runs[]?.results // [] | length] | add' results.filtered.sarif)"
+
       - name: Upload to code-scanning dashboard
         uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4
         with:
-          sarif_file: results.sarif
+          sarif_file: results.filtered.sarif
