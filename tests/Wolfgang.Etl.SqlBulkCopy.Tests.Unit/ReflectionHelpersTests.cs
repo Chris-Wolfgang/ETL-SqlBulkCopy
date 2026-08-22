@@ -324,3 +324,4 @@ public class ReflectionHelpersTests
         Assert.Equal((short)-32_000, value);
     }
 }
+// ReSharper restore UnusedMember.Local

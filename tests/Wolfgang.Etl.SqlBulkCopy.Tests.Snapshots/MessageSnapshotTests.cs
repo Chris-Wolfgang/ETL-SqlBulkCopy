@@ -190,3 +190,6 @@ public class MessageSnapshotTests
         }
     }
 }
+
+// ReSharper restore UnusedAutoPropertyAccessor.Local
+// ReSharper restore UnusedMember.Local
