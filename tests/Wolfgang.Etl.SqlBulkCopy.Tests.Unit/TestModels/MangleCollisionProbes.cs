@@ -9,6 +9,8 @@
 // IS the regression test — a duplicate hint name breaks the consumer's build.
 // Refs #47.
 
+// ReSharper disable once CheckNamespace -- deliberate sub-namespace under
+// TestModels; the test's whole point is the mangling-collision surface.
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.MangleProbe_A;
 
 /// <summary>

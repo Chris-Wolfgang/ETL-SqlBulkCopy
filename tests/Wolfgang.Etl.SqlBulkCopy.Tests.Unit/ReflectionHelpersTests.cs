@@ -4,6 +4,11 @@ using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
+// ReSharper disable UnusedMember.Local -- this file's probe types (Sample,
+// several enum fixtures) declare members that ReflectionHelpers under test
+// discovers via reflection. The "unused" label is what the test is proving
+// is enumerable. Scoped to the whole file; the outer test class has no
+// members that trip this rule.
 public class ReflectionHelpersTests
 {
     // The Sample type deliberately contains property shapes that
@@ -30,9 +35,8 @@ public class ReflectionHelpersTests
 
         public string SetOnly
         {
-            set { _setOnlyBacking = value; }
+            set { _ = value; }
         }
-        private string _setOnlyBacking = string.Empty;
     }
 #pragma warning restore S1144, S2376, S4487
 
@@ -320,3 +324,4 @@ public class ReflectionHelpersTests
         Assert.Equal((short)-32_000, value);
     }
 }
+// ReSharper restore UnusedMember.Local

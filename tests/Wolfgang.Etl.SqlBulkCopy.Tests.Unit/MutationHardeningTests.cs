@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Wolfgang.Etl.TestKit.Xunit;
@@ -187,7 +185,7 @@ public class TypeMapMutationHardeningTests
         // normalization keys the cache on the raw whitespace string, producing a
         // distinct instance.
         var whitespace = TypeMap.Create(typeof(SimpleRecord), "   ", "   ");
-        var none = TypeMap.Create(typeof(SimpleRecord), null, null);
+        var none = TypeMap.Create(typeof(SimpleRecord));
 
         Assert.Same(none, whitespace);
     }

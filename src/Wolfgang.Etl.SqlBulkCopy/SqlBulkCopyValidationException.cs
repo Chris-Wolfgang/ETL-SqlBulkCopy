@@ -118,7 +118,7 @@ public sealed class SqlBulkCopyValidationException : Exception
 
     private static string BuildMessage
     (
-        object item,
+        object? item,
         IReadOnlyList<ValidationResult>? validationResults
     )
     {

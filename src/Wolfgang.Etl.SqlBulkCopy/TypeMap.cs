@@ -232,7 +232,12 @@ internal sealed class TypeMap
     )
     {
         var schema = string.IsNullOrWhiteSpace(schemaOverride) ? descriptor.SchemaName : schemaOverride;
-        var table = string.IsNullOrWhiteSpace(tableOverride) ? descriptor.TableName : tableOverride!;
+        // `!` retained because net462/netstandard2.0 System.String lacks
+        // [NotNullWhen(false)] on IsNullOrWhiteSpace's parameter; the modern-TFM
+        // compiler narrows without it, but the older TFMs still emit CS8604.
+        var table = tableOverride is not null && !string.IsNullOrWhiteSpace(tableOverride)
+            ? tableOverride
+            : descriptor.TableName;
 
         var columns = new ColumnMap[descriptor.Columns.Count];
         for (var i = 0; i < descriptor.Columns.Count; i++)
@@ -409,8 +414,10 @@ internal sealed class TypeMap
             ? tableAttribute?.Schema
             : schemaName;
 
-        var resolvedTableName = !string.IsNullOrWhiteSpace(tableName)
-            ? tableName!
+        // See TypeMap.BuildFromDescriptor for the `!` rationale (older-TFM
+        // System.String lacks [NotNullWhen(false)] on IsNullOrWhiteSpace).
+        var resolvedTableName = tableName is not null && !string.IsNullOrWhiteSpace(tableName)
+            ? tableName
             : tableAttribute?.Name ?? type.Name;
 
         return (resolvedSchemaName, resolvedTableName);
@@ -464,9 +471,9 @@ internal sealed class TypeMap
         // diagnostic is unchanged.
         var seenColumnNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var column in columns)
+        foreach (var columnName in columns.Select(c => c.ColumnName))
         {
-            if (seenColumnNames.Add(column.ColumnName))
+            if (seenColumnNames.Add(columnName))
             {
                 continue;
             }
@@ -475,14 +482,14 @@ internal sealed class TypeMap
             (
                 ", ",
                 columns
-                    .Where(c => string.Equals(c.ColumnName, column.ColumnName, StringComparison.OrdinalIgnoreCase))
+                    .Where(c => string.Equals(c.ColumnName, columnName, StringComparison.OrdinalIgnoreCase))
                     .Select(c => $"'{c.PropertyName}'")
             );
 
             throw new InvalidOperationException
             (
                 $"Type '{type.Name}' has multiple properties mapping to column " +
-                $"'{column.ColumnName}': {propertyNames}. Column names must be unique " +
+                $"'{columnName}': {propertyNames}. Column names must be unique " +
                 "(case-insensitive). Use [Column(\"...\")] to disambiguate."
             );
         }
