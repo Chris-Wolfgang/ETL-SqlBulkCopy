@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Wolfgang.Etl.SqlBulkCopy;
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.DocExamples;

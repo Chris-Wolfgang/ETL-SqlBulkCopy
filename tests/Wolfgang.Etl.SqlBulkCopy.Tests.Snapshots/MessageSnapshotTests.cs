@@ -2,9 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using VerifyTests;
 using VerifyXunit;
-using Wolfgang.Etl.SqlBulkCopy;
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots;
