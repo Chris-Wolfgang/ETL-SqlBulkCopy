@@ -73,10 +73,14 @@ public class SqlBulkCopyLoaderSupportsDryRunTests
 
 
 
+    // ReSharper disable UnusedMember.Local -- probe fixture; the "Boom"
+    // getter IS the shape under test (a throwing property that the loader
+    // must surface, not swallow).
     private sealed class ThrowingGetterRecord
     {
         public int Id { get; set; }
 
         public int Boom => throw new InvalidOperationException("mapping boom");
     }
+    // ReSharper restore UnusedMember.Local
 }

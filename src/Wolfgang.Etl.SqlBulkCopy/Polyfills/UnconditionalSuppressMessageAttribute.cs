@@ -3,6 +3,7 @@
 // net5.0; the #if guard emits an internal copy only on the older targets
 // (net462 / net481 / netstandard2.0) that lack it.
 #if !NET5_0_OR_GREATER
+// ReSharper disable once CheckNamespace -- polyfill mirrors BCL type location.
 namespace System.Diagnostics.CodeAnalysis
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
@@ -16,10 +17,15 @@ namespace System.Diagnostics.CodeAnalysis
 
 
 
+        // Getters below are read by tooling (trim/AOT analyzers) cross-assembly,
+        // not by source in this DLL.
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string Category { get; }
 
 
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string CheckId { get; }
 
 
@@ -36,6 +42,7 @@ namespace System.Diagnostics.CodeAnalysis
 
 
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string? Justification { get; set; }
     }
 }

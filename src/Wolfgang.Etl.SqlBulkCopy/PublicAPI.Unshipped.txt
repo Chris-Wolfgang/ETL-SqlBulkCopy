@@ -1,1 +1,4 @@
 #nullable enable
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.EqualityContract.get -> System.Type!
+virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.EqualityContract.get -> System.Type!
+virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.EqualityContract.get -> System.Type!

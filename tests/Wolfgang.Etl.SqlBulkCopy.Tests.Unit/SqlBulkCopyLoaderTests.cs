@@ -87,7 +87,7 @@ public class SqlBulkCopyLoaderTests
     {
         Assert.Throws<ArgumentNullException>
         (
-            () => new SqlBulkCopyLoader<TestRecord>((Microsoft.Data.SqlClient.SqlConnection)null!)
+            () => new SqlBulkCopyLoader<TestRecord>(null!)
         );
     }
 
@@ -120,7 +120,7 @@ public class SqlBulkCopyLoaderTests
 
         Assert.Throws<ArgumentNullException>
         (
-            () => new SqlBulkCopyLoader<TestRecord>(connection, (Microsoft.Extensions.Logging.ILogger<SqlBulkCopyLoader<TestRecord>>)null!)
+            () => new SqlBulkCopyLoader<TestRecord>(connection, null!)
         );
     }
 
@@ -133,7 +133,7 @@ public class SqlBulkCopyLoaderTests
         (
             () => new SqlBulkCopyLoader<TestRecord>
             (
-                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                null!,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<SqlBulkCopyLoader<TestRecord>>.Instance
             )
         );
@@ -166,7 +166,7 @@ public class SqlBulkCopyLoaderTests
         (
             () => new SqlBulkCopyLoader<TestRecord>
             (
-                (Microsoft.Data.SqlClient.SqlConnection)null!,
+                null!,
                 Microsoft.Data.SqlClient.SqlBulkCopyOptions.Default,
                 transaction: null
             )
@@ -769,7 +769,7 @@ public class SqlBulkCopyLoaderTests
             {
                 ParentId = 1,
                 Name = "Parent1",
-                Children = new System.Collections.Generic.List<ChildRecord>
+                Children = new List<ChildRecord>
                 {
                     new ChildRecord { ChildId = 10, Description = "Child10" },
                     new ChildRecord { ChildId = 11, Description = "Child11" }
@@ -1144,7 +1144,7 @@ public class SqlBulkCopyLoaderTests
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
         );
         Assert.NotNull(handlerField);
-        var handlerAfterFirstCall = handlerField!.GetValue(sut);
+        var handlerAfterFirstCall = handlerField.GetValue(sut);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)), progressB);
         var handlerAfterSecondCall = handlerField.GetValue(sut);

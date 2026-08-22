@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels;
 using Xunit;
