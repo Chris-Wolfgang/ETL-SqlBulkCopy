@@ -166,6 +166,15 @@ jobs:
     - name: Complete Security Scan
       if: always()
       shell: pwsh
+      # zizmor: ignore[template-injection] -- the interpolated values
+      # (steps.check-csharp.outcome, steps.check-csharp.outputs.has-csharp,
+      # steps.build.outcome, steps.perform-codeql-analysis.outcome) come from
+      # prior steps in this same workflow that we control: check-csharp emits
+      # a boolean literal, and the .outcome values are the fixed enum
+      # {success|failure|cancelled|skipped} set by the runner. None is
+      # attacker-controllable in the sense the rule is written for. Rewriting
+      # via env: would obscure the summary logic without changing the risk
+      # surface.
       run: |
         Write-Host "=== CodeQL Security Scan Complete ===" -ForegroundColor Cyan
         

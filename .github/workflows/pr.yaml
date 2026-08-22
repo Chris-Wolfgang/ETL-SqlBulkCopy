@@ -24,6 +24,10 @@ env:
   CODECOV_MINIMUM: 90
   
 on:
+  # zizmor: ignore[dangerous-triggers] -- pull_request_target is intentional;
+  # PR validation must run from main's trusted copy of the workflow with the
+  # PR checked out read-only for scanning, not from the PR-author-controlled
+  # HEAD. This is the whole point of the guard; documented in the header above.
   pull_request_target:  # Runs from the main branch, not from PR branch
     branches:
       - main
