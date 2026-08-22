@@ -7,6 +7,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.7.1] - 2026-08-22
+
+### Changed
+
+- **Zero source-behavior or public-API changes** — this release is entirely
+  analyzer-noise reduction, CI hardening, and internal cleanup. Drop-in
+  replacement for v0.7.0.
+- **Analyzer noise: 999 → 0 code-scanning alerts** (#263). InspectCode 972 → 0,
+  Scorecard 22 → 0, zizmor 5 → 0. Landed across #270, #280, #281, #282, #283,
+  #284, and #285.
+- **Public API surface newly declared** in `PublicAPI.Shipped.txt` (no actual
+  new surface):
+  - `Wolfgang.Etl.SqlBulkCopy.SourceGenerator.BulkCopyAccessorGenerator` +
+    `Initialize` — the source generator's compiler-visible surface, now
+    tracked. The generator has always shipped as embedded analyzer content
+    inside the main package; nothing changes for consumers.
+  - `SqlBulkCopyReport.EqualityContract`, `PreLoadActionParameters.EqualityContract`,
+    `PostLoadActionParameters.EqualityContract` — the record-inherent
+    getters that PublicApiAnalyzer newly tracks.
+
+### Fixed
+
+- **Internal cleanup in `TypeMap` and `SqlBulkCopyLoader`** — no observable
+  behavior change:
+  - `TypeMap.cs`: two `x is not null && !string.IsNullOrWhiteSpace(x) ? x : fallback`
+    rewrites eliminate the multi-TFM `!` null-forgiving that Sonar's
+    TFM-blind rule flagged, without changing what null/whitespace resolves
+    to (both still route to the fallback).
+  - `TypeMap.cs`: ambiguous-column-name detection loop simplified to
+    `foreach (var columnName in columns.Select(c => c.ColumnName))`.
+  - `SqlBulkCopyLoader.cs`: removed dead `_options` field that four
+    constructors assigned but no method ever read.
+  - `SqlBulkCopyLoader.cs`: `PreLoadCustomAction!`/`PostLoadCustomAction!`
+    invocations replaced with a locally-captured non-null delegate guarded
+    by `?? throw` — defense-in-depth over the validate-then-invoke contract
+    if a subclass or future refactor breaks the invariant.
+  - `SqlBulkCopyValidationException.cs`: `BuildMessage(object item, ...)` →
+    `BuildMessage(object? item, ...)` — makes the `if (item is null)`
+    defensive branch align with the contract (the check IS meaningful
+    because `BuildMessage` runs from the base-ctor initializer BEFORE the
+    ctor body's `ArgumentNullException` fires).
+- **Source generator internal cleanup**:
+  - `BulkCopyAccessorGenerator.cs`: inner `InheritsMappedProperty` loop
+    simplified to `.Any(IsReadableInstanceProperty)`.
+  - Polyfill files: `using System.X;` hoisted above `namespace System.Y;`
+    declarations, eliminating `RedundantNameQualifier` alerts by scope.
+
+### CI / infrastructure
+
+- **zizmor**: `.zizmor.yml` removed; the two intentional patterns are now
+  suppressed via per-line `# zizmor: ignore[rule]` inline comments in the
+  workflow files themselves (`pr.yaml` for `dangerous-triggers`,
+  `codeql.yaml` for `template-injection`, `scorecard.yaml` for
+  `excessive-permissions`).
+- **Scorecard**: new `jq`-based SARIF-filter step in `scorecard.yaml`
+  strips seven structurally-unfixable rule IDs (`BranchProtectionID`,
+  `CIIBestPracticesID`, `CodeReviewID`, `DangerousWorkflowID`,
+  `FuzzingID`, `PinnedDependenciesID`, `SASTID`) before the
+  code-scanning upload. The public Scorecard badge score is untouched
+  (unfiltered results are still `publish_results: true`); only the
+  internal alerts list is filtered. Unfiltered SARIF preserved as
+  workflow artifact for audit.
+- **PublicApiAnalyzer**: SG project now has `PublicAPI.Shipped.txt` +
+  `PublicAPI.Unshipped.txt` declaring `BulkCopyAccessorGenerator`,
+  replacing an ad-hoc csproj `<NoWarn>RS0016;RS0037</NoWarn>` suppression.
+- **Test/sample code cleanup** (44 alerts fixed at source, 5 test files
+  annotated with narrow per-file `// ReSharper disable` scoping): deleted
+  unused usings across 11 test files, removed redundant qualifiers /
+  casts / default arguments, dropped dead defensive guards in
+  `BulkLoadShadowWorkloads.GlobalCleanupAsync`, fixed `_setOnlyBacking`
+  probe to use `_ = value` discard, added `// ReSharper disable UnusedMember.Local ... // ReSharper restore`
+  pairs on probe-holding test files.
+
 ## [0.7.0] - 2026-08-14
 
 ### Changed

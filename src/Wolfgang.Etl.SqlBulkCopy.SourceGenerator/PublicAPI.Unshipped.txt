@@ -1,4 +1,1 @@
 #nullable enable
-Wolfgang.Etl.SqlBulkCopy.SourceGenerator.BulkCopyAccessorGenerator
-Wolfgang.Etl.SqlBulkCopy.SourceGenerator.BulkCopyAccessorGenerator.BulkCopyAccessorGenerator() -> void
-Wolfgang.Etl.SqlBulkCopy.SourceGenerator.BulkCopyAccessorGenerator.Initialize(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext context) -> void
