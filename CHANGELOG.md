@@ -19,6 +19,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.7.2] - 2026-08-23
+
+### Changed
+
+- **Zero source-behavior or public-API changes** — same shape as v0.7.1:
+  analyzer-noise reduction only. Drop-in replacement for v0.7.1.
+- **Post-v0.7.1 alert cleanup (#263, #287)** — the v0.7.1 release PR was
+  the first main-target run in that cycle and surfaced 30 alerts vNext
+  PRs never ran InspectCode against
+  (per `reference_vnext_prs_skip_the_coverage_gate`). All 30 resolved
+  across #289 (29 non-protected) and #290 (1 protected):
+  - InspectCode: 29 → 0 (fixes-at-source where possible; narrow inline
+    `#pragma warning disable/restore` or `// ReSharper disable/restore`
+    pairs where the analyzer is TFM-blind or the code shape is
+    intentional-per-test)
+  - zizmor: 1 → 0 (moved the `excessive-permissions` inline ignore on
+    `scorecard.yaml`'s `permissions: read-all` from preceding-line to
+    same-line placement — zizmor's rule anchoring is rule-specific)
+- **Public API tracking**: three record-inherent `ToString()` overrides
+  (`SqlBulkCopyReport`, `PreLoadActionParameters`,
+  `PostLoadActionParameters`) newly declared in `PublicAPI.Shipped.txt`.
+  Not new consumer surface — the compiler auto-generates these for
+  record types; PublicApiAnalyzer newly tracks them.
+
+### Fixed
+
+- No behavior fixes. All alert-resolution edits preserve semantics; the
+  test/benchmark/sample changes are narrow scoping comments and one
+  regex-timeout hardening (`DocExampleTests` regexes now carry
+  `TimeSpan.FromSeconds(5)` for MA0009 compliance).
+
 ## [0.7.1] - 2026-08-22
 
 ### Changed

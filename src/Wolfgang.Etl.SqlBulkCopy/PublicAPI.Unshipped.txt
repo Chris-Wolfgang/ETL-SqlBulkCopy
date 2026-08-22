@@ -1,4 +1,1 @@
 #nullable enable
-override Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.ToString() -> string!
-override Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.ToString() -> string!
-override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.ToString() -> string!
