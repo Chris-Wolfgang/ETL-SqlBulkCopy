@@ -23,13 +23,15 @@ concurrency:
   group: scorecard-${{ github.ref }}
   cancel-in-progress: true
 
-# zizmor: ignore[excessive-permissions] -- top-level `read-all` is what the
-# Scorecard action needs to inspect all read-scoped repository facets (branch
-# protection, workflow contents, releases, code, actions, security events for
-# its own upload). The write scopes are declared narrowly on the analysis job
-# below (security-events: write, id-token: write for OIDC publish). This is
-# the pattern documented in ossf/scorecard-action's own README.
-permissions: read-all
+# Top-level `read-all` is what the Scorecard action needs to inspect all
+# read-scoped repository facets (branch protection, workflow contents, releases,
+# code, actions, security events for its own upload). The write scopes are
+# declared narrowly on the analysis job below (security-events: write,
+# id-token: write for OIDC publish). This is the pattern documented in
+# ossf/scorecard-action's own README. zizmor's excessive-permissions rule
+# flags the broad read scope; the same-line ignore below suppresses that
+# with rationale (the preceding-line form doesn't match this rule's anchor).
+permissions: read-all  # zizmor: ignore[excessive-permissions]
 
 jobs:
   analysis:
