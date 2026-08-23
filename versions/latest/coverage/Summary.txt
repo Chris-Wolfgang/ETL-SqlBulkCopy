@@ -1,25 +1,25 @@
 Summary
-  Generated on: 8/14/2026 - 12:51:39 PM
-  Coverage date: 8/14/2026 - 12:51:24 PM - 8/14/2026 - 12:51:25 PM
+  Generated on: 8/23/2026 - 2:04:04 PM
+  Coverage date: 8/23/2026 - 2:03:57 PM - 8/23/2026 - 2:03:58 PM
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
   Classes: 48
   Files: 46
-  Line coverage: 98.8%
-  Covered lines: 3399
-  Uncovered lines: 40
-  Coverable lines: 3439
-  Total lines: 9039
-  Branch coverage: 88.4% (406 of 459)
-  Covered branches: 406
-  Total branches: 459
-  Method coverage: 99.4% (512 of 515)
-  Full method coverage: 97.8% (504 of 515)
-  Covered methods: 512
-  Fully covered methods: 504
-  Total methods: 515
+  Line coverage: 98.7%
+  Covered lines: 3396
+  Uncovered lines: 44
+  Coverable lines: 3440
+  Total lines: 9068
+  Branch coverage: 87.3% (408 of 467)
+  Covered branches: 408
+  Total branches: 467
+  Method coverage: 99.4% (511 of 514)
+  Full method coverage: 97.8% (503 of 514)
+  Covered methods: 511
+  Fully covered methods: 503
+  Total methods: 514
 
-Wolfgang.Etl.SqlBulkCopy                                                       97.1%
+Wolfgang.Etl.SqlBulkCopy                                                       96.7%
   Wolfgang.Etl.SqlBulkCopy.ColumnMap                                           94.7%
   Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry                            100%
   Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor                            100%
@@ -30,7 +30,7 @@ Wolfgang.Etl.SqlBulkCopy                                                       9
   Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters                             100%
   Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters                              100%
   Wolfgang.Etl.SqlBulkCopy.ReflectionHelpers                                    100%
-  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<T>                                92.2%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<T>                                90.9%
   Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLogMessages                               100%
   Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport                                    100%
   Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException                       100%
@@ -59,7 +59,7 @@ Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                            9
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PostLoadActionParametersTests             100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PreLoadActionParametersTests              100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.RecordingLoggerTests                      100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ReflectionHelpersTests                   98.1%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ReflectionHelpersTests                     98%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SliceListTests                            100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderContractTests            100%
   Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderSupportsDryRunTests      100%
