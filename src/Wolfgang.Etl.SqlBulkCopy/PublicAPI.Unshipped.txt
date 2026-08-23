@@ -1,1 +1,4 @@
 #nullable enable
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
