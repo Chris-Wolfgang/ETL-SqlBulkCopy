@@ -354,10 +354,12 @@ public class SqlBulkCopyLoaderTests
     [Fact]
     public async Task LoadAsync_when_item_count_is_exact_multiple_of_BatchSize_writes_no_empty_final_batch()
     {
+#pragma warning disable S125 // narrative describes what the test pins, not commented-out code
         // 6 items / batch size 3 = exactly 2 full batches; the final `batch.Count`
         // is 0, so the trailing `if (batch.Count > 0)` flush must NOT run. Only a
         // non-zero-count test (like the 3+3+1 case above) can't distinguish
         // `> 0` from `>= 0` — a `>= 0` mutation would append a third, empty batch.
+#pragma warning restore S125
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var sut = CreateSut(factory);
         sut.BatchSize = 3;
@@ -1095,8 +1097,10 @@ public class SqlBulkCopyLoaderTests
         await sut.LoadAsync(ToAsyncEnumerableAsync(items), progress);
 
         Assert.NotNull(captured);
+#pragma warning disable S8969 // multi-TFM: Assert.NotNull's [MemberNotNullWhen] not honored by older-TFM analyzer path
         Assert.Equal(5, captured!.CurrentItemCount);
         Assert.True(captured.BatchCount >= 1);
+#pragma warning restore S8969
     }
 
 
@@ -1379,6 +1383,8 @@ public class SqlBulkCopyLoaderTests
 
         // 1 parent batch + 1 nested child batch = 2
         Assert.NotNull(captured);
+#pragma warning disable S8969 // multi-TFM: Assert.NotNull's [MemberNotNullWhen] not honored by older-TFM analyzer path
         Assert.Equal(2, captured!.BatchCount);
+#pragma warning restore S8969
     }
 }

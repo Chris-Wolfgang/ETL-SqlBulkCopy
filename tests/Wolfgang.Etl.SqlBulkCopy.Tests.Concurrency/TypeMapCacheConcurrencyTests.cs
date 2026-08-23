@@ -1,3 +1,4 @@
+#pragma warning disable S125 // narrative header describes concurrency invariant, not commented-out code
 // Coyote systematic-concurrency driver for TypeMap's cache.
 //
 // TypeMap.Cache is a ConcurrentDictionary keyed by (type, schema, table);
@@ -13,6 +14,7 @@
 // the engine drives the test action directly.
 //
 // Refs #89.
+#pragma warning restore S125
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -68,7 +70,9 @@ public class TypeMapCacheConcurrencyTests
                 });
             }
 
+#pragma warning disable VSTHRD002 // Coyote schedules cooperatively; sync-wait IS the test
             Task.WaitAll(tasks);
+#pragma warning restore VSTHRD002
 
             var first = results[0];
             for (var i = 1; i < workers; i++)

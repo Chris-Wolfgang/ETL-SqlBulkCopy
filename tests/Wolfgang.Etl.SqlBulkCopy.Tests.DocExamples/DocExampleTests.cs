@@ -87,7 +87,16 @@ public class DocExampleTests
     private static readonly Regex ExampleBlock = new
     (
         @"<example>\s*(?:<code>)?(?<code>.*?)(?:</code>)?\s*</example>",
-        RegexOptions.Singleline | RegexOptions.Compiled
+        RegexOptions.Singleline | RegexOptions.Compiled,
+        TimeSpan.FromSeconds(5)
+    );
+
+    // Extracted so it can carry a Timeout (Regex.Replace(str, string) doesn't).
+    private static readonly Regex DocCommentPrefix = new
+    (
+        @"^\s*///\s?",
+        RegexOptions.Compiled,
+        TimeSpan.FromSeconds(5)
     );
 
     private static IEnumerable<(string File, string Snippet)> ExtractExamples(string srcDir)
@@ -105,7 +114,7 @@ public class DocExampleTests
             var stripped = string.Join
             (
                 "\n",
-                text.Split('\n').Select(line => Regex.Replace(line, @"^\s*///\s?", string.Empty))
+                text.Split('\n').Select(line => DocCommentPrefix.Replace(line, string.Empty))
             );
 
             foreach (Match m in ExampleBlock.Matches(stripped))

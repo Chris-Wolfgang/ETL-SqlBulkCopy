@@ -30,6 +30,8 @@ public class BulkLoadShadowWorkloads
 
 
     /// <summary>Gets or sets the number of rows loaded per invocation.</summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global -- BDN
+    // populates [Params] properties via reflection, not from source.
     [Params(1_000, 100_000)]
     public int RecordCount { get; set; }
 

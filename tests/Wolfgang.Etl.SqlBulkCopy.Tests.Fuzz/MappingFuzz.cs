@@ -9,6 +9,8 @@
 //
 // Refs #81.
 
+// ReSharper disable once RedundantUsingDirective -- StringComparison used
+// below resolves via System; older TFMs need the explicit using.
 using System;
 using System.Text;
 using CsCheck;

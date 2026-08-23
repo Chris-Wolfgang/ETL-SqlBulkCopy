@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Version>0.7.1</Version>
+    <Version>0.7.2</Version>
     <!-- AssemblyVersion tracks 0.{Minor} during 0.x (ADR-0011 in ETL-Abstractions).
          The minor is SemVer's breaking position pre-1.0, and AssemblyVersion is
          bind-time identity on net462/net481, so it MUST move with every minor —

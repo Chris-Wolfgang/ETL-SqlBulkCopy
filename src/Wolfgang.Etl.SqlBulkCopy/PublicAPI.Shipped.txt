@@ -114,7 +114,10 @@ Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException.ValidationResults.get ->
 Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
 Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip = 1 -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
 Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw = 0 -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
+override Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.ToString() -> string!
+override Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.ToString() -> string!
 override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.EqualityContract.get -> System.Type!
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.ToString() -> string!
 static Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.Register(System.Type! declaringType, string! propertyName, System.Func<object!, object?>! getter) -> void
 static Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry.RegisterEnumConverter(System.Type! enumType, System.Func<object!, object!>! converter) -> void
 static Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry.Register(System.Type! type, Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor! descriptor) -> void
