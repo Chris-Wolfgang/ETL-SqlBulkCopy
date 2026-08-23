@@ -29,11 +29,15 @@ public class BulkLoadShadowWorkloads
 
 
 
+    // BDN populates [Params] properties via reflection, not from source.
+    // The disable/restore pair (not `disable once`) is needed because the
+    // [Params] attribute sits between the comment and the property, so
+    // `once` would apply to the attribute line, not the property.
     /// <summary>Gets or sets the number of rows loaded per invocation.</summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global -- BDN
-    // populates [Params] properties via reflection, not from source.
+    // ReSharper disable UnusedAutoPropertyAccessor.Global
     [Params(1_000, 100_000)]
     public int RecordCount { get; set; }
+    // ReSharper restore UnusedAutoPropertyAccessor.Global
 
 
 
