@@ -78,18 +78,21 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// with diagnostic logging.
     /// </summary>
     /// <param name="connection">The SQL Server connection.</param>
-    /// <param name="logger">The logger instance for diagnostic output.</param>
+    /// <param name="logger">
+    /// An optional logger instance for diagnostic output. When <c>null</c> — or omitted —
+    /// <see cref="NullLogger.Instance"/> is used and logging is disabled.
+    /// </param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="connection"/> or <paramref name="logger"/> is <c>null</c>.
+    /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
-        ILogger<SqlBulkCopyLoader<TRecord>> logger
+        ILogger<SqlBulkCopyLoader<TRecord>>? logger = null
     )
     {
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger ?? (ILogger)NullLogger.Instance;
         _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, SqlBulkCopyOptions.Default, transaction: null);
         _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
