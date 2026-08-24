@@ -87,7 +87,7 @@ public class CultureInvarianceTests
 
             var factory = new FakeSqlBulkCopyWrapperFactory();
             var timer = new ManualProgressTimer();
-            var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+            var sut = new SqlBulkCopyLoader<TestRecord>(factory, timer, logger: null);
 
             await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
 
