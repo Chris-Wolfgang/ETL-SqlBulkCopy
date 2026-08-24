@@ -38,7 +38,7 @@ public class LoggerObservableMutationHardeningTests
         // The '-' mutant yields "-1", so the mutant dies on this assertion.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, new ManualProgressTimer(), logger: logger)
         {
             EnableDataValidation = true,
             ValidationFailureBehavior = ValidationFailureBehavior.Skip,
@@ -74,7 +74,7 @@ public class LoggerObservableMutationHardeningTests
         // message also exists - kills the negation.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger, new ManualProgressTimer());
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, new ManualProgressTimer(), logger: logger);
 
         var parent = new ParentRecord
         {
@@ -112,7 +112,7 @@ public class LoggerObservableMutationHardeningTests
         // would drop it silently while the counts still look correct).
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: logger)
         {
             MaximumItemCount = 2
         };
@@ -136,7 +136,7 @@ public class LoggerObservableMutationHardeningTests
         // Pins the skipped-item log statement.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: logger)
         {
             SkipItemCount = 2
         };
