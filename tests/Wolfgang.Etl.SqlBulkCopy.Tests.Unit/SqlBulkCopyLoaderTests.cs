@@ -112,16 +112,17 @@ public class SqlBulkCopyLoaderTests
 
 
     [SkippableFact]
-    public void Constructor_with_connection_and_logger_when_logger_is_null_throws_ArgumentNullException()
+    public void Constructor_with_connection_and_logger_when_logger_is_null_uses_NullLogger()
     {
         SkipUnlessSqlConnectionConstructible();
 
+        // logger is now an optional trailing parameter: null means "no logging"
+        // (NullLogger.Instance) rather than an argument error.
         using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
-        Assert.Throws<ArgumentNullException>
-        (
-            () => new SqlBulkCopyLoader<TestRecord>(connection, null!)
-        );
+        var sut = new SqlBulkCopyLoader<TestRecord>(connection, logger: null);
+
+        Assert.NotNull(sut);
     }
 
 
