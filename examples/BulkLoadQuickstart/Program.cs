@@ -59,12 +59,16 @@ internal static class Program
         var progress = new Progress<SqlBulkCopyReport>(report =>
             Console.WriteLine($"  batch {report.BatchCount}: {report.CurrentItemCount} rows written"));
 
-        var loader = new SqlBulkCopyLoader<Customer>(connection)
-        {
-            BatchSize = 10_000,
-            BulkCopyTimeout = 60,
-            PreAction = PreAction.TruncateTable,
-        };
+        var loader = new SqlBulkCopyLoader<Customer>
+        (
+            connection,
+            new SqlBulkCopyLoaderOptions<Customer>
+            {
+                BatchSize = 10_000,
+                BulkCopyTimeout = 60,
+                PreAction = PreAction.TruncateTable,
+            }
+        );
 
         Console.WriteLine("Loading customers...");
         await loader.LoadAsync(ReadCustomersAsync(50_000), progress);

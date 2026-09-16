@@ -27,6 +27,4 @@ template exists before the first breaking release so a guide is authored
 
 ## Guides
 
-_None yet — no release has introduced a breaking change. The first guide lands
-with the first release that removes or changes public API (a breaking `0.x`
-bump or the eventual `1.0`), whichever comes first._
+- [v0.7 → v0.8](v0.7-to-v0.8.md) — configure the loader through `SqlBulkCopyLoaderOptions<T>` (ADR-0009); setters deprecated; `ISupportDryRun` dropped.

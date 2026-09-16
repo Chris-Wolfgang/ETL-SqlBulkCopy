@@ -15,10 +15,16 @@ public class SqlBulkCopyLoaderSupportsDryRunTests
     protected override async Task<bool> RunAndReportSideEffectAsync(bool isDryRun)
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null)
-        {
-            IsDryRun = isDryRun
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            logger: null,
+            timer: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                IsDryRun = isDryRun
+            }
+        );
 
         await sut
             .LoadAsync(ToAsyncEnumerableAsync(new[] { new TestRecord { Id = 1, Name = "A", Amount = 10m } }))
@@ -38,10 +44,16 @@ public class SqlBulkCopyLoaderSupportsDryRunTests
         // errors surface); it only skips the write. A property whose getter
         // throws must therefore still fault the dry run.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<ThrowingGetterRecord>(factory, logger: null, timer: null)
-        {
-            IsDryRun = true
-        };
+        var sut = new SqlBulkCopyLoader<ThrowingGetterRecord>
+        (
+            factory,
+            logger: null,
+            timer: null,
+            options: new SqlBulkCopyLoaderOptions<ThrowingGetterRecord>
+            {
+                IsDryRun = true
+            }
+        );
 
         var ex = await Assert.ThrowsAnyAsync<Exception>
         (

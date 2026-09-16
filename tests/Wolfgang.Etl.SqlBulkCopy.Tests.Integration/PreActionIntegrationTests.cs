@@ -54,10 +54,14 @@ public class PreActionIntegrationTests
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
 
-        var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
-        {
-            PreAction = PreAction.DeleteAllRecords
-        };
+        var sut = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                PreAction = PreAction.DeleteAllRecords
+            }
+        );
 
         var newItems = new[]
         {
@@ -79,10 +83,14 @@ public class PreActionIntegrationTests
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreatePopulatedWidgetsTableAsync(connection, existingRowCount: 5);
 
-        var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
-        {
-            PreAction = PreAction.TruncateTable
-        };
+        var sut = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                PreAction = PreAction.TruncateTable
+            }
+        );
 
         var newItems = new[]
         {
@@ -107,16 +115,20 @@ public class PreActionIntegrationTests
         SqlConnection? capturedConnection = null;
         string? capturedTableName = null;
 
-        var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
-        {
-            PreAction = PreAction.CustomAction,
-            PreLoadCustomAction = parameters =>
+        var sut = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
             {
-                capturedConnection = parameters.Connection;
-                capturedTableName = parameters.TableName;
-                return Task.CompletedTask;
+                PreAction = PreAction.CustomAction,
+                PreLoadCustomAction = parameters =>
+                {
+                    capturedConnection = parameters.Connection;
+                    capturedTableName = parameters.TableName;
+                    return Task.CompletedTask;
+                }
             }
-        };
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(new[] { new WidgetRecord { Id = 1, Name = "x", Price = 1m } }));
 

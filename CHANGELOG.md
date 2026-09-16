@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+- The setters of the 13 configurable `SqlBulkCopyLoader<T>` properties (`BatchSize`, `BulkCopyTimeout`,
+  `DestinationTableName`, `DestinationSchemaName`, `EnableDataValidation`, `IsDryRun`, `ValidationFailureBehavior`,
+  `OnValidationFailed`, `OnNestedValidationFailed`, `PreAction`, `PreLoadCustomAction`, `PostAction`,
+  `PostLoadCustomAction`) — `[Obsolete]` on the **setter accessor** (reads stay warning-free), pointing at
+  `SqlBulkCopyLoaderOptions<T>`. Nothing is removed; removal follows in a later release
+  ([migration guide](docs/migrations/v0.7-to-v0.8.md)).
+
 ### Removed
 
 ### Fixed
