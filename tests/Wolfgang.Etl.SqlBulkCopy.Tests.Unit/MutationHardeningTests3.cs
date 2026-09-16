@@ -38,12 +38,18 @@ public class LoggerObservableMutationHardeningTests
         // The '-' mutant yields "-1", so the mutant dies on this assertion.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, new ManualProgressTimer(), logger: logger)
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip,
-            SkipItemCount = 2
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: logger,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+                SkipItemCount = 2
+            }
+        );
 
         var items = new[]
         {
@@ -112,10 +118,16 @@ public class LoggerObservableMutationHardeningTests
         // would drop it silently while the counts still look correct).
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: logger)
-        {
-            MaximumItemCount = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: logger,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                MaximumItemCount = 2
+            }
+        );
 
         var items = Enumerable.Range(1, 5)
             .Select(i => new TestRecord { Id = i, Name = $"Item{i}", Amount = i })
@@ -136,10 +148,16 @@ public class LoggerObservableMutationHardeningTests
         // Pins the skipped-item log statement.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var logger = new RecordingLogger();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: logger)
-        {
-            SkipItemCount = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: logger,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                SkipItemCount = 2
+            }
+        );
 
         var items = Enumerable.Range(1, 4)
             .Select(i => new TestRecord { Id = i, Name = $"Item{i}", Amount = i })

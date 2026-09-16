@@ -127,10 +127,14 @@ public class BulkLoadShadowWorkloads
     [Benchmark]
     public async Task LoadWithValidation()
     {
-        var loader = new SqlBulkCopyLoader<WidgetRecord>(_connection)
-        {
-            EnableDataValidation = true
-        };
+        var loader = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            _connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                EnableDataValidation = true
+            }
+        );
         await loader.LoadAsync(ToAsyncEnumerable(_rows));
     }
 
@@ -140,10 +144,14 @@ public class BulkLoadShadowWorkloads
     [Benchmark]
     public async Task LoadWithTruncatePreAction()
     {
-        var loader = new SqlBulkCopyLoader<WidgetRecord>(_connection)
-        {
-            PreAction = PreAction.TruncateTable
-        };
+        var loader = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            _connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                PreAction = PreAction.TruncateTable
+            }
+        );
         await loader.LoadAsync(ToAsyncEnumerable(_rows));
     }
 

@@ -57,10 +57,16 @@ public class LoaderMutationHardeningTests
     public async Task LoadAsync_when_item_count_below_BatchSize_flushes_exactly_one_batch()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: null)
-        {
-            BatchSize = 100
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                BatchSize = 100
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)));
 
@@ -75,10 +81,16 @@ public class LoaderMutationHardeningTests
     public async Task LoadAsync_when_item_count_exceeds_BatchSize_flushes_at_boundary_with_remainder()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: null)
-        {
-            BatchSize = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                BatchSize = 2
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(5)));
 
@@ -94,10 +106,16 @@ public class LoaderMutationHardeningTests
     public async Task LoadAsync_when_item_count_is_exact_multiple_of_BatchSize_writes_no_empty_trailing_batch()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: null)
-        {
-            BatchSize = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                BatchSize = 2
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(4)));
 
@@ -112,10 +130,16 @@ public class LoaderMutationHardeningTests
     public async Task LoadAsync_when_nested_children_exceed_BatchSize_flushes_child_batches_with_remainder()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, new ManualProgressTimer(), logger: null)
-        {
-            BatchSize = 2
-        };
+        var sut = new SqlBulkCopyLoader<ParentRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentRecord>
+            {
+                BatchSize = 2
+            }
+        );
 
         var parent = new ParentRecord
         {

@@ -28,11 +28,15 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// </remarks>
 /// <example>
 /// <code>
-/// var loader = new SqlBulkCopyLoader&lt;Person&gt;(connection)
-/// {
-///     BatchSize = 5000,
-///     BulkCopyTimeout = 60
-/// };
+/// var loader = new SqlBulkCopyLoader&lt;Person&gt;
+/// (
+///     connection,
+///     new SqlBulkCopyLoaderOptions&lt;Person&gt;
+///     {
+///         BatchSize = 5000,
+///         BulkCopyTimeout = 60
+///     }
+/// );
 /// await loader.LoadAsync(items, cancellationToken);
 /// </code>
 /// </example>
@@ -260,6 +264,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     public int BatchSize
     {
         get => _batchSize;
+        [Obsolete("Configure BatchSize through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")]
         set
         {
             if (value < 1)
@@ -289,6 +294,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     public int BulkCopyTimeout
     {
         get => _bulkCopyTimeout;
+        [Obsolete("Configure BulkCopyTimeout through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")]
         set
         {
             if (value < 0)
@@ -312,7 +318,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// When <c>null</c>, the table name is derived from the <c>[Table]</c> attribute
     /// or the type name.
     /// </summary>
-    public string? DestinationTableName { get; set; }
+    public string? DestinationTableName { get; [Obsolete("Configure DestinationTableName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -320,7 +326,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets an optional destination schema name override.
     /// When <c>null</c>, the schema is derived from the <c>[Table]</c> attribute.
     /// </summary>
-    public string? DestinationSchemaName { get; set; }
+    public string? DestinationSchemaName { get; [Obsolete("Configure DestinationSchemaName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -339,7 +345,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip"/>
     /// to tolerate dirty data and drop only the failing items.
     /// </remarks>
-    public bool EnableDataValidation { get; set; }
+    public bool EnableDataValidation { get; [Obsolete("Configure EnableDataValidation through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -357,7 +363,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// all skipped. This lets a caller confirm a pipeline runs end-to-end and
     /// surfaces mapping / validation errors without touching the destination.
     /// </remarks>
-    public bool IsDryRun { get; set; }
+    public bool IsDryRun { get; [Obsolete("Configure IsDryRun through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -375,7 +381,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// root <typeparamref name="TRecord"/> instances and nested-collection
     /// children.
     /// </remarks>
-    public ValidationFailureBehavior ValidationFailureBehavior { get; set; } = ValidationFailureBehavior.Throw;
+    public ValidationFailureBehavior ValidationFailureBehavior { get; [Obsolete("Configure ValidationFailureBehavior through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; } = ValidationFailureBehavior.Throw;
 
 
 
@@ -392,7 +398,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// failing root item and the collection of validation errors. For
     /// nested-collection children, see <see cref="OnNestedValidationFailed"/>.
     /// </remarks>
-    public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; set; }
+    public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; [Obsolete("Configure OnValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -408,7 +414,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// load time, not at <typeparamref name="TRecord"/> definition. For
     /// root-item validation, see <see cref="OnValidationFailed"/>.
     /// </remarks>
-    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; set; }
+    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; [Obsolete("Configure OnNestedValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -416,7 +422,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the action to execute before loading begins.
     /// </summary>
     /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.None"/>.</value>
-    public PreAction PreAction { get; set; }
+    public PreAction PreAction { get; [Obsolete("Configure PreAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -424,7 +430,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the custom delegate to invoke when
     /// <see cref="PreAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.CustomAction"/>.
     /// </summary>
-    public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get; set; }
+    public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get; [Obsolete("Configure PreLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -432,7 +438,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the action to execute after loading completes.
     /// </summary>
     /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.None"/>.</value>
-    public PostAction PostAction { get; set; }
+    public PostAction PostAction { get; [Obsolete("Configure PostAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -440,7 +446,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the custom delegate to invoke when
     /// <see cref="PostAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.CustomAction"/>.
     /// </summary>
-    public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get; set; }
+    public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get; [Obsolete("Configure PostLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -1092,6 +1098,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </exception>
     private void ApplyOptions(SqlBulkCopyLoaderOptions<TRecord>? options)
     {
+#pragma warning disable CS0618 // the constructor is the supported replacement for the setters; it necessarily writes them
         if (options is null)
         {
             return;
@@ -1110,5 +1117,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         PreLoadCustomAction = options.PreLoadCustomAction;
         PostAction = options.PostAction;
         PostLoadCustomAction = options.PostLoadCustomAction;
+#pragma warning restore CS0618
     }
 }
