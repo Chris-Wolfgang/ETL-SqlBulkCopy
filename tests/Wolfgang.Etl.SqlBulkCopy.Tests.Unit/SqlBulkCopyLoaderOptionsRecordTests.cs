@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -18,9 +19,32 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 {
     private static Func<ItemErrorContext, ItemErrorAction> AnyPolicy => _ => default;
 
+    // Same guard as SqlBulkCopyLoaderTests: Microsoft.Data.SqlClient's SqlPerformanceCounters cctor can throw on
+    // Linux or locked-down runners, so the facts that need a real SqlConnection skip instead of fail there.
+    private static readonly Lazy<bool> _sqlConnectionConstructible = new(IsSqlConnectionConstructible, LazyThreadSafetyMode.PublicationOnly);
+
+    private static bool IsSqlConnectionConstructible()
+    {
+        try
+        {
+            using var probe = new SqlConnection();
+            return true;
+        }
+        catch (TypeInitializationException)
+        {
+            return false;
+        }
+    }
+
+    private static SqlConnection NewConnection()
+    {
+        Skip.IfNot(_sqlConnectionConstructible.Value, "Microsoft.Data.SqlClient cannot initialize on this runner (SqlPerformanceCounters cctor failed).");
+        return new SqlConnection();
+    }
 
 
-    [Fact]
+
+    [SkippableFact]
     public void SqlBulkCopyLoaderOptions_derives_from_LoaderOptions()
     {
         Assert.IsAssignableFrom<LoaderOptions>(new SqlBulkCopyLoaderOptions<TestRecord>());
@@ -28,10 +52,10 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_when_given_options_applies_the_inherited_settings()
     {
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
         var policy = AnyPolicy;
         var options = new SqlBulkCopyLoaderOptions<TestRecord>
         {
@@ -51,10 +75,10 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_when_given_options_applies_the_loaders_own_settings()
     {
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
         Action<TestRecord, ICollection<ValidationResult>> onFailed = (_, _) => { };
         Action<object, ICollection<ValidationResult>> onNestedFailed = (_, _) => { };
         Func<PreLoadActionParameters, Task> pre = _ => Task.CompletedTask;
@@ -95,10 +119,10 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_when_options_are_omitted_matches_an_empty_record()
     {
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
 
         var without = new SqlBulkCopyLoader<TestRecord>(connection);
         var empty = new SqlBulkCopyLoader<TestRecord>(connection, new SqlBulkCopyLoaderOptions<TestRecord>());
@@ -115,10 +139,10 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Record_defaults_match_the_loaders_defaults()
     {
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
         var options = new SqlBulkCopyLoaderOptions<TestRecord>();
 
         var sut = new SqlBulkCopyLoader<TestRecord>(connection);
@@ -133,12 +157,12 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Theory]
+    [SkippableTheory]
     [InlineData(0)]
     [InlineData(-1)]
     public void Constructor_when_BatchSize_on_the_record_is_below_one_throws(int batchSize)
     {
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
         var options = new SqlBulkCopyLoaderOptions<TestRecord> { BatchSize = batchSize };
 
         Assert.Throws<ArgumentOutOfRangeException>(() => new SqlBulkCopyLoader<TestRecord>(connection, options));
@@ -146,10 +170,10 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_when_BulkCopyTimeout_on_the_record_is_negative_throws()
     {
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
         var options = new SqlBulkCopyLoaderOptions<TestRecord> { BulkCopyTimeout = -1 };
 
         Assert.Throws<ArgumentOutOfRangeException>(() => new SqlBulkCopyLoader<TestRecord>(connection, options));
@@ -172,14 +196,14 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [Fact]
+    [SkippableFact]
     public void Overload_resolution_positional_shapes_still_bind_as_before()
     {
         // Compile-time guards: the shipped (connection, logger) overload keeps winning a two-argument
         // call with a positional null (all arguments supplied beats default substitution), and the
         // three-argument null shape reaches the options constructor because null is not convertible
         // to the SqlBulkCopyOptions enum of the older four-parameter overload.
-        using var connection = new SqlConnection();
+        using var connection = NewConnection();
 
         var viaLogger = new SqlBulkCopyLoader<TestRecord>(connection, null);
         var viaOptions = new SqlBulkCopyLoader<TestRecord>(connection, null, null);

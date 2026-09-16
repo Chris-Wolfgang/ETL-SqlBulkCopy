@@ -104,8 +104,8 @@ the loader are deprecated and will be removed in a later release.
 | **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net8.0`, `net10.0` |
 
 **Examples:**
-- **Truncate before load:** set `PreAction = PreAction.TruncateTable` (shown above).
-- **Custom pre-action:** set `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ };`
+- **Truncate before load:** `PreAction = PreAction.TruncateTable` on the options record (shown above).
+- **Custom pre-action:** `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ }` on the options record.
 - **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
 - **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, options, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
 - **Dry run:** set `IsDryRun = true` on the options record to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.

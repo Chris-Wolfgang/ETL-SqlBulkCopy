@@ -214,8 +214,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// with an injected wrapper factory and progress timer for testing.
     /// </summary>
     /// <param name="wrapperFactory">The factory for creating bulk copy wrappers.</param>
-    /// <param name="logger">An optional logger instance.</param>
-    /// <param name="options">The loader's configuration, applied after construction the same way the public options constructor applies it; <see langword="null"/> keeps the defaults.</param>
     /// <param name="timer">An optional progress timer to inject. When <c>null</c>, the
     /// base class creates a <c>SystemProgressTimer</c>.</param>
     /// <param name="commandExecutor">
@@ -232,6 +230,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// connection check rather than from here.
     /// </para>
     /// </param>
+    /// <param name="logger">An optional logger instance.</param>
+    /// <param name="options">The loader's configuration, applied after construction the same way the public options constructor applies it; <see langword="null"/> keeps the defaults.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="wrapperFactory"/> is <see langword="null"/>.
     /// </exception>

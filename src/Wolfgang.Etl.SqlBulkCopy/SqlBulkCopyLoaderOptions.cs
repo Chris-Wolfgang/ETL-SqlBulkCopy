@@ -22,9 +22,11 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// here as well (ADR-0009 in Wolfgang.Etl.Abstractions).
 /// </para>
 /// <para>
-/// The record is generic because the validation callbacks are typed on the record being loaded. Every member
-/// mirrors the property of the same name on the loader; the constructor applies them in declaration order, so
-/// the loader's own range checks (for example <see cref="BatchSize"/> below <c>1</c>) fire at construction.
+/// The record is generic because the validation callbacks are typed on the record being loaded. Each member
+/// except <see cref="BulkCopyOptions"/> mirrors the loader property of the same name; the constructor applies
+/// them in declaration order, so the loader's own range checks (for example <see cref="BatchSize"/> below
+/// <c>1</c>) fire at construction. <see cref="BulkCopyOptions"/> has no loader property: it configures the
+/// underlying <c>SqlBulkCopy</c> and was previously the constructor's own <c>SqlBulkCopyOptions</c> parameter.
 /// </para>
 /// </remarks>
 /// <typeparam name="TRecord">The record type the loader writes.</typeparam>
