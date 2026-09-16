@@ -42,11 +42,15 @@ while (stopwatch.Elapsed.TotalSeconds < seconds)
     await using var connection = new SqlConnection(connectionString);
     await connection.OpenAsync();
 
-    var loader = new SqlBulkCopyLoader<Widget>(connection)
-    {
-        BatchSize = 5_000,
-        PreAction = PreAction.TruncateTable,
-    };
+    var loader = new SqlBulkCopyLoader<Widget>
+    (
+        connection,
+        new SqlBulkCopyLoaderOptions<Widget>
+        {
+            BatchSize = 5_000,
+            PreAction = PreAction.TruncateTable,
+        }
+    );
 
     await loader.LoadAsync(GenerateAsync(rowsPerIteration));
     iterations++;
