@@ -10,16 +10,8 @@ using Xunit;
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
 public class SqlBulkCopyLoaderSupportsDryRunTests
-    : SupportsDryRunContractTests<SqlBulkCopyLoader<TestRecord>>
+    : SupportsDryRunContractTests
 {
-    protected override SqlBulkCopyLoader<TestRecord> CreateSut()
-    {
-        var factory = new FakeSqlBulkCopyWrapperFactory();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null);
-    }
-
-
-
     protected override async Task<bool> RunAndReportSideEffectAsync(bool isDryRun)
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
