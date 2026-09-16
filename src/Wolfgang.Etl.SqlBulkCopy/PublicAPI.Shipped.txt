@@ -97,7 +97,7 @@ Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PreLoadCustomAction.get -> S
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.PreLoadCustomAction.set -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection) -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection, Microsoft.Data.SqlClient.SqlBulkCopyOptions options, Microsoft.Data.SqlClient.SqlTransaction? transaction, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>? logger = null) -> void
-Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>! logger) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>? logger = null) -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.ValidationFailureBehavior.get -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.ValidationFailureBehavior.set -> void
 Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport

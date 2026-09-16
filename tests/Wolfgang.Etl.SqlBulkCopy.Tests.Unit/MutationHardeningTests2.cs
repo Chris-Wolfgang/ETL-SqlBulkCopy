@@ -56,7 +56,7 @@ public class LoaderMutationHardeningTests2
         // multiple of BatchSize the buffer is empty at the end, so a `>= 0`
         // mutant would append a third, empty batch ([2,2,0]).
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, new ManualProgressTimer(), logger: null)
         {
             BatchSize = 2
         };
@@ -89,7 +89,7 @@ public class LoaderMutationHardeningTests2
         // Pins the skip branch: the skipped items must not reach the server and
         // must be counted as skipped rather than loaded.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: null)
         {
             SkipItemCount = 2
         };
@@ -109,7 +109,7 @@ public class LoaderMutationHardeningTests2
         // Pins the max-item break: only MaximumItemCount rows may reach the
         // server even though the source yields more.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: null)
         {
             MaximumItemCount = 2
         };
@@ -130,7 +130,7 @@ public class LoaderMutationHardeningTests2
         // '+' and '-' forms differ in sign/'value, so the arithmetic mutant dies.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var captured = new List<ValidatableRecord>();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, new ManualProgressTimer(), logger: null)
         {
             EnableDataValidation = true,
             ValidationFailureBehavior = ValidationFailureBehavior.Skip,
@@ -163,7 +163,7 @@ public class LoaderMutationHardeningTests2
         // Pins the dry-run branch AND the DrainReaderAsync read loop: no batch
         // may be written, but the pipeline still enumerates every item.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, new ManualProgressTimer(), logger: null)
         {
             IsDryRun = true
         };

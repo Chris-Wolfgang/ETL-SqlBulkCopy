@@ -60,7 +60,7 @@ public class BoundaryCoverageTests
         // child boundaries. The root loop's check is covered by the TestKit
         // contract base, but neither nested check had a test.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, new ManualProgressTimer())
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, new ManualProgressTimer(), logger: null)
         {
             BatchSize = 1
         };

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`logger` is now an optional trailing constructor parameter on `SqlBulkCopyLoader<T>`.**
+  `(SqlConnection, ILogger<T> logger)` became `(SqlConnection, ILogger<T>? logger = null)`, and
+  passing `null` — or omitting it — resolves to `NullLogger.Instance` instead of throwing
+  `ArgumentNullException`. Aligns with the fleet-wide convention already followed by `Etl-DbClient`.
+
+  Not a breaking change: the parameter list is unchanged, so the emitted signature is identical and
+  PackageValidation against the published baseline passes. The four-parameter
+  `(SqlConnection, SqlBulkCopyOptions, SqlTransaction?, ILogger<T>?)` constructor already conformed
+  and is untouched.
+
 ### Added
 
 ### Changed
