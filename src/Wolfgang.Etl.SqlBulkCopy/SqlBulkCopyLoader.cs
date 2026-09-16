@@ -207,9 +207,9 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     internal SqlBulkCopyLoader
     (
         ISqlBulkCopyWrapperFactory wrapperFactory,
-        ILogger? logger,
         IProgressTimer? timer,
-        ISqlCommandExecutor? commandExecutor = null
+        ISqlCommandExecutor? commandExecutor = null,
+        ILogger? logger = null
     )
     {
         _wrapperFactory = wrapperFactory ?? throw new ArgumentNullException(nameof(wrapperFactory));
