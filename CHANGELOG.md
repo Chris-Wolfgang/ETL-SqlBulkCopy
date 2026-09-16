@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [0.8.0] - 2026-09-16
+
 ### Changed
 
 - **`logger` is now an optional trailing constructor parameter on `SqlBulkCopyLoader<T>`.**
@@ -42,12 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `PostLoadCustomAction`) — `[Obsolete]` on the **setter accessor** (reads stay warning-free), pointing at
   `SqlBulkCopyLoaderOptions<T>`. Nothing is removed; removal follows in a later release
   ([migration guide](docs/migrations/v0.7-to-v0.8.md)).
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## [0.7.2] - 2026-08-23
 
@@ -409,7 +418,8 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.2...v0.8.0
 [0.6.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...v0.4.0
