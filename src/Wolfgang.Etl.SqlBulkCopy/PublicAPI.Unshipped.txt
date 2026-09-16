@@ -2,3 +2,41 @@
 override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.PrintMembers(System.Text.StringBuilder! builder) -> bool
 virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
 virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection! connection, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? options = null, Microsoft.Data.SqlClient.SqlTransaction? transaction = null, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>? logger = null) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BatchSize.get -> int
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BatchSize.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyOptions.get -> Microsoft.Data.SqlClient.SqlBulkCopyOptions
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyOptions.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyTimeout.get -> int
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyTimeout.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationSchemaName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationSchemaName.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationTableName.get -> string?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationTableName.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.EnableDataValidation.get -> bool
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.EnableDataValidation.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.Equals(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? other) -> bool
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.IsDryRun.get -> bool
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.IsDryRun.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnNestedValidationFailed.get -> System.Action<object!, System.Collections.Generic.ICollection<System.ComponentModel.DataAnnotations.ValidationResult!>!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnNestedValidationFailed.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnValidationFailed.get -> System.Action<TRecord, System.Collections.Generic.ICollection<System.ComponentModel.DataAnnotations.ValidationResult!>!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnValidationFailed.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostAction.get -> Wolfgang.Etl.SqlBulkCopy.PostAction
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostAction.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostLoadCustomAction.get -> System.Func<Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters!, System.Threading.Tasks.Task!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostLoadCustomAction.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreAction.get -> Wolfgang.Etl.SqlBulkCopy.PreAction
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreAction.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreLoadCustomAction.get -> System.Func<Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters!, System.Threading.Tasks.Task!>?
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreLoadCustomAction.init -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.SqlBulkCopyLoaderOptions() -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.ValidationFailureBehavior.get -> Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.ValidationFailureBehavior.init -> void
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.Equals(object? obj) -> bool
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.GetHashCode() -> int
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.ToString() -> string!
+override sealed Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.Equals(Wolfgang.Etl.Abstractions.LoaderOptions? other) -> bool
+static Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.operator !=(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? left, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? right) -> bool
+static Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.operator ==(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? left, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? right) -> bool

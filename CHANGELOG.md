@@ -19,9 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `(SqlConnection, SqlBulkCopyOptions, SqlTransaction?, ILogger<T>?)` constructor already conformed
   and is untouched.
 
+- Wolfgang.Etl.Abstractions / TestKit / TestKit.Xunit 0.23.2 → 0.24.0.
+- `SqlBulkCopyLoader<T>` no longer implements `ISupportDryRun`, which 0.24.0 removes; `IsDryRun` stays on the
+  loader and on the record (`CompatibilitySuppressions.xml`: CP0008).
+- The options constructor is the single initialization path: the three existing public constructors and the
+  internal test-injection constructor chain into it. No behavioral change.
+
 ### Added
 
-### Changed
+- **`SqlBulkCopyLoaderOptions<T>`** — the loader's configuration as a `{ get; init; }` record passed to the new
+  `SqlBulkCopyLoader<T>(SqlConnection, SqlBulkCopyLoaderOptions<T>?, SqlTransaction?, ILogger<T>?)` constructor
+  (ADR-0009 in Wolfgang.Etl.Abstractions). Every settable loader property has a member of the same name and
+  default, `BulkCopyOptions` carries the `SqlBulkCopyOptions` flags, and the record derives from `LoaderOptions`
+  so `ReportingInterval`, `SkipItemCount`, `MaximumItemCount` and `ErrorPolicy` are configured there too.
+  The options, transaction and logger are all optional, so a logger can be supplied without the rest (#252, #303).
 
 ### Deprecated
 
