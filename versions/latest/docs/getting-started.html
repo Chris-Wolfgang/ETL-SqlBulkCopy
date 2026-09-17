@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.7.2/docfx_project/docs/getting-started.md/#L1">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.8.0/docfx_project/docs/getting-started.md/#L1">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -119,11 +119,15 @@ async IAsyncEnumerable&lt;Customer&gt; ReadSourceAsync()
 using var connection = new SqlConnection(&quot;Server=.;Database=Sandbox;Integrated Security=True;Encrypt=True;&quot;);
 await connection.OpenAsync();
 
-var loader = new SqlBulkCopyLoader&lt;Customer&gt;(connection)
-{
-    BatchSize = 10_000,
-    PreAction = PreAction.TruncateTable
-};
+var loader = new SqlBulkCopyLoader&lt;Customer&gt;
+(
+    connection,
+    new SqlBulkCopyLoaderOptions&lt;Customer&gt;
+    {
+        BatchSize = 10_000,
+        PreAction = PreAction.TruncateTable
+    }
+);
 
 await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 </code></pre>
@@ -135,18 +139,26 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 await loader.LoadAsync(ReadSourceAsync(), progress, CancellationToken.None);
 </code></pre>
 <h3 id="validate-rows-before-loading">Validate rows before loading</h3>
-<pre><code class="lang-csharp">var loader = new SqlBulkCopyLoader&lt;Customer&gt;(connection)
-{
-    EnableDataValidation = true,
-    ValidationFailureBehavior = ValidationFailureBehavior.Skip,
-    OnValidationFailed = (item, errors) =&gt; Console.WriteLine($&quot;skipped: {errors.Count} error(s)&quot;)
-};
+<pre><code class="lang-csharp">var loader = new SqlBulkCopyLoader&lt;Customer&gt;
+(
+    connection,
+    new SqlBulkCopyLoaderOptions&lt;Customer&gt;
+    {
+        EnableDataValidation = true,
+        ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+        OnValidationFailed = (item, errors) =&gt; Console.WriteLine($&quot;skipped: {errors.Count} error(s)&quot;)
+    }
+);
 </code></pre>
 <h3 id="rehearse-without-writing">Rehearse without writing</h3>
-<pre><code class="lang-csharp">var loader = new SqlBulkCopyLoader&lt;Customer&gt;(connection)
-{
-    IsDryRun = true
-};
+<pre><code class="lang-csharp">var loader = new SqlBulkCopyLoader&lt;Customer&gt;
+(
+    connection,
+    new SqlBulkCopyLoaderOptions&lt;Customer&gt;
+    {
+        IsDryRun = true
+    }
+);
 
 // Enumerates, maps, validates, counts and logs — but issues no SQL.
 await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
@@ -178,7 +190,7 @@ the bundled source generator emits accessors at compile time.</li>
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.7.2/docfx_project/docs/getting-started.md/#L1" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.8.0/docfx_project/docs/getting-started.md/#L1" class="edit-link">Edit this page</a>
         </div>
 
         <div class="next-article d-print-none border-top" id="nextArticle"></div>

@@ -390,6 +390,253 @@ references:
   isSpec: "True"
   fullName: Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Transaction
   nameWithType: PreLoadActionParameters.Transaction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1
+  name: SqlBulkCopyLoaderOptions<TRecord>
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html
+  commentId: T:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1
+  name.vb: SqlBulkCopyLoaderOptions(Of TRecord)
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord)
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord)
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BatchSize
+  name: BatchSize
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_BatchSize
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BatchSize
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BatchSize
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).BatchSize
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.BatchSize
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).BatchSize
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BatchSize*
+  name: BatchSize
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_BatchSize_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BatchSize
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BatchSize
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).BatchSize
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.BatchSize
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).BatchSize
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyOptions
+  name: BulkCopyOptions
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_BulkCopyOptions
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyOptions
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyOptions
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyOptions
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.BulkCopyOptions
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyOptions
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyOptions*
+  name: BulkCopyOptions
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_BulkCopyOptions_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyOptions
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyOptions
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyOptions
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.BulkCopyOptions
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyOptions
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyTimeout
+  name: BulkCopyTimeout
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_BulkCopyTimeout
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyTimeout
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyTimeout
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyTimeout
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.BulkCopyTimeout
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyTimeout
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyTimeout*
+  name: BulkCopyTimeout
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_BulkCopyTimeout_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.BulkCopyTimeout
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.BulkCopyTimeout
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyTimeout
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.BulkCopyTimeout
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).BulkCopyTimeout
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationSchemaName
+  name: DestinationSchemaName
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_DestinationSchemaName
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationSchemaName
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationSchemaName
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).DestinationSchemaName
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.DestinationSchemaName
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).DestinationSchemaName
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationSchemaName*
+  name: DestinationSchemaName
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_DestinationSchemaName_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationSchemaName
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationSchemaName
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).DestinationSchemaName
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.DestinationSchemaName
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).DestinationSchemaName
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationTableName
+  name: DestinationTableName
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_DestinationTableName
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationTableName
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationTableName
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).DestinationTableName
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.DestinationTableName
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).DestinationTableName
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationTableName*
+  name: DestinationTableName
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_DestinationTableName_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.DestinationTableName
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.DestinationTableName
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).DestinationTableName
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.DestinationTableName
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).DestinationTableName
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.EnableDataValidation
+  name: EnableDataValidation
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_EnableDataValidation
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.EnableDataValidation
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.EnableDataValidation
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).EnableDataValidation
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.EnableDataValidation
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).EnableDataValidation
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.EnableDataValidation*
+  name: EnableDataValidation
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_EnableDataValidation_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.EnableDataValidation
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.EnableDataValidation
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).EnableDataValidation
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.EnableDataValidation
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).EnableDataValidation
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.IsDryRun
+  name: IsDryRun
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_IsDryRun
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.IsDryRun
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.IsDryRun
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).IsDryRun
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.IsDryRun
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).IsDryRun
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.IsDryRun*
+  name: IsDryRun
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_IsDryRun_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.IsDryRun
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.IsDryRun
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).IsDryRun
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.IsDryRun
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).IsDryRun
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnNestedValidationFailed
+  name: OnNestedValidationFailed
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_OnNestedValidationFailed
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnNestedValidationFailed
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnNestedValidationFailed
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).OnNestedValidationFailed
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.OnNestedValidationFailed
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).OnNestedValidationFailed
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnNestedValidationFailed*
+  name: OnNestedValidationFailed
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_OnNestedValidationFailed_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnNestedValidationFailed
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnNestedValidationFailed
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).OnNestedValidationFailed
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.OnNestedValidationFailed
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).OnNestedValidationFailed
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnValidationFailed
+  name: OnValidationFailed
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_OnValidationFailed
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnValidationFailed
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnValidationFailed
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).OnValidationFailed
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.OnValidationFailed
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).OnValidationFailed
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnValidationFailed*
+  name: OnValidationFailed
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_OnValidationFailed_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.OnValidationFailed
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.OnValidationFailed
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).OnValidationFailed
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.OnValidationFailed
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).OnValidationFailed
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostAction
+  name: PostAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PostAction
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostAction
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PostAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PostAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PostAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostAction*
+  name: PostAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PostAction_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostAction
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PostAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PostAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PostAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostLoadCustomAction
+  name: PostLoadCustomAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PostLoadCustomAction
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostLoadCustomAction
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostLoadCustomAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PostLoadCustomAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PostLoadCustomAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PostLoadCustomAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostLoadCustomAction*
+  name: PostLoadCustomAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PostLoadCustomAction_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PostLoadCustomAction
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PostLoadCustomAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PostLoadCustomAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PostLoadCustomAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PostLoadCustomAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreAction
+  name: PreAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PreAction
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreAction
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PreAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PreAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PreAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreAction*
+  name: PreAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PreAction_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreAction
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PreAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PreAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PreAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreLoadCustomAction
+  name: PreLoadCustomAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PreLoadCustomAction
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreLoadCustomAction
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreLoadCustomAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PreLoadCustomAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PreLoadCustomAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PreLoadCustomAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreLoadCustomAction*
+  name: PreLoadCustomAction
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_PreLoadCustomAction_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.PreLoadCustomAction
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.PreLoadCustomAction
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).PreLoadCustomAction
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.PreLoadCustomAction
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).PreLoadCustomAction
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.ValidationFailureBehavior
+  name: ValidationFailureBehavior
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_ValidationFailureBehavior
+  commentId: P:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.ValidationFailureBehavior
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.ValidationFailureBehavior
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).ValidationFailureBehavior
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.ValidationFailureBehavior
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).ValidationFailureBehavior
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.ValidationFailureBehavior*
+  name: ValidationFailureBehavior
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions_1_ValidationFailureBehavior_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions`1.ValidationFailureBehavior
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.ValidationFailureBehavior
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord).ValidationFailureBehavior
+  nameWithType: SqlBulkCopyLoaderOptions<TRecord>.ValidationFailureBehavior
+  nameWithType.vb: SqlBulkCopyLoaderOptions(Of TRecord).ValidationFailureBehavior
 - uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1
   name: SqlBulkCopyLoader<TRecord>
   href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html
@@ -418,14 +665,23 @@ references:
   nameWithType: SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(SqlConnection, SqlBulkCopyOptions, SqlTransaction?, ILogger<SqlBulkCopyLoader<TRecord>>?)
   nameWithType.vb: SqlBulkCopyLoader(Of TRecord).New(SqlConnection, SqlBulkCopyOptions, SqlTransaction, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
 - uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.#ctor(Microsoft.Data.SqlClient.SqlConnection,Microsoft.Extensions.Logging.ILogger{Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader{`0}})
-  name: SqlBulkCopyLoader(SqlConnection, ILogger<SqlBulkCopyLoader<TRecord>>)
+  name: SqlBulkCopyLoader(SqlConnection, ILogger<SqlBulkCopyLoader<TRecord>>?)
   href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1__ctor_Microsoft_Data_SqlClient_SqlConnection_Microsoft_Extensions_Logging_ILogger_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader__0___
   commentId: M:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.#ctor(Microsoft.Data.SqlClient.SqlConnection,Microsoft.Extensions.Logging.ILogger{Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader{`0}})
   name.vb: New(SqlConnection, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
-  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>>)
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>>?)
   fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord).New(Microsoft.Data.SqlClient.SqlConnection, Microsoft.Extensions.Logging.ILogger(Of Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord)))
-  nameWithType: SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(SqlConnection, ILogger<SqlBulkCopyLoader<TRecord>>)
+  nameWithType: SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(SqlConnection, ILogger<SqlBulkCopyLoader<TRecord>>?)
   nameWithType.vb: SqlBulkCopyLoader(Of TRecord).New(SqlConnection, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
+- uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.#ctor(Microsoft.Data.SqlClient.SqlConnection,Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions{`0},Microsoft.Data.SqlClient.SqlTransaction,Microsoft.Extensions.Logging.ILogger{Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader{`0}})
+  name: SqlBulkCopyLoader(SqlConnection, SqlBulkCopyLoaderOptions<TRecord>?, SqlTransaction?, ILogger<SqlBulkCopyLoader<TRecord>>?)
+  href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1__ctor_Microsoft_Data_SqlClient_SqlConnection_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions__0__Microsoft_Data_SqlClient_SqlTransaction_Microsoft_Extensions_Logging_ILogger_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader__0___
+  commentId: M:Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.#ctor(Microsoft.Data.SqlClient.SqlConnection,Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions{`0},Microsoft.Data.SqlClient.SqlTransaction,Microsoft.Extensions.Logging.ILogger{Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader{`0}})
+  name.vb: New(SqlConnection, SqlBulkCopyLoaderOptions(Of TRecord), SqlTransaction, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
+  fullName: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(Microsoft.Data.SqlClient.SqlConnection, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>?, Microsoft.Data.SqlClient.SqlTransaction?, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>>?)
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord).New(Microsoft.Data.SqlClient.SqlConnection, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord), Microsoft.Data.SqlClient.SqlTransaction, Microsoft.Extensions.Logging.ILogger(Of Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord)))
+  nameWithType: SqlBulkCopyLoader<TRecord>.SqlBulkCopyLoader(SqlConnection, SqlBulkCopyLoaderOptions<TRecord>?, SqlTransaction?, ILogger<SqlBulkCopyLoader<TRecord>>?)
+  nameWithType.vb: SqlBulkCopyLoader(Of TRecord).New(SqlConnection, SqlBulkCopyLoaderOptions(Of TRecord), SqlTransaction, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
 - uid: Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader`1.#ctor*
   name: SqlBulkCopyLoader
   href: api/Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1__ctor_
