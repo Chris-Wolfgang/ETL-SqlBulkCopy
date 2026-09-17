@@ -8,6 +8,10 @@ using Wolfgang.Etl.Abstractions;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Xunit;
+#if NETCOREAPP3_1
+using SkippableFactAttribute = Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NetCoreApp31SkippedFactAttribute;
+using SkippableTheoryAttribute = Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NetCoreApp31SkippedTheoryAttribute;
+#endif
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
@@ -44,7 +48,7 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [SkippableFact]
+    [Fact]
     public void SqlBulkCopyLoaderOptions_derives_from_LoaderOptions()
     {
         Assert.IsAssignableFrom<LoaderOptions>(new SqlBulkCopyLoaderOptions<TestRecord>());
@@ -157,7 +161,7 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [SkippableTheory]
+    [Theory]
     [InlineData(0)]
     [InlineData(-1)]
     public void Constructor_when_BatchSize_on_the_record_is_below_one_throws(int batchSize)
