@@ -101,7 +101,7 @@ the loader are deprecated and will be removed in a later release.
 | **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` (or the loader) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
 | **Native AOT ready** | Opt a record into compile-time source-generated accessors with `[BulkCopyable]` — no runtime IL emission on the hot path (net5.0+) |
-| **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net8.0`, `net10.0` |
+| **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net5.0`, `net6.0`, `net7.0`, `net8.0`, `net10.0` |
 
 **Examples:**
 - **Truncate before load:** `PreAction = PreAction.TruncateTable` on the options record (shown above).
