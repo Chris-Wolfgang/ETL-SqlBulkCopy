@@ -63,14 +63,27 @@ async IAsyncEnumerable<Customer> ReadSourceAsync()
 using var connection = new SqlConnection("Server=.;Database=Sandbox;Integrated Security=True;Encrypt=True;");
 await connection.OpenAsync();
 
-var loader = new SqlBulkCopyLoader<Customer>(connection)
-{
-    BatchSize = 10_000,
-    PreAction = PreAction.TruncateTable,
-};
+var loader = new SqlBulkCopyLoader<Customer>
+(
+    connection,
+    new SqlBulkCopyLoaderOptions<Customer>
+    {
+        BatchSize = 10_000,
+        PreAction = PreAction.TruncateTable,
+    }
+);
 
 await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 ```
+
+### Configuring the loader
+
+Everything about a load is configured through `SqlBulkCopyLoaderOptions<T>`, a record with `init`-only members, passed
+as the second constructor argument (`(connection, options, transaction, logger)`, all three optional). It carries the
+loader's own settings — `BulkCopyOptions`, `BatchSize`, `BulkCopyTimeout`, the destination overrides, validation, the
+pre/post actions and `IsDryRun` — and the ones every loader shares (`ReportingInterval`, `MaximumItemCount`,
+`SkipItemCount`, `ErrorPolicy`). A loader constructed without a record keeps every default. The settable properties on
+the loader are deprecated and will be removed in a later release.
 
 ---
 
@@ -85,17 +98,17 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 | **Progress reporting** | `IProgress<SqlBulkCopyReport>` — rows written (`CurrentItemCount`), rows skipped, batch count |
 | **Data validation** | Opt in with `EnableDataValidation`; DataAnnotations failures throw or skip per `ValidationFailureBehavior`, with `OnValidationFailed` / `OnNestedValidationFailed` callbacks |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
-| **Dry run** | Set `IsDryRun = true` (`ISupportDryRun`) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
+| **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` (or the loader) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
 | **Native AOT ready** | Opt a record into compile-time source-generated accessors with `[BulkCopyable]` — no runtime IL emission on the hot path (net5.0+) |
 | **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net8.0`, `net10.0` |
 
 **Examples:**
-- **Truncate before load:** set `PreAction = PreAction.TruncateTable` (shown above).
-- **Custom pre-action:** set `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ };`
+- **Truncate before load:** `PreAction = PreAction.TruncateTable` on the options record (shown above).
+- **Custom pre-action:** `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ }` on the options record.
 - **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
-- **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, SqlBulkCopyOptions.Default, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
-- **Dry run:** set `IsDryRun = true` to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.
+- **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, options, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
+- **Dry run:** set `IsDryRun = true` on the options record to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.
 
 See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) for the full surface.
 

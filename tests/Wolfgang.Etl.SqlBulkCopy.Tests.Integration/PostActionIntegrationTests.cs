@@ -39,18 +39,22 @@ public class PostActionIntegrationTests
 
         var rowCountAtPostAction = -1;
 
-        var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
-        {
-            PostAction = PostAction.CustomAction,
-            PostLoadCustomAction = async parameters =>
+        var sut = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
             {
-                using var command = parameters.Connection.CreateCommand();
-                command.CommandText = "SELECT COUNT(*) FROM [dbo].[Widgets]";
+                PostAction = PostAction.CustomAction,
+                PostLoadCustomAction = async parameters =>
+                {
+                    using var command = parameters.Connection.CreateCommand();
+                    command.CommandText = "SELECT COUNT(*) FROM [dbo].[Widgets]";
 #pragma warning disable S8969 // ExecuteScalarAsync's [NotNullWhen] not honored across all TFMs; SELECT COUNT(*) is non-null by contract
-                rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken).ConfigureAwait(false))!;
+                    rowCountAtPostAction = (int)(await command.ExecuteScalarAsync(parameters.CancellationToken).ConfigureAwait(false))!;
 #pragma warning restore S8969
+                }
             }
-        };
+        );
 
         var items = new[]
         {

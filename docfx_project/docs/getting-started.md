@@ -57,11 +57,15 @@ async IAsyncEnumerable<Customer> ReadSourceAsync()
 using var connection = new SqlConnection("Server=.;Database=Sandbox;Integrated Security=True;Encrypt=True;");
 await connection.OpenAsync();
 
-var loader = new SqlBulkCopyLoader<Customer>(connection)
-{
-    BatchSize = 10_000,
-    PreAction = PreAction.TruncateTable
-};
+var loader = new SqlBulkCopyLoader<Customer>
+(
+    connection,
+    new SqlBulkCopyLoaderOptions<Customer>
+    {
+        BatchSize = 10_000,
+        PreAction = PreAction.TruncateTable
+    }
+);
 
 await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 ```
@@ -80,21 +84,29 @@ await loader.LoadAsync(ReadSourceAsync(), progress, CancellationToken.None);
 ### Validate rows before loading
 
 ```csharp
-var loader = new SqlBulkCopyLoader<Customer>(connection)
-{
-    EnableDataValidation = true,
-    ValidationFailureBehavior = ValidationFailureBehavior.Skip,
-    OnValidationFailed = (item, errors) => Console.WriteLine($"skipped: {errors.Count} error(s)")
-};
+var loader = new SqlBulkCopyLoader<Customer>
+(
+    connection,
+    new SqlBulkCopyLoaderOptions<Customer>
+    {
+        EnableDataValidation = true,
+        ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+        OnValidationFailed = (item, errors) => Console.WriteLine($"skipped: {errors.Count} error(s)")
+    }
+);
 ```
 
 ### Rehearse without writing
 
 ```csharp
-var loader = new SqlBulkCopyLoader<Customer>(connection)
-{
-    IsDryRun = true
-};
+var loader = new SqlBulkCopyLoader<Customer>
+(
+    connection,
+    new SqlBulkCopyLoaderOptions<Customer>
+    {
+        IsDryRun = true
+    }
+);
 
 // Enumerates, maps, validates, counts and logs — but issues no SQL.
 await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);

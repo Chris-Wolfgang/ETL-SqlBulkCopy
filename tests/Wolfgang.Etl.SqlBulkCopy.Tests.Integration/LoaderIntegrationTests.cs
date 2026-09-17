@@ -141,10 +141,14 @@ public class LoaderIntegrationTests
         await using var connection = await _fixture.OpenConnectionAsync();
         await CreateWidgetsTableAsync(connection);
 
-        var sut = new SqlBulkCopyLoader<WidgetRecord>(connection)
-        {
-            BatchSize = 3
-        };
+        var sut = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                BatchSize = 3
+            }
+        );
 
         var items = Enumerable.Range(1, 10)
             .Select(i => new WidgetRecord { Id = i, Name = $"W{i}", Price = i })

@@ -19,6 +19,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+
+## [0.8.0] - 2026-09-16
+
+### Changed
+
+- **`logger` is now an optional trailing constructor parameter on `SqlBulkCopyLoader<T>`.**
+  `(SqlConnection, ILogger<T> logger)` became `(SqlConnection, ILogger<T>? logger = null)`, and
+  passing `null` — or omitting it — resolves to `NullLogger.Instance` instead of throwing
+  `ArgumentNullException`. Aligns with the fleet-wide convention already followed by `Etl-DbClient`.
+
+  Not a breaking change: the parameter list is unchanged, so the emitted signature is identical and
+  PackageValidation against the published baseline passes. The four-parameter
+  `(SqlConnection, SqlBulkCopyOptions, SqlTransaction?, ILogger<T>?)` constructor already conformed
+  and is untouched.
+
+- Wolfgang.Etl.Abstractions / TestKit / TestKit.Xunit 0.23.2 → 0.24.0.
+- `SqlBulkCopyLoader<T>` no longer implements `ISupportDryRun`, which 0.24.0 removes; `IsDryRun` stays on the
+  loader and on the record (`CompatibilitySuppressions.xml`: CP0008).
+- The options constructor is the single initialization path: the three existing public constructors and the
+  internal test-injection constructor chain into it. No behavioral change.
+
+### Added
+
+- **`SqlBulkCopyLoaderOptions<T>`** — the loader's configuration as a `{ get; init; }` record passed to the new
+  `SqlBulkCopyLoader<T>(SqlConnection, SqlBulkCopyLoaderOptions<T>?, SqlTransaction?, ILogger<T>?)` constructor
+  (ADR-0009 in Wolfgang.Etl.Abstractions). Every settable loader property has a member of the same name and
+  default, `BulkCopyOptions` carries the `SqlBulkCopyOptions` flags, and the record derives from `LoaderOptions`
+  so `ReportingInterval`, `SkipItemCount`, `MaximumItemCount` and `ErrorPolicy` are configured there too.
+  The options, transaction and logger are all optional, so a logger can be supplied without the rest (#252, #303).
+
+### Deprecated
+
+- The setters of the 13 configurable `SqlBulkCopyLoader<T>` properties (`BatchSize`, `BulkCopyTimeout`,
+  `DestinationTableName`, `DestinationSchemaName`, `EnableDataValidation`, `IsDryRun`, `ValidationFailureBehavior`,
+  `OnValidationFailed`, `OnNestedValidationFailed`, `PreAction`, `PreLoadCustomAction`, `PostAction`,
+  `PostLoadCustomAction`) — `[Obsolete]` on the **setter accessor** (reads stay warning-free), pointing at
+  `SqlBulkCopyLoaderOptions<T>`. Nothing is removed; removal follows in a later release
+  ([migration guide](docs/migrations/v0.7-to-v0.8.md)).
+
 ## [0.7.2] - 2026-08-23
 
 ### Changed
@@ -379,7 +418,8 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.2...v0.8.0
 [0.6.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...v0.4.0

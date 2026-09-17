@@ -28,15 +28,19 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// </remarks>
 /// <example>
 /// <code>
-/// var loader = new SqlBulkCopyLoader&lt;Person&gt;(connection)
-/// {
-///     BatchSize = 5000,
-///     BulkCopyTimeout = 60
-/// };
+/// var loader = new SqlBulkCopyLoader&lt;Person&gt;
+/// (
+///     connection,
+///     new SqlBulkCopyLoaderOptions&lt;Person&gt;
+///     {
+///         BatchSize = 5000,
+///         BulkCopyTimeout = 60
+///     }
+/// );
 /// await loader.LoadAsync(items, cancellationToken);
 /// </code>
 /// </example>
-public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopyReport>, ISupportDryRun
+public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopyReport>
     where TRecord : notnull
 {
     private static readonly string OperationName = $"SQL bulk copy loading of {typeof(TRecord).Name}";
@@ -64,11 +68,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     (
         SqlConnection connection
     )
+        : this(connection, options: null)
     {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _logger = NullLogger.Instance;
-        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, SqlBulkCopyOptions.Default, transaction: null);
-        _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
 
 
@@ -78,20 +79,20 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// with diagnostic logging.
     /// </summary>
     /// <param name="connection">The SQL Server connection.</param>
-    /// <param name="logger">The logger instance for diagnostic output.</param>
+    /// <param name="logger">
+    /// An optional logger instance for diagnostic output. When <c>null</c> — or omitted —
+    /// <see cref="NullLogger.Instance"/> is used and logging is disabled.
+    /// </param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="connection"/> or <paramref name="logger"/> is <c>null</c>.
+    /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
-        ILogger<SqlBulkCopyLoader<TRecord>> logger
+        ILogger<SqlBulkCopyLoader<TRecord>>? logger = null
     )
+        : this(connection, options: null, transaction: null, logger: logger)
     {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, SqlBulkCopyOptions.Default, transaction: null);
-        _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction: null);
     }
 
 
@@ -166,12 +167,44 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         SqlTransaction? transaction,
         ILogger<SqlBulkCopyLoader<TRecord>>? logger = null
     )
+        : this(connection, new SqlBulkCopyLoaderOptions<TRecord> { BulkCopyOptions = options }, transaction, logger)
+    {
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlBulkCopyLoader{TRecord}"/> class configured
+    /// through an options record (ADR-0009). This is the initialization path every other constructor
+    /// chains into.
+    /// </summary>
+    /// <param name="connection">The open <see cref="SqlConnection"/> to bulk-copy into. The caller owns its lifetime.</param>
+    /// <param name="options">
+    /// The loader's configuration, including the settings inherited from <see cref="LoaderOptions"/>. When
+    /// <see langword="null"/> — or omitted — every documented default applies.
+    /// </param>
+    /// <param name="transaction">An optional <see cref="SqlTransaction"/> the bulk copy and the pre/post actions run in.</param>
+    /// <param name="logger">An optional logger. When <see langword="null"/> — or omitted — <see cref="NullLogger.Instance"/> is used.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <see cref="SqlBulkCopyLoaderOptions{TRecord}.BatchSize"/> is below <c>1</c> or
+    /// <see cref="SqlBulkCopyLoaderOptions{TRecord}.BulkCopyTimeout"/> is negative.
+    /// </exception>
+    public SqlBulkCopyLoader
+    (
+        SqlConnection connection,
+        SqlBulkCopyLoaderOptions<TRecord>? options = null,
+        SqlTransaction? transaction = null,
+        ILogger<SqlBulkCopyLoader<TRecord>>? logger = null
+    )
+        : base(options)
     {
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _transaction = transaction;
         _logger = logger ?? (ILogger)NullLogger.Instance;
-        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, options, transaction);
+        _wrapperFactory = new SqlBulkCopyWrapperFactory(connection, options?.BulkCopyOptions ?? SqlBulkCopyOptions.Default, transaction);
         _commandExecutor = new SqlConnectionCommandExecutor(connection, transaction);
+        ApplyOptions(options);
     }
 
 
@@ -181,7 +214,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// with an injected wrapper factory and progress timer for testing.
     /// </summary>
     /// <param name="wrapperFactory">The factory for creating bulk copy wrappers.</param>
-    /// <param name="logger">An optional logger instance.</param>
     /// <param name="timer">An optional progress timer to inject. When <c>null</c>, the
     /// base class creates a <c>SystemProgressTimer</c>.</param>
     /// <param name="commandExecutor">
@@ -198,21 +230,26 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// connection check rather than from here.
     /// </para>
     /// </param>
+    /// <param name="logger">An optional logger instance.</param>
+    /// <param name="options">The loader's configuration, applied after construction the same way the public options constructor applies it; <see langword="null"/> keeps the defaults.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="wrapperFactory"/> is <see langword="null"/>.
     /// </exception>
     internal SqlBulkCopyLoader
     (
         ISqlBulkCopyWrapperFactory wrapperFactory,
-        ILogger? logger,
         IProgressTimer? timer,
-        ISqlCommandExecutor? commandExecutor = null
+        ISqlCommandExecutor? commandExecutor = null,
+        ILogger? logger = null,
+        SqlBulkCopyLoaderOptions<TRecord>? options = null
     )
+        : base(options)
     {
         _wrapperFactory = wrapperFactory ?? throw new ArgumentNullException(nameof(wrapperFactory));
         _logger = logger ?? NullLogger.Instance;
         _progressTimer = timer;
         _commandExecutor = commandExecutor;
+        ApplyOptions(options);
     }
 
 
@@ -227,6 +264,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     public int BatchSize
     {
         get => _batchSize;
+        [Obsolete("Configure BatchSize through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")]
         set
         {
             if (value < 1)
@@ -256,6 +294,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     public int BulkCopyTimeout
     {
         get => _bulkCopyTimeout;
+        [Obsolete("Configure BulkCopyTimeout through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")]
         set
         {
             if (value < 0)
@@ -279,7 +318,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// When <c>null</c>, the table name is derived from the <c>[Table]</c> attribute
     /// or the type name.
     /// </summary>
-    public string? DestinationTableName { get; set; }
+    public string? DestinationTableName { get; [Obsolete("Configure DestinationTableName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -287,7 +326,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets an optional destination schema name override.
     /// When <c>null</c>, the schema is derived from the <c>[Table]</c> attribute.
     /// </summary>
-    public string? DestinationSchemaName { get; set; }
+    public string? DestinationSchemaName { get; [Obsolete("Configure DestinationSchemaName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -306,7 +345,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip"/>
     /// to tolerate dirty data and drop only the failing items.
     /// </remarks>
-    public bool EnableDataValidation { get; set; }
+    public bool EnableDataValidation { get; [Obsolete("Configure EnableDataValidation through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -324,7 +363,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// all skipped. This lets a caller confirm a pipeline runs end-to-end and
     /// surfaces mapping / validation errors without touching the destination.
     /// </remarks>
-    public bool IsDryRun { get; set; }
+    public bool IsDryRun { get; [Obsolete("Configure IsDryRun through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -342,7 +381,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// root <typeparamref name="TRecord"/> instances and nested-collection
     /// children.
     /// </remarks>
-    public ValidationFailureBehavior ValidationFailureBehavior { get; set; } = ValidationFailureBehavior.Throw;
+    public ValidationFailureBehavior ValidationFailureBehavior { get; [Obsolete("Configure ValidationFailureBehavior through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; } = ValidationFailureBehavior.Throw;
 
 
 
@@ -359,7 +398,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// failing root item and the collection of validation errors. For
     /// nested-collection children, see <see cref="OnNestedValidationFailed"/>.
     /// </remarks>
-    public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; set; }
+    public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; [Obsolete("Configure OnValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -375,7 +414,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// load time, not at <typeparamref name="TRecord"/> definition. For
     /// root-item validation, see <see cref="OnValidationFailed"/>.
     /// </remarks>
-    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; set; }
+    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; [Obsolete("Configure OnNestedValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -383,7 +422,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the action to execute before loading begins.
     /// </summary>
     /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.None"/>.</value>
-    public PreAction PreAction { get; set; }
+    public PreAction PreAction { get; [Obsolete("Configure PreAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -391,7 +430,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the custom delegate to invoke when
     /// <see cref="PreAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.CustomAction"/>.
     /// </summary>
-    public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get; set; }
+    public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get; [Obsolete("Configure PreLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -399,7 +438,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the action to execute after loading completes.
     /// </summary>
     /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.None"/>.</value>
-    public PostAction PostAction { get; set; }
+    public PostAction PostAction { get; [Obsolete("Configure PostAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -407,7 +446,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// Gets or sets the custom delegate to invoke when
     /// <see cref="PostAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.CustomAction"/>.
     /// </summary>
-    public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get; set; }
+    public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get; [Obsolete("Configure PostLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
 
 
 
@@ -1047,4 +1086,37 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+
+
+    /// <summary>
+    /// Copies every member of <paramref name="options"/> onto the loader's properties, in declaration
+    /// order, so the property setters' own range checks apply. A <see langword="null"/> record leaves the defaults.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown by the <see cref="BatchSize"/> or <see cref="BulkCopyTimeout"/> setter when the record holds an
+    /// out-of-range value.
+    /// </exception>
+    private void ApplyOptions(SqlBulkCopyLoaderOptions<TRecord>? options)
+    {
+#pragma warning disable CS0618 // the constructor is the supported replacement for the setters; it necessarily writes them
+        if (options is null)
+        {
+            return;
+        }
+
+        BatchSize = options.BatchSize;
+        BulkCopyTimeout = options.BulkCopyTimeout;
+        DestinationTableName = options.DestinationTableName;
+        DestinationSchemaName = options.DestinationSchemaName;
+        EnableDataValidation = options.EnableDataValidation;
+        IsDryRun = options.IsDryRun;
+        ValidationFailureBehavior = options.ValidationFailureBehavior;
+        OnValidationFailed = options.OnValidationFailed;
+        OnNestedValidationFailed = options.OnNestedValidationFailed;
+        PreAction = options.PreAction;
+        PreLoadCustomAction = options.PreLoadCustomAction;
+        PostAction = options.PostAction;
+        PostLoadCustomAction = options.PostLoadCustomAction;
+#pragma warning restore CS0618
+    }
 }

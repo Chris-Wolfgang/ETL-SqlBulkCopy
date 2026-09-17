@@ -56,10 +56,16 @@ public class LoaderMutationHardeningTests2
         // multiple of BatchSize the buffer is empty at the end, so a `>= 0`
         // mutant would append a third, empty batch ([2,2,0]).
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, new ManualProgressTimer())
-        {
-            BatchSize = 2
-        };
+        var sut = new SqlBulkCopyLoader<ParentRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentRecord>
+            {
+                BatchSize = 2
+            }
+        );
 
         var parent = new ParentRecord
         {
@@ -89,10 +95,16 @@ public class LoaderMutationHardeningTests2
         // Pins the skip branch: the skipped items must not reach the server and
         // must be counted as skipped rather than loaded.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, new ManualProgressTimer())
-        {
-            SkipItemCount = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                SkipItemCount = 2
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(5)));
 
@@ -109,10 +121,16 @@ public class LoaderMutationHardeningTests2
         // Pins the max-item break: only MaximumItemCount rows may reach the
         // server even though the source yields more.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, new ManualProgressTimer())
-        {
-            MaximumItemCount = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                MaximumItemCount = 2
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(10)));
 
@@ -130,13 +148,19 @@ public class LoaderMutationHardeningTests2
         // '+' and '-' forms differ in sign/'value, so the arithmetic mutant dies.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var captured = new List<ValidatableRecord>();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, new ManualProgressTimer())
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip,
-            SkipItemCount = 1,
-            OnValidationFailed = (item, _) => captured.Add(item)
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+                SkipItemCount = 1,
+                OnValidationFailed = (item, _) => captured.Add(item)
+            }
+        );
 
         var items = new[]
         {
@@ -163,10 +187,16 @@ public class LoaderMutationHardeningTests2
         // Pins the dry-run branch AND the DrainReaderAsync read loop: no batch
         // may be written, but the pipeline still enumerates every item.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, new ManualProgressTimer())
-        {
-            IsDryRun = true
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                IsDryRun = true
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(4)));
 

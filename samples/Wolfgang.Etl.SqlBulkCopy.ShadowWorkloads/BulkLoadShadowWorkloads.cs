@@ -29,11 +29,15 @@ public class BulkLoadShadowWorkloads
 
 
 
+    // BDN populates [Params] properties via reflection, not from source.
+    // The disable/restore pair (not `disable once`) is needed because the
+    // [Params] attribute sits between the comment and the property, so
+    // `once` would apply to the attribute line, not the property.
     /// <summary>Gets or sets the number of rows loaded per invocation.</summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global -- BDN
-    // populates [Params] properties via reflection, not from source.
+    // ReSharper disable UnusedAutoPropertyAccessor.Global
     [Params(1_000, 100_000)]
     public int RecordCount { get; set; }
+    // ReSharper restore UnusedAutoPropertyAccessor.Global
 
 
 
@@ -123,10 +127,14 @@ public class BulkLoadShadowWorkloads
     [Benchmark]
     public async Task LoadWithValidation()
     {
-        var loader = new SqlBulkCopyLoader<WidgetRecord>(_connection)
-        {
-            EnableDataValidation = true
-        };
+        var loader = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            _connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                EnableDataValidation = true
+            }
+        );
         await loader.LoadAsync(ToAsyncEnumerable(_rows));
     }
 
@@ -136,10 +144,14 @@ public class BulkLoadShadowWorkloads
     [Benchmark]
     public async Task LoadWithTruncatePreAction()
     {
-        var loader = new SqlBulkCopyLoader<WidgetRecord>(_connection)
-        {
-            PreAction = PreAction.TruncateTable
-        };
+        var loader = new SqlBulkCopyLoader<WidgetRecord>
+        (
+            _connection,
+            new SqlBulkCopyLoaderOptions<WidgetRecord>
+            {
+                PreAction = PreAction.TruncateTable
+            }
+        );
         await loader.LoadAsync(ToAsyncEnumerable(_rows));
     }
 

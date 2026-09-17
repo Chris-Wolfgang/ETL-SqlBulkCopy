@@ -42,19 +42,19 @@ public class SqlBulkCopyLoaderTests
         );
     }
 
-    private static SqlBulkCopyLoader<TestRecord> CreateSut()
+    private static SqlBulkCopyLoader<TestRecord> CreateSut(SqlBulkCopyLoaderOptions<TestRecord>? options = null)
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, timer, logger: null, options: options);
     }
 
 
 
-    private static SqlBulkCopyLoader<TestRecord> CreateSut(FakeSqlBulkCopyWrapperFactory factory)
+    private static SqlBulkCopyLoader<TestRecord> CreateSut(FakeSqlBulkCopyWrapperFactory factory, SqlBulkCopyLoaderOptions<TestRecord>? options = null)
     {
         var timer = new ManualProgressTimer();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+        return new SqlBulkCopyLoader<TestRecord>(factory, timer, logger: null, options: options);
     }
 
 
@@ -112,16 +112,17 @@ public class SqlBulkCopyLoaderTests
 
 
     [SkippableFact]
-    public void Constructor_with_connection_and_logger_when_logger_is_null_throws_ArgumentNullException()
+    public void Constructor_with_connection_and_logger_when_logger_is_null_uses_NullLogger()
     {
         SkipUnlessSqlConnectionConstructible();
 
+        // logger is now an optional trailing parameter: null means "no logging"
+        // (NullLogger.Instance) rather than an argument error.
         using var connection = new Microsoft.Data.SqlClient.SqlConnection("Server=.;Encrypt=True;");
 
-        Assert.Throws<ArgumentNullException>
-        (
-            () => new SqlBulkCopyLoader<TestRecord>(connection, null!)
-        );
+        var sut = new SqlBulkCopyLoader<TestRecord>(connection, logger: null);
+
+        Assert.NotNull(sut);
     }
 
 
@@ -226,6 +227,7 @@ public class SqlBulkCopyLoaderTests
 
 
 
+#pragma warning disable CS0618 // these facts exercise the deprecated setters themselves; they retire with them
     [Fact]
     public void BatchSize_when_set_to_valid_value_updates()
     {
@@ -311,6 +313,7 @@ public class SqlBulkCopyLoaderTests
             () => sut.BulkCopyTimeout = -1
         );
     }
+#pragma warning restore CS0618
 
 
 
@@ -335,8 +338,7 @@ public class SqlBulkCopyLoaderTests
     public async Task LoadAsync_when_items_exceed_BatchSize_creates_multiple_batches()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.BatchSize = 3;
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { BatchSize = 3 });
         var items = CreateTestItems(7);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
@@ -361,8 +363,7 @@ public class SqlBulkCopyLoaderTests
         // `> 0` from `>= 0` — a `>= 0` mutation would append a third, empty batch.
 #pragma warning restore S125
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.BatchSize = 3;
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { BatchSize = 3 });
         var items = CreateTestItems(6);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
@@ -409,9 +410,7 @@ public class SqlBulkCopyLoaderTests
     public async Task LoadAsync_when_DestinationTableName_override_uses_override()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.DestinationTableName = "CustomTable";
-        sut.DestinationSchemaName = "custom";
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { DestinationTableName = "CustomTable", DestinationSchemaName = "custom" });
         var items = CreateTestItems(1);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
@@ -454,11 +453,17 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip
+            }
+        );
 
         var items = new[]
         {
@@ -481,12 +486,18 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
         var capturedErrors = new List<ICollection<ValidationResult>>();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip,
-            OnValidationFailed = (_, errors) => capturedErrors.Add(errors)
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+                OnValidationFailed = (_, errors) => capturedErrors.Add(errors)
+            }
+        );
 
         var items = new[]
         {
@@ -508,11 +519,17 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip
-        };
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
+            {
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip
+            }
+        );
 
         var items = new[]
         {
@@ -548,16 +565,22 @@ public class SqlBulkCopyLoaderTests
         var timer = new ManualProgressTimer();
         var capturedChildren = new List<object>();
         var capturedErrorCounts = new List<int>();
-        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip,
-            OnNestedValidationFailed = (child, errors) =>
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
             {
-                capturedChildren.Add(child);
-                capturedErrorCounts.Add(errors.Count);
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip,
+                OnNestedValidationFailed = (child, errors) =>
+                {
+                    capturedChildren.Add(child);
+                    capturedErrorCounts.Add(errors.Count);
+                }
             }
-        };
+        );
 
         var items = new[]
         {
@@ -591,11 +614,17 @@ public class SqlBulkCopyLoaderTests
         // grandchild table without affecting the parent or its valid child.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip
-        };
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
+            {
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip
+            }
+        );
 
         var items = new[]
         {
@@ -637,7 +666,7 @@ public class SqlBulkCopyLoaderTests
         // still written. This is the existing default behavior.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer);
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, timer, logger: null);
 
         var items = new[]
         {
@@ -673,11 +702,17 @@ public class SqlBulkCopyLoaderTests
         // and its ValidationResults.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true
-            // ValidationFailureBehavior left at default (Throw)
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = true
+                // ValidationFailureBehavior left at default (Throw)
+            }
+        );
 
         var items = new[]
         {
@@ -704,11 +739,17 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
         var capturedBeforeThrow = false;
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true,
-            OnValidationFailed = (_, _) => capturedBeforeThrow = true
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = true,
+                OnValidationFailed = (_, _) => capturedBeforeThrow = true
+            }
+        );
 
         var items = new[]
         {
@@ -730,10 +771,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>(factory, logger: null, timer)
-        {
-            EnableDataValidation = true
-        };
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
+            {
+                EnableDataValidation = true
+            }
+        );
 
         var items = new[]
         {
@@ -763,7 +810,7 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, timer);
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, timer, logger: null);
 
         var items = new[]
         {
@@ -802,12 +849,18 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
-        {
-            SkipItemCount = 1,
-            EnableDataValidation = true,
-            ValidationFailureBehavior = ValidationFailureBehavior.Skip
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                SkipItemCount = 1,
+                EnableDataValidation = true,
+                ValidationFailureBehavior = ValidationFailureBehavior.Skip
+            }
+        );
 
         var items = new[]
         {
@@ -832,10 +885,17 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor)
-        {
-            PreAction = PreAction.DeleteAllRecords
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            executor,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.DeleteAllRecords
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
 
@@ -851,10 +911,17 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor)
-        {
-            PreAction = PreAction.TruncateTable
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            executor,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.TruncateTable
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
 
@@ -870,7 +937,7 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor);
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, timer, executor, logger: null);
         // PreAction stays at default (None)
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
@@ -886,11 +953,18 @@ public class SqlBulkCopyLoaderTests
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var executor = new FakeSqlCommandExecutor();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer, executor)
-        {
-            PreAction = PreAction.DeleteAllRecords,
-            BulkCopyTimeout = 120
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            executor,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.DeleteAllRecords,
+                BulkCopyTimeout = 120
+            }
+        );
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(1)));
 
@@ -906,10 +980,16 @@ public class SqlBulkCopyLoaderTests
         // PreAction = clear configuration error rather than NRE.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
-        {
-            PreAction = PreAction.DeleteAllRecords
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.DeleteAllRecords
+            }
+        );
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -926,8 +1006,7 @@ public class SqlBulkCopyLoaderTests
     [Fact]
     public Task LoadAsync_when_PreAction_CustomAction_without_delegate_throws()
     {
-        var sut = CreateSut();
-        sut.PreAction = PreAction.CustomAction;
+        var sut = CreateSut(new SqlBulkCopyLoaderOptions<TestRecord> { PreAction = PreAction.CustomAction });
 
         return Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -940,8 +1019,7 @@ public class SqlBulkCopyLoaderTests
     [Fact]
     public Task LoadAsync_when_PostAction_CustomAction_without_delegate_throws()
     {
-        var sut = CreateSut();
-        sut.PostAction = PostAction.CustomAction;
+        var sut = CreateSut(new SqlBulkCopyLoaderOptions<TestRecord> { PostAction = PostAction.CustomAction });
 
         return Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -958,10 +1036,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
-        {
-            PreAction = PreAction.DeleteAllRecords
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.DeleteAllRecords
+            }
+        );
 
         return Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -976,10 +1060,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
-        {
-            PreAction = PreAction.TruncateTable
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.TruncateTable
+            }
+        );
 
         return Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -994,11 +1084,17 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
-        {
-            PreAction = PreAction.CustomAction,
-            PreLoadCustomAction = _ => Task.CompletedTask
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PreAction = PreAction.CustomAction,
+                PreLoadCustomAction = _ => Task.CompletedTask
+            }
+        );
 
         return Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -1013,11 +1109,17 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
-        {
-            PostAction = PostAction.CustomAction,
-            PostLoadCustomAction = _ => Task.CompletedTask
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                PostAction = PostAction.CustomAction,
+                PostLoadCustomAction = _ => Task.CompletedTask
+            }
+        );
 
         return Assert.ThrowsAsync<InvalidOperationException>
         (
@@ -1068,8 +1170,7 @@ public class SqlBulkCopyLoaderTests
     public async Task LoadAsync_sets_BulkCopyTimeout_on_wrapper()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.BulkCopyTimeout = 120;
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { BulkCopyTimeout = 120 });
         var items = CreateTestItems(1);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
@@ -1086,10 +1187,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer)
-        {
-            BatchSize = 2
-        };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord>
+            {
+                BatchSize = 2
+            }
+        );
         var items = CreateTestItems(5);
         SqlBulkCopyReport? captured = null;
         var progress = new SynchronousProgress<SqlBulkCopyReport>(r => captured = r);
@@ -1136,7 +1243,7 @@ public class SqlBulkCopyLoaderTests
         // can't Fire() it post-call to observe routing directly.
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer);
+        var sut = new SqlBulkCopyLoader<TestRecord>(factory, timer, logger: null);
 
         var progressA = new SynchronousProgress<SqlBulkCopyReport>(_ => { });
         var progressB = new SynchronousProgress<SqlBulkCopyReport>(_ => { });
@@ -1165,8 +1272,7 @@ public class SqlBulkCopyLoaderTests
     [Fact]
     public Task LoadAsync_when_PreAction_is_invalid_enum_value_throws()
     {
-        var sut = CreateSut();
-        sut.PreAction = (PreAction)999;
+        var sut = CreateSut(new SqlBulkCopyLoaderOptions<TestRecord> { PreAction = (PreAction)999 });
 
         return Assert.ThrowsAsync<ArgumentOutOfRangeException>
         (
@@ -1179,8 +1285,7 @@ public class SqlBulkCopyLoaderTests
     [Fact]
     public Task LoadAsync_when_PostAction_is_invalid_enum_value_throws()
     {
-        var sut = CreateSut();
-        sut.PostAction = (PostAction)999;
+        var sut = CreateSut(new SqlBulkCopyLoaderOptions<TestRecord> { PostAction = (PostAction)999 });
 
         return Assert.ThrowsAsync<ArgumentOutOfRangeException>
         (
@@ -1195,10 +1300,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<NotMappedWithChildrenRecord>(factory, logger: null, timer)
-        {
-            PreAction = PreAction.DeleteAllRecords
-        };
+        var sut = new SqlBulkCopyLoader<NotMappedWithChildrenRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<NotMappedWithChildrenRecord>
+            {
+                PreAction = PreAction.DeleteAllRecords
+            }
+        );
 
         var items = new[]
         {
@@ -1218,10 +1329,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<NotMappedWithChildrenRecord>(factory, logger: null, timer)
-        {
-            PreAction = PreAction.TruncateTable
-        };
+        var sut = new SqlBulkCopyLoader<NotMappedWithChildrenRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<NotMappedWithChildrenRecord>
+            {
+                PreAction = PreAction.TruncateTable
+            }
+        );
 
         var items = new[]
         {
@@ -1243,10 +1360,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ValidatableRecord>(factory, logger: null, timer)
-        {
-            EnableDataValidation = false
-        };
+        var sut = new SqlBulkCopyLoader<ValidatableRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ValidatableRecord>
+            {
+                EnableDataValidation = false
+            }
+        );
 
         var items = new[]
         {
@@ -1287,7 +1410,7 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<GrandparentRecord>(factory, logger: null, timer);
+        var sut = new SqlBulkCopyLoader<GrandparentRecord>(factory, timer, logger: null);
 
         var items = new[]
         {
@@ -1326,10 +1449,16 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, timer)
-        {
-            BatchSize = 3
-        };
+        var sut = new SqlBulkCopyLoader<ParentRecord>
+        (
+            factory,
+            timer,
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentRecord>
+            {
+                BatchSize = 3
+            }
+        );
 
         // Single parent with 7 children — should produce 3 nested batches (3+3+1)
         var items = new[]
@@ -1361,7 +1490,7 @@ public class SqlBulkCopyLoaderTests
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
         var timer = new ManualProgressTimer();
-        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, logger: null, timer);
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, timer, logger: null);
 
         var items = new[]
         {
