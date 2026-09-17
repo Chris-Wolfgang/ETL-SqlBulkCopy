@@ -48,7 +48,7 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [SkippableFact]
+    [Fact]
     public void SqlBulkCopyLoaderOptions_derives_from_LoaderOptions()
     {
         Assert.IsAssignableFrom<LoaderOptions>(new SqlBulkCopyLoaderOptions<TestRecord>());
@@ -161,7 +161,7 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
 
-    [SkippableTheory]
+    [Theory]
     [InlineData(0)]
     [InlineData(-1)]
     public void Constructor_when_BatchSize_on_the_record_is_below_one_throws(int batchSize)
