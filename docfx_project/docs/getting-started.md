@@ -4,10 +4,10 @@ This guide will help you quickly get up and running with Wolfgang.Etl.SqlBulkCop
 
 ## Prerequisites
 
-- **.NET** — the package targets `net462`, `net481`, `netstandard2.0`, `net8.0`
-  and `net10.0`. The `netstandard2.0` build covers runtimes between those direct
-  targets (.NET Core 2.0+, .NET 5/6/7), so .NET Framework 4.6.2+ and any modern
-  .NET can consume it.
+- **.NET** — the package targets `net462`, `net481`, `netstandard2.0`, `net5.0`,
+  `net6.0`, `net7.0`, `net8.0` and `net10.0`. The `netstandard2.0` build covers the
+  runtimes without a direct target (.NET Core 2.0–3.1), so .NET Framework 4.6.2+ and
+  any modern .NET can consume it.
 - **A reachable Microsoft SQL Server** and a destination table whose columns match
   the record type you intend to load.
 
