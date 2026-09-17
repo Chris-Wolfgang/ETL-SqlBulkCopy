@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787514209458,
+  "lastUpdate": 1789608938949,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -1368,6 +1368,78 @@ window.BENCHMARK_DATA = {
             "value": 11698.830098470053,
             "unit": "ns",
             "range": "± 74.6284399106023"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7a36a80a0ce9b769b0e8ebabfa387f425f3efe1b",
+          "message": "Release v0.8.0 — SqlBulkCopyLoaderOptions<T> record and the options constructor; 13 setters deprecated (#313)\n\n* chore(analyzers): resolve 4 post-v0.7.2 residuals — record PrintMembers + RecordCount disable-pair (#263)\n\nFresh scan on main after v0.7.2 tag surfaced 4 alerts I missed:\n\n3 x RS0016 — record-inherent PrintMembers() overrides. Records\nauto-generate BOTH ToString() AND PrintMembers() (the latter is a\nprotected virtual/override that ToString delegates to). v0.7.2 tracked\nToString but not PrintMembers. This is exactly the class of trap\nreference_record_publicapi_needs_tostring_too flags — \"The build is\nthe ground truth\"; I should have re-built after the ToString fold to\nenumerate remaining record members. Added to PublicAPI.Unshipped.txt:\n  - override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.PrintMembers(...)\n  - virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.PrintMembers(...)\n  - virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.PrintMembers(...)\n\n1 x UnusedAutoPropertyAccessor.Global — ShadowWorkloads.RecordCount.set.\nThe inline `// ReSharper disable once UnusedAutoPropertyAccessor.Global`\ncomment I added in #289 sat two lines above the property; the\nintervening [Params(...)] attribute meant the `once` scope applied to\nthe attribute line, not the property. Replaced with an explicit\ndisable/restore pair around both the attribute and the property.\n\nZero behavior change; releases as PATCH in the next cycle.\n\nRefs #263.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>\n\n* feat: make logger an optional trailing ctor parameter, defaulting to NullLogger\n\nAligns SqlBulkCopyLoader<T> with the fleet-wide constructor convention (logger\nalways last, always optional) already followed by Etl-DbClient.\n\n  (SqlConnection, ILogger<T> logger)\n    -> (SqlConnection, ILogger<T>? logger = null)\n\nnull (or omitted) now resolves to NullLogger.Instance instead of throwing\nArgumentNullException.\n\nNot a breaking change: the parameter list is unchanged, so the emitted\nsignature is identical. Release build with TreatWarningsAsErrors is clean and\nPackageValidation passes, so the PublicAPI.Shipped.txt entry was corrected in\nplace rather than recorded as an add/remove pair.\n\nThe 4-parameter (SqlConnection, SqlBulkCopyOptions, SqlTransaction?, ILogger<T>?)\nconstructor already conformed and is untouched, as is the 1-argument\n(SqlConnection) constructor - removing the latter would be a binary break, since\noptional-argument defaults are baked in at the caller's compile time.\n\nNo new ambiguity: (SqlConnection) still wins overload resolution for a\nsingle-argument call because all of its parameters have a corresponding\nargument, and SqlBulkCopyOptions is an enum so an ILogger argument is not\nconvertible to it.\n\nTest: the one test asserting a null logger throws now asserts the NullLogger\ncontract. All suites pass in Release with TreatWarningsAsErrors across every\ntarget framework (331 unit per TFM, plus fuzz / snapshots / concurrency /\nintegration / doc-examples).\n\nRefs Chris-Wolfgang/ETL-SqlBulkCopy#252\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\n\n* chore: put the logger last on the internal test-injection ctor\n\nApplies Rule 6 of the fleet constructor standard: the logger is the final\nparameter on EVERY constructor, internal ones included.\n\n  internal SqlBulkCopyLoader(wrapperFactory, ILogger? logger,\n                             IProgressTimer? timer, ISqlCommandExecutor? executor = null)\n    -> internal SqlBulkCopyLoader(wrapperFactory, IProgressTimer? timer,\n                                  ISqlCommandExecutor? executor = null, ILogger? logger = null)\n\nThis constructor injects a second test dependency after the timer, so the\nlogger moves past both rather than merely swapping with the timer - the rule is\n\"logger last\", not \"logger second-to-last\".\n\nInternal-only: no public API change, no PublicAPI entry, no consumer impact and\nnothing to deprecate. Call sites across six test files updated, covering both\nthe 3-argument and 4-argument forms; the logger is now passed by name to keep\nthe intent obvious at each site.\n\nAll suites pass in Release with TreatWarningsAsErrors across every target\nframework - 331 unit tests per TFM, plus fuzz, snapshots and concurrency.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\n\n* feat(options): SqlBulkCopyLoaderOptions<T> : LoaderOptions and the options constructor (ADR-0009, part 1)\n\nA new options record for the loader, which had no options type at all:\nevery settable property has a { get; init; } member of the same name\nand default (docs lifted from the loader), BulkCopyOptions carries the\nSqlBulkCopyOptions flags, and the record derives from LoaderOptions so\nReportingInterval / SkipItemCount / MaximumItemCount / ErrorPolicy are\nconfigured there too.\n\nDestinationTableName / DestinationSchemaName sit on the record (nullable\noverrides with an attribute fallback, so configuration, not identity);\nthe SqlTransaction stays a constructor parameter, like DbClient's\nDbTransaction. That settles the two #303 design questions and #252.\n\nNew (connection, options = null, transaction = null, logger = null)\nconstructor chaining base(options) is the single initialization path;\nthe three public constructors and the internal test-injection one chain\ninto it. ApplyOptions copies members in declaration order so the\nsetters' own range checks fire at construction. Public signatures are\nunchanged.\n\nISupportDryRun dropped (removed in 0.24); CompatibilitySuppressions.xml\nnew here (CP0008 x5). Family 0.23.2 -> 0.24.0. PublicAPI: 38 entries;\n25 pre-existing unrecorded record members left out, tracked in #310.\nDry-run contract test on the non-generic TestKit base;\nSqlBulkCopyLoaderOptionsRecordTests adds 10 cases. Setters stay live;\npart 2 deprecates them.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* feat(options): deprecate the 13 setters, move every caller onto the record, README + migration guide (ADR-0009, part 2) (#312)\n\nThe setter of each configurable SqlBulkCopyLoader<T> property is\n[Obsolete] on the accessor (reads stay clean), pointing at\nSqlBulkCopyLoaderOptions<T>; ApplyOptions writes them under one CS0618\npragma as the supported replacement.\n\nEvery internal caller moves onto the record: 45 object-initializer\nsites across the unit / integration / mutation / dry-run tests, the AOT\nquickstart and the shadow-workload benchmark, folded one site at a time\nwith a balanced-brace scanner and reviewed in the diff. The CreateSut\nhelpers take an optional record so the configure-then-run facts pass it\ninstead of assigning after construction; the seven facts that exercise\nthe setters themselves sit under a single pragma region and retire with\nthem.\n\nREADME \"Configuring the loader\" + quick start on the record; docfx\ngetting-started examples; class-level example. docs/migrations/\nv0.7-to-v0.8.md is the first guide here. CHANGELOG Deprecated. No\nPublicAPI text change.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>\n\n* release: v0.8.0\n\nSqlBulkCopyLoaderOptions<T> record and the options constructor; 13 setters deprecated MINOR bump from v0.7.2: new public surface (options records inheriting the Abstractions 0.24.0 base records, new constructors) and new [Obsolete] markers; no removals.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* fix(tools): GcProfileWorkload configures the loader through the record (CS0618 under TreatWarningsAsErrors)\n\ntools/GcProfileWorkload is not in the solution, so #312's fold missed it; Stage 1 on the release PR builds it and failed on the two deprecated setters.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* fix: FileVersion 0.8.0; docs, README, migration wording; SqlClient guard on the record tests; indentation (review on #313)\n\n- FileVersion follows Version and AssemblyVersion on the 0.x line (ADR-0005).\n- Internal ctor <param> tags in declaration order; SqlBulkCopyLoaderOptions remark\n  no longer claims BulkCopyOptions mirrors a loader property.\n- Migration guide: \"no loader member is removed\" and names the ISupportDryRun\n  removal; README common-pattern bullets configure through the record.\n- SqlBulkCopyLoaderOptionsRecordTests constructs SqlConnection behind the same\n  constructibility guard as SqlBulkCopyLoaderTests ([SkippableFact]).\n- PostActionIntegrationTests options block re-indented (fold artifact).\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 4.7 <noreply@anthropic.com>",
+          "timestamp": "2026-09-16T21:32:58-04:00",
+          "tree_id": "51e8a546b7a0f06dad61685ea134aefae3d5708d",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/7a36a80a0ce9b769b0e8ebabfa387f425f3efe1b"
+        },
+        "date": 1789608935349,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 81887.67659505208,
+            "unit": "ns",
+            "range": "± 661.7379930335466"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7607596.815104167,
+            "unit": "ns",
+            "range": "± 189101.080041947"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.208730970819792,
+            "unit": "ns",
+            "range": "± 0.10632295728589845"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.3492332473397255,
+            "unit": "ns",
+            "range": "± 0.00446170923769402"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.614786426226297,
+            "unit": "ns",
+            "range": "± 0.14845393841424567"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 16.418104102214176,
+            "unit": "ns",
+            "range": "± 2.271808937825086"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7253767400979996,
+            "unit": "ns",
+            "range": "± 0.006298675521219419"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11354.881871541342,
+            "unit": "ns",
+            "range": "± 149.752926631191"
           }
         ]
       }
