@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789608938949,
+  "lastUpdate": 1789613900585,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -1440,6 +1440,78 @@ window.BENCHMARK_DATA = {
             "value": 11354.881871541342,
             "unit": "ns",
             "range": "± 149.752926631191"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "159a3c9fdda224f7e1ccec21f83e9f713c12f536",
+          "message": "ci: pin every workflow action to a commit SHA with an exact # vX.Y.Z comment (#314)\n\nRan repo-template's scripts/pin-actions.ps1 -PinTags: tag references become\nSHA pins and major-only comments (# v7) become the exact tag on the pinned\ncommit (# v7.0.1), so zizmor's ref-version-mismatch stops firing when the\nmajor tag moves on. Only the ref/comment text changed. Dependabot keeps the\nprecision it finds, so this stays converted.\n\n51 already exact, 40 line(s) rewritten, 0 tag reference(s), 0 pinned SHA(s) with no tag\n\nRefs Chris-Wolfgang/repo-template#447\n\nCo-authored-by: Chris Wolfgang <cwolfgan@ptd.net>\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-16T22:55:56-04:00",
+          "tree_id": "f1fcd290fd13bf8709332b7386dc694e7bf3d150",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/159a3c9fdda224f7e1ccec21f83e9f713c12f536"
+        },
+        "date": 1789613898829,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 66976.99430338542,
+            "unit": "ns",
+            "range": "± 426.30246649158255"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 6046303.65625,
+            "unit": "ns",
+            "range": "± 91252.16825052598"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 6.0715134516358376,
+            "unit": "ns",
+            "range": "± 0.004394845775537243"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.3508137396226327,
+            "unit": "ns",
+            "range": "± 0.15685030274196426"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 10.31837291518847,
+            "unit": "ns",
+            "range": "± 0.1792463327504402"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 6.236482592920463,
+            "unit": "ns",
+            "range": "± 0.22986009092585818"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.5213800917069118,
+            "unit": "ns",
+            "range": "± 0.24073696260590677"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9631.705683390299,
+            "unit": "ns",
+            "range": "± 160.47712665534786"
           }
         ]
       }
