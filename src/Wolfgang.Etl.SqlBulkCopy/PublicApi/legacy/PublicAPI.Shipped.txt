@@ -1,0 +1,3 @@
+#nullable enable
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>.<Clone>$() -> Wolfgang.Etl.Abstractions.LoaderOptions!
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.<Clone>$() -> Wolfgang.Etl.Abstractions.Report!

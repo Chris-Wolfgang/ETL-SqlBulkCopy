@@ -164,3 +164,26 @@ virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.EqualityContract.get -
 virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
 virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.EqualityContract.get -> System.Type!
 virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Deconstruct(out Microsoft.Data.SqlClient.SqlConnection! Connection, out Microsoft.Data.SqlClient.SqlTransaction? Transaction, out string? SchemaName, out string! TableName, out int CommandTimeout, out System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.ColumnMap!>! ColumnMappings, out Microsoft.Extensions.Logging.ILogger! Logger, out System.Threading.CancellationToken CancellationToken) -> void
+Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.PostLoadActionParameters(Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters! original) -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Deconstruct(out Microsoft.Data.SqlClient.SqlConnection! Connection, out Microsoft.Data.SqlClient.SqlTransaction? Transaction, out string? SchemaName, out string! TableName, out int CommandTimeout, out System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.ColumnMap!>! ColumnMappings, out Microsoft.Extensions.Logging.ILogger! Logger, out System.Threading.CancellationToken CancellationToken) -> void
+Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.PreLoadActionParameters(Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters! original) -> void
+Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.SqlBulkCopyReport(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport! original) -> void
+override Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Equals(object? obj) -> bool
+override Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.GetHashCode() -> int
+override Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Equals(object? obj) -> bool
+override Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.GetHashCode() -> int
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.Equals(object? obj) -> bool
+override Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.GetHashCode() -> int
+override sealed Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.Equals(Wolfgang.Etl.Abstractions.Report? other) -> bool
+static Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.operator !=(Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters? left, Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters? right) -> bool
+static Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.operator ==(Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters? left, Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters? right) -> bool
+static Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.operator !=(Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters? left, Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters? right) -> bool
+static Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.operator ==(Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters? left, Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters? right) -> bool
+static Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.operator !=(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport? left, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport? right) -> bool
+static Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.operator ==(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport? left, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport? right) -> bool
+virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.<Clone>$() -> Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters!
+virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Equals(Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters? other) -> bool
+virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.<Clone>$() -> Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters!
+virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Equals(Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters? other) -> bool
+virtual Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.Equals(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport? other) -> bool
