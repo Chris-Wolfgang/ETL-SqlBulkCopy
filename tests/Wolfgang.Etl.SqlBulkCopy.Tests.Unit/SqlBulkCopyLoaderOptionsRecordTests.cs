@@ -164,23 +164,27 @@ public class SqlBulkCopyLoaderOptionsRecordTests
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    public void Constructor_when_BatchSize_on_the_record_is_below_one_throws(int batchSize)
+    public void Record_when_BatchSize_is_below_one_throws_at_init(int batchSize)
     {
-        using var connection = NewConnection();
-        var options = new SqlBulkCopyLoaderOptions<TestRecord> { BatchSize = batchSize };
+        var exception = Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => new SqlBulkCopyLoaderOptions<TestRecord> { BatchSize = batchSize }
+        );
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => new SqlBulkCopyLoader<TestRecord>(connection, options));
+        Assert.Equal("value", exception.ParamName);
     }
 
 
 
-    [SkippableFact]
-    public void Constructor_when_BulkCopyTimeout_on_the_record_is_negative_throws()
+    [Fact]
+    public void Record_when_BulkCopyTimeout_is_negative_throws_at_init()
     {
-        using var connection = NewConnection();
-        var options = new SqlBulkCopyLoaderOptions<TestRecord> { BulkCopyTimeout = -1 };
+        var exception = Assert.Throws<ArgumentOutOfRangeException>
+        (
+            () => new SqlBulkCopyLoaderOptions<TestRecord> { BulkCopyTimeout = -1 }
+        );
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => new SqlBulkCopyLoader<TestRecord>(connection, options));
+        Assert.Equal("value", exception.ParamName);
     }
 
 
