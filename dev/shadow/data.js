@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789618739574,
+  "lastUpdate": 1789705093928,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -696,6 +696,64 @@ window.BENCHMARK_DATA = {
             "value": 415215002.1666667,
             "unit": "ns",
             "range": "± 10477687.699387701"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "57210678b7a24551e99365ec206b4fab5c29dd8c",
+          "message": "docs: tell contributors how to enable the shipped gitleaks pre-commit hook (#321)\n\nThe template upgrade added .githooks/pre-commit, but git only runs it after\n`git config core.hooksPath .githooks`, and nothing in the repository said so.\nAdds the template's Getting Started step (hook, CLI install, --no-verify).\n\nCo-authored-by: Chris Wolfgang <cwolfgan@ptd.net>\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-18T01:59:37Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/57210678b7a24551e99365ec206b4fab5c29dd8c"
+        },
+        "date": 1789705091929,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 11644583,
+            "unit": "ns",
+            "range": "± 884977.901412798"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 14585317.666666666,
+            "unit": "ns",
+            "range": "± 449831.15816529794"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 13805555.5,
+            "unit": "ns",
+            "range": "± 392183.8978731789"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 442493529,
+            "unit": "ns",
+            "range": "± 19307059.494989365"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 499249080.1666667,
+            "unit": "ns",
+            "range": "± 19325602.13612353"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 440627878.6666667,
+            "unit": "ns",
+            "range": "± 24202124.320396762"
           }
         ]
       }
