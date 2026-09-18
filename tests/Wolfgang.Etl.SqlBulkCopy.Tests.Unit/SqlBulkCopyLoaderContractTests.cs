@@ -25,10 +25,16 @@ public class SqlBulkCopyLoaderContractTests
 
 
 
-    protected override SqlBulkCopyLoader<TestRecord> CreateSut(int itemCount)
+    protected override SqlBulkCopyLoader<TestRecord> CreateSut(int itemCount, int maximumItemCount, int skipItemCount, int reportingInterval)
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        return new SqlBulkCopyLoader<TestRecord>(factory, logger: null, timer: null);
+        var options = new SqlBulkCopyLoaderOptions<TestRecord>
+        {
+            MaximumItemCount = maximumItemCount,
+            SkipItemCount = skipItemCount,
+            ReportingInterval = reportingInterval,
+        };
+        return new SqlBulkCopyLoader<TestRecord>(factory, timer: null, logger: null, options: options);
     }
 
 
