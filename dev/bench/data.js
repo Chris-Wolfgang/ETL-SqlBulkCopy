@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789689336225,
+  "lastUpdate": 1789690439333,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -1656,6 +1656,78 @@ window.BENCHMARK_DATA = {
             "value": 11686.231399536133,
             "unit": "ns",
             "range": "± 4.613461257839862"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a4486ad59dfc32891ce6c449c3e55b3bc77e2204",
+          "message": "chore(publicapi): record the synthesized record members; per-TFM split for the covariant <Clone>$ lines (#320)\n\n* fix(test): restore test discovery on netcoreapp3.1 and net5.0\n\nSame defect as Chris-Wolfgang/Etl-Csv#254 and Chris-Wolfgang/ETL-FixedWidth#336: xunit.runner.visualstudio 2.8.2 ships build/lib assets for net462 and net6.0 only, so the netcoreapp3.1 and net5.0 slots loaded no test adapter and ran zero tests (\"No test is available\") while the suite still read as clean. Pin 2.4.5 on those two slots, 2.8.2 elsewhere, both capped below 3.0.0.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* test: skip the SkippableFact-based tests on netcoreapp3.1 instead of failing them\n\nRestoring discovery on netcoreapp3.1 surfaced 14 failures in the two SkippableFact-based classes: Xunit.SkippableFact probes SupportedOSPlatformAttribute while building each test case, and that type is .NET 5+, so on 3.1 the case fails during initialisation before the test (or its own Skip.IfNot guard) runs. Bumping to 1.5.85 does not change it. On netcoreapp3.1 only, alias SkippableFact/SkippableTheory to Fact/Theory subclasses that carry a Skip reason; the tests still run on the other twelve target frameworks.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* test: only the connection-dependent tests keep [SkippableFact]\n\nReview catch on #318: the netcoreapp3.1 alias skipped every SkippableFact test in the file, including two that never touch SqlConnection (SqlBulkCopyLoaderOptions_derives_from_LoaderOptions, Internal_constructor_applies_the_record_too). Those are plain [Fact] again and run on all thirteen target frameworks; 11 connection-dependent cases keep the alias.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* fix(tfm): ship net5.0/net6.0/net7.0 assemblies — inherited init setters would fail on .NET 5-7\n\nWolfgang.Etl.Abstractions ships per-runtime assemblies, and an init-only setter's IsExternalInit modreq has a different identity in its netstandard2.0 build (internal polyfill) and its net5.0+ builds (System.Runtime). This package's netstandard2.0 assembly is compiled against the former but, on .NET 5/6/7, runs beside the latter, so any write to an inherited options-record property from this assembly throws MissingMethodException — the defect Etl-Csv 0.9.0 hit in its release gate (Chris-Wolfgang/Etl-Csv#287). Nothing in this repo writes one today; the extra targets make it impossible to reintroduce. Same remedy as Abstractions, Etl-DbClient and Etl-Csv.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* docs: changelog fragment instead of a CHANGELOG.md edit; framework lists in README and the docfx guide\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* chore(publicapi): record the synthesized record members that shipped unrecorded; per-TFM split for the covariant <Clone>$ lines\n\nRS0016 is muzzled by the blanket analyzer severity, so the compiler-synthesized members of every shipped record (<Clone>$, copy ctor, Deconstruct, Equals, GetHashCode, ToString, PrintMembers, EqualityContract, ==/!=) have been shipping without an entry in PublicAPI.Shipped.txt. Harvested by raising RS0016 to warning on the project across every target framework and appended to Shipped — they are already public.\n\nThe <Clone>$ of every record that derives from an Abstractions record has a covariant return (the derived type) on net5.0+ but returns the base type on net462 / netstandard2.0, so those lines cannot live in the shared file. Adopts Try-Pattern's layout: PublicApi/modern and PublicApi/legacy PublicAPI.{Shipped,Unshipped}.txt, wired by IsTargetFrameworkCompatible(net5.0) in the csproj; the shared file keeps the TFM-invariant surface. On PublicApiAnalyzers 5.6.0 RS0017 accepts the <Clone>$ lines in the form RS0016 emits, so the blocker recorded in Chris-Wolfgang/Etl-Csv#263 no longer reproduces once the split is in place. Verified: RS0016 raised again reports nothing on any target; plain Release build has no RS0017.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* chore: changelog fragment (internal) for the PublicAPI backfill\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-17T20:11:37-04:00",
+          "tree_id": "66e3fe7fe2b36f638cb7465dabd165a40abea256",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/a4486ad59dfc32891ce6c449c3e55b3bc77e2204"
+        },
+        "date": 1789690436984,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 79586.22998046875,
+            "unit": "ns",
+            "range": "± 679.371589721209"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 8092249.807291667,
+            "unit": "ns",
+            "range": "± 61829.837101929246"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.131091634432474,
+            "unit": "ns",
+            "range": "± 0.034662270074132695"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.668556809425354,
+            "unit": "ns",
+            "range": "± 0.008290694383371128"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 12.99340828259786,
+            "unit": "ns",
+            "range": "± 0.07410587898731273"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 18.623199899991352,
+            "unit": "ns",
+            "range": "± 0.3320526866948959"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.725768248240153,
+            "unit": "ns",
+            "range": "± 0.0043487995740440905"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11509.110951741537,
+            "unit": "ns",
+            "range": "± 147.53228316450065"
           }
         ]
       }
