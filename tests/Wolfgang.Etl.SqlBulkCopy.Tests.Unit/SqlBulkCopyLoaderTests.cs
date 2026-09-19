@@ -1138,8 +1138,7 @@ public class SqlBulkCopyLoaderTests
     public async Task LoadAsync_stops_at_MaximumItemCount()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.MaximumItemCount = 3;
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { MaximumItemCount = 3 });
         var items = CreateTestItems(10);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
@@ -1155,8 +1154,7 @@ public class SqlBulkCopyLoaderTests
     public async Task LoadAsync_skips_items_up_to_SkipItemCount()
     {
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var sut = CreateSut(factory);
-        sut.SkipItemCount = 3;
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { SkipItemCount = 3 });
         var items = CreateTestItems(5);
 
         await sut.LoadAsync(ToAsyncEnumerableAsync(items));
