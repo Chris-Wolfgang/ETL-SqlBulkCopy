@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789782028592,
+  "lastUpdate": 1789783331587,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -1872,6 +1872,78 @@ window.BENCHMARK_DATA = {
             "value": 10539.03618367513,
             "unit": "ns",
             "range": "± 45.62369714392045"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f36071bf3eaa807882e736d1e0caf9e2e3985886",
+          "message": "docs(pack): add THIRD-PARTY-NOTICES.md and ship it in the package (#300) (#351)\n\nAdds the hand-maintained licence notices for the shipped runtime dependencies (Microsoft.Bcl.AsyncInterfaces, Microsoft.Data.SqlClient, Microsoft.Extensions.Logging.Abstractions, System.ComponentModel.Annotations — all MIT; the first-party source generator noted separately) in the Etl-Csv house format, and packs it unconditionally so a missing file fails `dotnet pack`.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-18T21:59:46-04:00",
+          "tree_id": "cb51bd0164f0fffb9a9a78347f026d4e9aee2d8a",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/f36071bf3eaa807882e736d1e0caf9e2e3985886"
+        },
+        "date": 1789783328015,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 80094.2714029948,
+            "unit": "ns",
+            "range": "± 232.09818826429935"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7606064.6484375,
+            "unit": "ns",
+            "range": "± 2412.104164657834"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.135039508342743,
+            "unit": "ns",
+            "range": "± 0.02034683487698611"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6672258997956911,
+            "unit": "ns",
+            "range": "± 0.007632277625883673"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.430123627185822,
+            "unit": "ns",
+            "range": "± 0.044219828687331666"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 12.609529594580332,
+            "unit": "ns",
+            "range": "± 0.831542650171994"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7282693212231,
+            "unit": "ns",
+            "range": "± 0.00402159166895972"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10773.122105916342,
+            "unit": "ns",
+            "range": "± 39.0861254986209"
           }
         ]
       }
