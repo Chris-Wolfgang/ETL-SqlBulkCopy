@@ -313,22 +313,28 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    private string? _destinationTableName;
+
     /// <summary>
     /// Gets or sets an optional destination table name override.
     /// When <c>null</c>, the table name is derived from the <c>[Table]</c> attribute
     /// or the type name.
     /// </summary>
-    public string? DestinationTableName { get; [Obsolete("Configure DestinationTableName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public string? DestinationTableName { get => _destinationTableName; [Obsolete("Configure DestinationTableName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _destinationTableName = value; }
 
 
+
+    private string? _destinationSchemaName;
 
     /// <summary>
     /// Gets or sets an optional destination schema name override.
     /// When <c>null</c>, the schema is derived from the <c>[Table]</c> attribute.
     /// </summary>
-    public string? DestinationSchemaName { get; [Obsolete("Configure DestinationSchemaName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public string? DestinationSchemaName { get => _destinationSchemaName; [Obsolete("Configure DestinationSchemaName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _destinationSchemaName = value; }
 
 
+
+    private bool _enableDataValidation;
 
     /// <summary>
     /// Gets or sets a value indicating whether to validate each item using
@@ -345,9 +351,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip"/>
     /// to tolerate dirty data and drop only the failing items.
     /// </remarks>
-    public bool EnableDataValidation { get; [Obsolete("Configure EnableDataValidation through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public bool EnableDataValidation { get => _enableDataValidation; [Obsolete("Configure EnableDataValidation through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _enableDataValidation = value; }
 
 
+
+    private bool _isDryRun;
 
     /// <summary>
     /// Gets or sets a value indicating whether the load runs as a dry run —
@@ -363,9 +371,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// all skipped. This lets a caller confirm a pipeline runs end-to-end and
     /// surfaces mapping / validation errors without touching the destination.
     /// </remarks>
-    public bool IsDryRun { get; [Obsolete("Configure IsDryRun through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public bool IsDryRun { get => _isDryRun; [Obsolete("Configure IsDryRun through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _isDryRun = value; }
 
 
+
+    private ValidationFailureBehavior _validationFailureBehavior = ValidationFailureBehavior.Throw;
 
     /// <summary>
     /// Gets or sets how the loader reacts to a validation failure when
@@ -381,9 +391,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// root <typeparamref name="TRecord"/> instances and nested-collection
     /// children.
     /// </remarks>
-    public ValidationFailureBehavior ValidationFailureBehavior { get; [Obsolete("Configure ValidationFailureBehavior through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; } = ValidationFailureBehavior.Throw;
+    public ValidationFailureBehavior ValidationFailureBehavior { get => _validationFailureBehavior; [Obsolete("Configure ValidationFailureBehavior through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _validationFailureBehavior = value; }
 
 
+
+    private Action<TRecord, ICollection<ValidationResult>>? _onValidationFailed;
 
     /// <summary>
     /// Gets or sets an optional callback invoked when a root
@@ -398,9 +410,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// failing root item and the collection of validation errors. For
     /// nested-collection children, see <see cref="OnNestedValidationFailed"/>.
     /// </remarks>
-    public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get; [Obsolete("Configure OnValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public Action<TRecord, ICollection<ValidationResult>>? OnValidationFailed { get => _onValidationFailed; [Obsolete("Configure OnValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _onValidationFailed = value; }
 
 
+
+    private Action<object, ICollection<ValidationResult>>? _onNestedValidationFailed;
 
     /// <summary>
     /// Gets or sets an optional callback invoked when a nested-collection
@@ -414,39 +428,47 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// load time, not at <typeparamref name="TRecord"/> definition. For
     /// root-item validation, see <see cref="OnValidationFailed"/>.
     /// </remarks>
-    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get; [Obsolete("Configure OnNestedValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public Action<object, ICollection<ValidationResult>>? OnNestedValidationFailed { get => _onNestedValidationFailed; [Obsolete("Configure OnNestedValidationFailed through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _onNestedValidationFailed = value; }
 
 
+
+    private PreAction _preAction;
 
     /// <summary>
     /// Gets or sets the action to execute before loading begins.
     /// </summary>
     /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.None"/>.</value>
-    public PreAction PreAction { get; [Obsolete("Configure PreAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public PreAction PreAction { get => _preAction; [Obsolete("Configure PreAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _preAction = value; }
 
 
+
+    private Func<PreLoadActionParameters, Task>? _preLoadCustomAction;
 
     /// <summary>
     /// Gets or sets the custom delegate to invoke when
     /// <see cref="PreAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PreAction.CustomAction"/>.
     /// </summary>
-    public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get; [Obsolete("Configure PreLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public Func<PreLoadActionParameters, Task>? PreLoadCustomAction { get => _preLoadCustomAction; [Obsolete("Configure PreLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _preLoadCustomAction = value; }
 
 
+
+    private PostAction _postAction;
 
     /// <summary>
     /// Gets or sets the action to execute after loading completes.
     /// </summary>
     /// <value>The default is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.None"/>.</value>
-    public PostAction PostAction { get; [Obsolete("Configure PostAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public PostAction PostAction { get => _postAction; [Obsolete("Configure PostAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _postAction = value; }
 
 
+
+    private Func<PostLoadActionParameters, Task>? _postLoadCustomAction;
 
     /// <summary>
     /// Gets or sets the custom delegate to invoke when
     /// <see cref="PostAction"/> is <see cref="Wolfgang.Etl.SqlBulkCopy.PostAction.CustomAction"/>.
     /// </summary>
-    public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get; [Obsolete("Configure PostLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set; }
+    public Func<PostLoadActionParameters, Task>? PostLoadCustomAction { get => _postLoadCustomAction; [Obsolete("Configure PostLoadCustomAction through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _postLoadCustomAction = value; }
 
 
 
@@ -1098,25 +1120,23 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </exception>
     private void ApplyOptions(SqlBulkCopyLoaderOptions<TRecord>? options)
     {
-#pragma warning disable CS0618 // the constructor is the supported replacement for the setters; it necessarily writes them
         if (options is null)
         {
             return;
         }
 
-        BatchSize = options.BatchSize;
-        BulkCopyTimeout = options.BulkCopyTimeout;
-        DestinationTableName = options.DestinationTableName;
-        DestinationSchemaName = options.DestinationSchemaName;
-        EnableDataValidation = options.EnableDataValidation;
-        IsDryRun = options.IsDryRun;
-        ValidationFailureBehavior = options.ValidationFailureBehavior;
-        OnValidationFailed = options.OnValidationFailed;
-        OnNestedValidationFailed = options.OnNestedValidationFailed;
-        PreAction = options.PreAction;
-        PreLoadCustomAction = options.PreLoadCustomAction;
-        PostAction = options.PostAction;
-        PostLoadCustomAction = options.PostLoadCustomAction;
-#pragma warning restore CS0618
+        _batchSize = options.BatchSize;
+        _bulkCopyTimeout = options.BulkCopyTimeout;
+        _destinationTableName = options.DestinationTableName;
+        _destinationSchemaName = options.DestinationSchemaName;
+        _enableDataValidation = options.EnableDataValidation;
+        _isDryRun = options.IsDryRun;
+        _validationFailureBehavior = options.ValidationFailureBehavior;
+        _onValidationFailed = options.OnValidationFailed;
+        _onNestedValidationFailed = options.OnNestedValidationFailed;
+        _preAction = options.PreAction;
+        _preLoadCustomAction = options.PreLoadCustomAction;
+        _postAction = options.PostAction;
+        _postLoadCustomAction = options.PostLoadCustomAction;
     }
 }

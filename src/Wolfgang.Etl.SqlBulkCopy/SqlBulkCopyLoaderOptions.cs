@@ -53,7 +53,24 @@ public sealed record SqlBulkCopyLoaderOptions<TRecord> : LoaderOptions
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the value is less than 1.
     /// </exception>
-    public int BatchSize { get; init; } = 10_000;
+    public int BatchSize
+    {
+        get;
+        init
+        {
+            if (value < 1)
+            {
+                throw new ArgumentOutOfRangeException
+                (
+                    nameof(value),
+                    value,
+                    "BatchSize must be at least 1."
+                );
+            }
+
+            field = value;
+        }
+    } = 10_000;
 
 
 
@@ -65,7 +82,24 @@ public sealed record SqlBulkCopyLoaderOptions<TRecord> : LoaderOptions
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the value is negative.
     /// </exception>
-    public int BulkCopyTimeout { get; init; } = 30;
+    public int BulkCopyTimeout
+    {
+        get;
+        init
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException
+                (
+                    nameof(value),
+                    value,
+                    "BulkCopyTimeout must be 0 or greater."
+                );
+            }
+
+            field = value;
+        }
+    } = 30;
 
 
 
