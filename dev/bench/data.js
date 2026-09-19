@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789690439333,
+  "lastUpdate": 1789779868666,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -1728,6 +1728,78 @@ window.BENCHMARK_DATA = {
             "value": 11509.110951741537,
             "unit": "ns",
             "range": "± 147.53228316450065"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fa0cc52e6fbee326080c68639ddf3510bdc64937",
+          "message": "build: adopt Wolfgang.Etl.Abstractions / TestKit / TestKit.Xunit 0.25.0 (#347)\n\nThe base contract classes now take the base configuration through CreateSut(int itemCount, int maximumItemCount, int skipItemCount, int reportingInterval); every implementer forwards the three values into its options record. Tests that configured a stage through the now-deprecated base setters configure through the record instead; the vestigial CreateSutWithTimer overrides go (Chris-Wolfgang/ETL-Abstractions#372 removes the member next).\n\nVerified locally: Release build 0 errors; unit suites green on net462 / netcoreapp3.1 / net10.0; coverage gate reproduced with no class below 90 %.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-18T21:02:02-04:00",
+          "tree_id": "299f8841b083a7c335518ee14d60f658444cd153",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/fa0cc52e6fbee326080c68639ddf3510bdc64937"
+        },
+        "date": 1789779865378,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 60887.68395996094,
+            "unit": "ns",
+            "range": "± 263.5803858277718"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 5959576.997395833,
+            "unit": "ns",
+            "range": "± 6503.3361709679775"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 5.80574141194423,
+            "unit": "ns",
+            "range": "± 0.01400781131482673"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.5326073952019215,
+            "unit": "ns",
+            "range": "± 0.003457700950619659"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 10.81278249869744,
+            "unit": "ns",
+            "range": "± 0.1380197678484626"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 5.344950492183368,
+            "unit": "ns",
+            "range": "± 0.1384369605793452"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.5921498959263165,
+            "unit": "ns",
+            "range": "± 0.002091329827498266"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9315.456756591797,
+            "unit": "ns",
+            "range": "± 13.778243384356728"
           }
         ]
       }
