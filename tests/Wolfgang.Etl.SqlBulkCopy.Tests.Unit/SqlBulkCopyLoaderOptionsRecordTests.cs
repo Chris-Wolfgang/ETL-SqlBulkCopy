@@ -10,7 +10,6 @@ using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Xunit;
 #if NETCOREAPP3_1
 using SkippableFactAttribute = Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NetCoreApp31SkippedFactAttribute;
-using SkippableTheoryAttribute = Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NetCoreApp31SkippedTheoryAttribute;
 #endif
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;

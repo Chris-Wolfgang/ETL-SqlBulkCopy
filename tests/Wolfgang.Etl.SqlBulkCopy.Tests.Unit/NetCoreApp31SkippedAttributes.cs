@@ -1,4 +1,5 @@
 #if NETCOREAPP3_1
+using System;
 using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
@@ -10,6 +11,7 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 /// initialisation before the test body (or its own <c>Skip.IfNot</c> guard) can run. The affected tests still run
 /// on the other twelve target frameworks; on 3.1 they are reported as skipped instead of failed.
 /// </summary>
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 internal sealed class NetCoreApp31SkippedFactAttribute : FactAttribute
 {
     public NetCoreApp31SkippedFactAttribute()
@@ -23,6 +25,7 @@ internal sealed class NetCoreApp31SkippedFactAttribute : FactAttribute
 /// <summary>
 /// <c>[SkippableTheory]</c> counterpart of <see cref="NetCoreApp31SkippedFactAttribute"/>.
 /// </summary>
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 internal sealed class NetCoreApp31SkippedTheoryAttribute : TheoryAttribute
 {
     public NetCoreApp31SkippedTheoryAttribute()
