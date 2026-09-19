@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789705093928,
+  "lastUpdate": 1789791471427,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -754,6 +754,64 @@ window.BENCHMARK_DATA = {
             "value": 440627878.6666667,
             "unit": "ns",
             "range": "± 24202124.320396762"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "f36071bf3eaa807882e736d1e0caf9e2e3985886",
+          "message": "docs(pack): add THIRD-PARTY-NOTICES.md and ship it in the package (#300) (#351)\n\nAdds the hand-maintained licence notices for the shipped runtime dependencies (Microsoft.Bcl.AsyncInterfaces, Microsoft.Data.SqlClient, Microsoft.Extensions.Logging.Abstractions, System.ComponentModel.Annotations — all MIT; the first-party source generator noted separately) in the Etl-Csv house format, and packs it unconditionally so a missing file fails `dotnet pack`.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-19T01:59:46Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/f36071bf3eaa807882e736d1e0caf9e2e3985886"
+        },
+        "date": 1789791469414,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 12226811.833333334,
+            "unit": "ns",
+            "range": "± 672614.2163010929"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 15246257,
+            "unit": "ns",
+            "range": "± 360532.13026164536"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 14639316.666666666,
+            "unit": "ns",
+            "range": "± 474162.6727456869"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 454434157.6666667,
+            "unit": "ns",
+            "range": "± 31507965.57419143"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 521791611.8333333,
+            "unit": "ns",
+            "range": "± 18688154.04938022"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 464049429.5,
+            "unit": "ns",
+            "range": "± 23984037.944472797"
           }
         ]
       }
