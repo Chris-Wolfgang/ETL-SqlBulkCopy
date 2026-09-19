@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789779868666,
+  "lastUpdate": 1789782028592,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -1800,6 +1800,78 @@ window.BENCHMARK_DATA = {
             "value": 9315.456756591797,
             "unit": "ns",
             "range": "± 13.778243384356728"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b430fa51456d35b8d015d478f67b64af06dd2813",
+          "message": "refactor: options constructor assigns backing fields, not the deprecated setters (#345) (#349)\n\nEvery `{ get; [Obsolete] set; }` property now has an explicit backing field the constructor / ApplyOptions writes, so the constructor no longer calls the setters it deprecates and the CS0618 pragma blocks that wrapped those writes are dropped (observation-only reads keep theirs). The `BatchSize` (≥ 1) and `BulkCopyTimeout` (≥ 0) guards now also run on the record's init accessors; the two record tests that expected the loader constructor to throw now assert the throw at `new SqlBulkCopyLoaderOptions { … }` and no longer need a SqlConnection.\n\nVerified locally: Release build 0 errors; unit suites green on net462 / net10.0; coverage gate reproduced with no class below 90 %.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-18T21:38:00-04:00",
+          "tree_id": "b43cb1ac5ed4b9e57821bbc4f640229d598ac696",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/b430fa51456d35b8d015d478f67b64af06dd2813"
+        },
+        "date": 1789782025799,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 76466.13732910156,
+            "unit": "ns",
+            "range": "± 406.2276887069413"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7447001.143229167,
+            "unit": "ns",
+            "range": "± 62380.38375740086"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.150975639621416,
+            "unit": "ns",
+            "range": "± 0.012730844508055051"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6586986730496088,
+            "unit": "ns",
+            "range": "± 0.0028860176676147806"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.084822525580725,
+            "unit": "ns",
+            "range": "± 0.09012001213830266"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 16.318184693654377,
+            "unit": "ns",
+            "range": "± 0.07598657956329433"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.762296438217163,
+            "unit": "ns",
+            "range": "± 0.06733719266044522"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10539.03618367513,
+            "unit": "ns",
+            "range": "± 45.62369714392045"
           }
         ]
       }
