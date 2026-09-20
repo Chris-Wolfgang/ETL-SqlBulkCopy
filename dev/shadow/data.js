@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789791471427,
+  "lastUpdate": 1789877883265,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -812,6 +812,64 @@ window.BENCHMARK_DATA = {
             "value": 464049429.5,
             "unit": "ns",
             "range": "± 23984037.944472797"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "bed8cf2f0027662f1d21a655a7fffed3b76a773c",
+          "message": "test: [AttributeUsage] on the netcoreapp3.1 skip attributes; unused alias removed (#366)\n\nResolves the 2 S3993 and 1 RedundantUsingDirective alerts in test code.\n\nVerified locally: Release build 0 errors; unit suites green on net462 / net10.0.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-19T19:11:59Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/bed8cf2f0027662f1d21a655a7fffed3b76a773c"
+        },
+        "date": 1789877879743,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 12212925,
+            "unit": "ns",
+            "range": "± 263019.6928311643"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 15238113.5,
+            "unit": "ns",
+            "range": "± 241626.32169736805"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 14110796.333333334,
+            "unit": "ns",
+            "range": "± 380915.99819426506"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 453655366.3333333,
+            "unit": "ns",
+            "range": "± 29073930.076624665"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 496614246.5,
+            "unit": "ns",
+            "range": "± 19550308.536464814"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 432121327.3333333,
+            "unit": "ns",
+            "range": "± 23971316.980166994"
           }
         ]
       }
