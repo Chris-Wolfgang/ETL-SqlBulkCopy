@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789843023532,
+  "lastUpdate": 1790015154090,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2016,6 +2016,78 @@ window.BENCHMARK_DATA = {
             "value": 11001.034779866537,
             "unit": "ns",
             "range": "± 253.62830095231345"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "da1bf7858e3652ee6978b5dc03a0a30f20953ccf",
+          "message": "fix(pack): ship the generated per-package THIRD-PARTY-NOTICES.md only (#375)\n\nrelease.yaml (previous PR) now renders obj/THIRD-PARTY-NOTICES.md per project\nand Directory.Build.props packs it at the package root; the csproj items that\npacked the repository-wide file to the same path made `dotnet pack` fail with\nNU5118 (warning-as-error, duplicate file) - the release would have died at the\npack step (ETL-Abstractions#633). The PR pipeline never packs, so this only\nshows at release time.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-21T14:23:21-04:00",
+          "tree_id": "3ec44a6b9dadb14034c4a66b98188cce9fa2c5c9",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/da1bf7858e3652ee6978b5dc03a0a30f20953ccf"
+        },
+        "date": 1790015150655,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 81970.13155110677,
+            "unit": "ns",
+            "range": "± 136.0209371822347"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7704404.104166667,
+            "unit": "ns",
+            "range": "± 6931.924488241132"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.441085691253344,
+            "unit": "ns",
+            "range": "± 0.35981759674336994"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6819703876972198,
+            "unit": "ns",
+            "range": "± 0.03902821592306314"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.837305754423141,
+            "unit": "ns",
+            "range": "± 0.07853083172170308"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 15.047233402729034,
+            "unit": "ns",
+            "range": "± 1.3264519034955653"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7326029116908708,
+            "unit": "ns",
+            "range": "± 0.007860129067356355"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11495.511052449545,
+            "unit": "ns",
+            "range": "± 80.93989267095547"
           }
         ]
       }
