@@ -51,6 +51,8 @@
          newer still) while breaking anyone on a current released SDK. CI
          cannot catch this class of regression, because CI is always on the
          newest SDK; see the dependabot.yml ignore that now holds the pin. -->
+    <!-- Pinned to the lowest Roslyn this generator supports so it loads on older SDKs. The test
+         project may reference a newer Microsoft.CodeAnalysis.CSharp; do not "align" this to it. -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
   </ItemGroup>
