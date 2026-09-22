@@ -4,5 +4,17 @@
     "Id": "SQLitePCLRaw.lib.e_sqlite3",
     "Version": "3.53.3",
     "License": "Apache-2.0"
+  },
+  {
+    "_comment": "Native SNI runtime that Microsoft.Data.SqlClient pulls in on Windows. Its LICENSE.txt is the proprietary MICROSOFT SOFTWARE LICENSE TERMS (redistribution permitted with the SqlClient library), not an SPDX licence, so nuget-license cannot map it. Verified by reading the file; pinned so a bump re-checks it.",
+    "Id": "Microsoft.Data.SqlClient.SNI",
+    "Version": "6.0.2",
+    "License": "LicenseRef-Microsoft-SqlClient-SNI"
+  },
+  {
+    "_comment": "Native SNI runtime that Microsoft.Data.SqlClient pulls in on Windows. Its LICENSE.txt is the proprietary MICROSOFT SOFTWARE LICENSE TERMS (redistribution permitted with the SqlClient library), not an SPDX licence, so nuget-license cannot map it. Verified by reading the file; pinned so a bump re-checks it.",
+    "Id": "Microsoft.Data.SqlClient.SNI.runtime",
+    "Version": "6.0.2",
+    "License": "LicenseRef-Microsoft-SqlClient-SNI"
   }
 ]
