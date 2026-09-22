@@ -20,6 +20,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 
+## [0.9.0] - 2026-09-22
+
+### Added
+
+- Built against `Wolfgang.Etl.Abstractions` 0.25.0 (and TestKit / TestKit.Xunit 0.25.0): the base-stage `ReportingInterval` / `MaximumItemCount` / `SkipItemCount` setters are deprecated fleet-wide in favour of the options record, and `IncrementCurrentItemCount(int)` / `IncrementCurrentSkippedItemCount(int)` are available to derived stages. (#347)
+
+### Fixed
+
+- Packages ship one `THIRD-PARTY-NOTICES.md` - the per-package file generated from each project's own NuGet closure - instead of failing to pack (`NU5118`) because the repository-wide file was still added alongside it. (#375)
+- Ship `net5.0`, `net6.0` and `net7.0` assemblies: the `netstandard2.0` build, loaded beside the `net5.0`+ `Wolfgang.Etl.Abstractions` asset, would throw `MissingMethodException` on any write to an inherited options-record property (`IsExternalInit` modreq mismatch). Each runtime now gets an assembly compiled against its matching Abstractions asset. (#319)
+
+### Documentation
+
+- `THIRD-PARTY-NOTICES.md` added at the repo root (shipped runtime dependencies with version and licence) and packed into the NuGet package. (#300) (#300)
+
+### Internal
+
+- Built against Wolfgang.Etl.Abstractions / ErrorPolicies / TestKit / TestKit.Xunit 0.26.0 (trim- and native-AOT-compatible on net8.0+; no API change from 0.25.0), so the package now requires Abstractions 0.26.0 or later. (#379)
+- New `src/.editorconfig`: S1133 (scheduled `[Obsolete]` setters, #317) and S3427 (optional-parameter overlaps with the single-argument constructor that #297 retires) are off for the src project until the 2026-12-15 removal wave, with dated notes. (#365)
+- Test code: `[AttributeUsage(AttributeTargets.Method)]` on the two netcoreapp3.1 skip attributes (S3993); an unused `SkippableTheoryAttribute` alias removed. (#366)
+- `AssemblyVersion` and `FileVersion` are now derived from `<Version>` (`0.{Minor}.0.0` / `{Version}.0`) instead of hand-pinned, so they can no longer fall behind on a minor bump.
+- The options constructor assigns the stage's backing fields directly instead of going through the deprecated setters, so the `CS0618` suppressions that covered those writes are gone. The `BatchSize` (≥ 1) and `BulkCopyTimeout` (≥ 0) guards now also run on the record's init accessors; the two record tests that expected the loader constructor to throw now assert the throw at `new SqlBulkCopyLoaderOptions { … }` and no longer need a SqlConnection. (#345) (#345)
+- Record the compiler-synthesized members of the shipped records in `PublicAPI.Shipped.txt` (per-TFM files for the covariant `<Clone>$` lines); they were public all along, no surface change. (#320)
+- The two Semgrep SQL-injection findings are suppressed at source with a justification: `SqlConnectionCommandExecutor` runs the caller's own statement for pre/post-load custom actions (the same contract as `ExecuteSqlRaw`), and the sample harness passes literals. (#385)
+
 ## [0.8.0] - 2026-09-16
 
 ### Changed
