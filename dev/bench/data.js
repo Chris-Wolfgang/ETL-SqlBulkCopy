@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790084591563,
+  "lastUpdate": 1790102725947,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2160,6 +2160,78 @@ window.BENCHMARK_DATA = {
             "value": 11700.277064005533,
             "unit": "ns",
             "range": "± 19.77686633136033"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "73e1637e0a295986c0787558318a97ee7b8b38e2",
+          "message": "ci(semgrep): justify the two SQL-injection findings at source (#385)\n\nSqlConnectionCommandExecutor is the thin ISqlCommandExecutor behind\nSqlBulkCopyLoader's pre/post-load custom actions: the statement is the\ncaller's own, the same contract as Dapper's Execute or EF's ExecuteSqlRaw,\nand nothing in it mixes library data into the caller's string. The sample\nharness passes literal DDL/DML. Both sites carry `// nosemgrep` with that\nreasoning, so the finding stays visible in review instead of being dismissed\nin the Security tab where the next reader cannot see why.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-22T14:42:10-04:00",
+          "tree_id": "e57c8795dabfae3a631cbe77aad89d865340ba05",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/73e1637e0a295986c0787558318a97ee7b8b38e2"
+        },
+        "date": 1790102723283,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 78926.3642578125,
+            "unit": "ns",
+            "range": "± 74.46955828912365"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7634269.40625,
+            "unit": "ns",
+            "range": "± 62746.470593521546"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 7.975023383895556,
+            "unit": "ns",
+            "range": "± 0.008152250710067546"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.8402055477102598,
+            "unit": "ns",
+            "range": "± 0.20121428226764254"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 14.097809761762619,
+            "unit": "ns",
+            "range": "± 0.43033277350034205"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 7.0874925802151365,
+            "unit": "ns",
+            "range": "± 0.5657493149972297"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.7056343406438828,
+            "unit": "ns",
+            "range": "± 0.0034140986659153797"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11953.72226969401,
+            "unit": "ns",
+            "range": "± 34.04332988029026"
           }
         ]
       }
