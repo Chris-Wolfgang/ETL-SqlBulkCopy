@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The options constructor assigns the stage's backing fields directly instead of going through the deprecated setters, so the `CS0618` suppressions that covered those writes are gone. The `BatchSize` (≥ 1) and `BulkCopyTimeout` (≥ 0) guards now also run on the record's init accessors; the two record tests that expected the loader constructor to throw now assert the throw at `new SqlBulkCopyLoaderOptions { … }` and no longer need a SqlConnection. (#345) (#345)
 - Record the compiler-synthesized members of the shipped records in `PublicAPI.Shipped.txt` (per-TFM files for the covariant `<Clone>$` lines); they were public all along, no surface change. (#320)
 - The two Semgrep SQL-injection findings are suppressed at source with a justification: `SqlConnectionCommandExecutor` runs the caller's own statement for pre/post-load custom actions (the same contract as `ExecuteSqlRaw`), and the sample harness passes literals. (#385)
+- Review polish: the source generator's Roslyn pin is documented as intentional; no behaviour change.
+
 
 ## [0.8.0] - 2026-09-16
 
