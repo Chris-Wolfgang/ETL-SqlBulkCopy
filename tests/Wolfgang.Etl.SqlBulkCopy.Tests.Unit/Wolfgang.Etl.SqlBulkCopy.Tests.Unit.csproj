@@ -34,8 +34,8 @@
          depends on Windows-only PerformanceCounter), so those tests are scoped to
          the Windows stages. -->
     <PackageReference Include="Xunit.SkippableFact" Version="1.5.61" />
-    <PackageReference Include="Wolfgang.Etl.TestKit" Version="0.25.0" />
-    <PackageReference Include="Wolfgang.Etl.TestKit.Xunit" Version="0.25.0" />
+    <PackageReference Include="Wolfgang.Etl.TestKit" Version="0.26.0" />
+    <PackageReference Include="Wolfgang.Etl.TestKit.Xunit" Version="0.26.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <!--
       xunit.runner.visualstudio 2.8.2 ships build/lib assets for net462 and net6.0 ONLY, so the
