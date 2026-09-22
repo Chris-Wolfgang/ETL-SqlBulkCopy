@@ -48,6 +48,13 @@ internal sealed class SqlConnectionCommandExecutor : ISqlCommandExecutor
     public async Task ExecuteNonQueryAsync(string commandText, int commandTimeout, CancellationToken cancellationToken)
     {
         using var command = _connection.CreateCommand();
+        // nosemgrep: csharp.lang.security.sqli.csharp-sqli
+        // The command text is the caller's, by design: this type is the thin
+        // ISqlCommandExecutor behind SqlBulkCopyLoader's pre/post-load custom
+        // actions, the same contract as Dapper's Execute or EF's ExecuteSqlRaw.
+        // There is nothing here to parameterise - the SQL never mixes library
+        // data with the caller's string - and the public API documents that the
+        // caller owns the statement.
         command.CommandText = commandText;
         command.CommandTimeout = commandTimeout;
 
