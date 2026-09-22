@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790102725947,
+  "lastUpdate": 1790118104453,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2232,6 +2232,78 @@ window.BENCHMARK_DATA = {
             "value": 11953.72226969401,
             "unit": "ns",
             "range": "± 34.04332988029026"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "91ab4a2a7c0291eebbc7e48e4e151af32199e178",
+          "message": "docs(changelog): take the template's fragment README (repo-template#630) (#389)\n\nTwo additions: a label added after the fragment check ran does not reach a re-run (the re-run replays the original payload - push a commit instead), and the list of src/ files that never need a fragment (nested .editorconfig, globalconfig/ruleset/DotSettings, PublicAPI baselines) - the rule this repository's changelog.ps1 already implements.\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-09-22T18:59:24-04:00",
+          "tree_id": "66f67f7214023955e3ebfa7393666742aab78755",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/91ab4a2a7c0291eebbc7e48e4e151af32199e178"
+        },
+        "date": 1790118101537,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 76169.01118977864,
+            "unit": "ns",
+            "range": "± 719.967419702538"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7625362.856770833,
+            "unit": "ns",
+            "range": "± 38536.79989871597"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.213155140479406,
+            "unit": "ns",
+            "range": "± 0.20325873847204126"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6476195851961771,
+            "unit": "ns",
+            "range": "± 0.026300391067703915"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.413236876328787,
+            "unit": "ns",
+            "range": "± 0.15137448226715902"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 14.155012339353561,
+            "unit": "ns",
+            "range": "± 1.8075391198601993"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.6820343285799026,
+            "unit": "ns",
+            "range": "± 0.02417802649762669"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10512.28803507487,
+            "unit": "ns",
+            "range": "± 30.48519861096264"
           }
         ]
       }
