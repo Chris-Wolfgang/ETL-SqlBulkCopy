@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789877883265,
+  "lastUpdate": 1790050721138,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -870,6 +870,64 @@ window.BENCHMARK_DATA = {
             "value": 432121327.3333333,
             "unit": "ns",
             "range": "± 23971316.980166994"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "da1bf7858e3652ee6978b5dc03a0a30f20953ccf",
+          "message": "fix(pack): ship the generated per-package THIRD-PARTY-NOTICES.md only (#375)\n\nrelease.yaml (previous PR) now renders obj/THIRD-PARTY-NOTICES.md per project\nand Directory.Build.props packs it at the package root; the csproj items that\npacked the repository-wide file to the same path made `dotnet pack` fail with\nNU5118 (warning-as-error, duplicate file) - the release would have died at the\npack step (ETL-Abstractions#633). The PR pipeline never packs, so this only\nshows at release time.\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-21T18:23:21Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/da1bf7858e3652ee6978b5dc03a0a30f20953ccf"
+        },
+        "date": 1790050717723,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 10296406.333333334,
+            "unit": "ns",
+            "range": "± 350867.98972025554"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 13731555.833333334,
+            "unit": "ns",
+            "range": "± 223019.1898028807"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 12714734,
+            "unit": "ns",
+            "range": "± 257785.59805388664"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 415832128.3333333,
+            "unit": "ns",
+            "range": "± 37942989.61421628"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 472889124.6666667,
+            "unit": "ns",
+            "range": "± 12263161.149746109"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 432980931.1666667,
+            "unit": "ns",
+            "range": "± 5530981.472527758"
           }
         ]
       }
