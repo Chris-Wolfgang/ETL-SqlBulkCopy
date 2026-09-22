@@ -5,15 +5,14 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Version>0.8.0</Version>
-    <!-- AssemblyVersion tracks 0.{Minor} during 0.x (ADR-0011 in ETL-Abstractions).
-         The minor is SemVer's breaking position pre-1.0, and AssemblyVersion is
-         bind-time identity on net462/net481, so it MUST move with every minor —
-         otherwise a binary-breaking change is invisible at bind time on .NET
-         Framework and surfaces as a runtime MissingMethodException instead.
-         Bump this together with <Version> in every release-prep PR. -->
-    <AssemblyVersion>0.8.0</AssemblyVersion>
-    <FileVersion>0.8.0</FileVersion>
+    <Version>0.9.0</Version>
+    <!-- AssemblyVersion is derived from <Version> as 0.{Minor}.0.0 (ADR-0011 in
+         ETL-Abstractions): the minor is SemVer's breaking position pre-1.0 and
+         AssemblyVersion is bind-time identity on .NET Framework, so it must move
+         with every minor. Deriving it means a release-prep PR cannot forget it,
+         and PATCH bumps keep the same identity (no binding-redirect churn). -->
+    <AssemblyVersion>0.$([System.Version]::Parse($(Version.Split('-')[0])).Minor).0.0</AssemblyVersion>
+    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace("$(Version)", "[-+].*$", "")).0</FileVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <!-- API/ABI compatibility gate (#88). On pack, the SDK's package validation
          (Microsoft.DotNet.ApiCompat) downloads the baseline release and fails
