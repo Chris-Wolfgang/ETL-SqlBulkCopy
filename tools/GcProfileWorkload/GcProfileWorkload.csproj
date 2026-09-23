@@ -16,8 +16,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Testcontainers.MsSql" Version="4.13.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.15.0" />
+    <!-- Must track the version src/Wolfgang.Etl.SqlBulkCopy references. This project also
+         references that library, so a lower direct version here is a package DOWNGRADE
+         (NU1605), which is an error under TreatWarningsAsErrors and fails restore for the
+         whole build - not just this project. -->
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
+    <!-- SECURITY PIN, not a feature bump - same remedy as Tests.Integration and
+         ShadowWorkloads. Testcontainers depends transitively on SSH.NET 2025.1.0, which
+         carries HIGH-severity advisories GHSA-q939-rpr3-3284 and GHSA-mggc-4xg6-vcxf.
+         NuGet audit raises that as NU1903, an error here. There is no upstream fix to
+         take; pinning the transitive dependency forward is the remedy, and suppressing
+         NU1903 is not. SSH.NET is only used by Testcontainers to drive a REMOTE Docker
+         daemon over SSH, which this workload does not do.
+
+         REMOVE this line once Testcontainers ships a release depending on a patched
+         SSH.NET - and remove it from the other two projects at the same time. -->
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
   </ItemGroup>
 
 </Project>
