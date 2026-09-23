@@ -1,25 +1,25 @@
 Summary
-  Generated on: 9/17/2026 - 4:54:34 PM
-  Coverage date: 9/17/2026 - 4:54:30 PM
+  Generated on: 9/23/2026 - 1:54:33 AM
+  Coverage date: 9/23/2026 - 1:54:29 AM - 9/23/2026 - 1:54:30 AM
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
   Classes: 50
   Files: 48
   Line coverage: 98.7%
-  Covered lines: 3720
+  Covered lines: 3748
   Uncovered lines: 46
-  Coverable lines: 3766
-  Total lines: 9773
-  Branch coverage: 87.1% (407 of 467)
-  Covered branches: 407
-  Total branches: 467
-  Method coverage: 99.4% (539 of 542)
-  Full method coverage: 97.7% (530 of 542)
-  Covered methods: 539
-  Fully covered methods: 530
-  Total methods: 542
+  Coverable lines: 3794
+  Total lines: 9841
+  Branch coverage: 87.1% (412 of 473)
+  Covered branches: 412
+  Total branches: 473
+  Method coverage: 99.4% (542 of 545)
+  Full method coverage: 97.7% (533 of 545)
+  Covered methods: 542
+  Fully covered methods: 533
+  Total methods: 545
 
-Wolfgang.Etl.SqlBulkCopy                                                       96.7%
+Wolfgang.Etl.SqlBulkCopy                                                       96.8%
   Wolfgang.Etl.SqlBulkCopy.ColumnMap                                           94.7%
   Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry                            100%
   Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor                            100%
