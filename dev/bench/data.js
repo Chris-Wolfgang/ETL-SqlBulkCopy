@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790171679612,
+  "lastUpdate": 1790177706893,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2520,6 +2520,78 @@ window.BENCHMARK_DATA = {
             "value": 9083.766932169596,
             "unit": "ns",
             "range": "± 44.915864866320945"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd91466d98d3e1fa307fabc559e4111450a4a12d",
+          "message": "Bump the dotnet-dependencies group with 11 updates (#397)\n\n* Bump the dotnet-dependencies group with 11 updates\n\nBumps CsCheck from 4.8.0 to 4.9.1\nBumps Meziantou.Analyzer from 3.0.167 to 3.0.283\nBumps Microsoft.Bcl.AsyncInterfaces from 10.0.11 to 10.0.12\nBumps Microsoft.Data.SqlClient from 7.0.2 to 7.1.0\nBumps Microsoft.Extensions.Logging.Abstractions from 10.0.11 to 10.0.12\nBumps Microsoft.SourceLink.GitHub from 10.0.400 to 10.0.401\nBumps nuget-license from 4.0.17 to 4.0.18\nBumps Roslynator.Analyzers from 4.16.1 to 5.0.0\nBumps SonarAnalyzer.CSharp from 10.32.0.713 to 10.34.0.3385\nBumps Testcontainers.MsSql from 4.14.0 to 4.15.0\nBumps Xunit.SkippableFact from 1.5.61 to 1.5.85\n\n---\nupdated-dependencies:\n- dependency-name: CsCheck\n  dependency-version: 4.9.1\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: Meziantou.Analyzer\n  dependency-version: 3.0.283\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Microsoft.Bcl.AsyncInterfaces\n  dependency-version: 10.0.12\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Microsoft.Data.SqlClient\n  dependency-version: 7.1.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: Microsoft.Extensions.Logging.Abstractions\n  dependency-version: 10.0.12\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Microsoft.SourceLink.GitHub\n  dependency-version: 10.0.401\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: nuget-license\n  dependency-version: 4.0.18\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Roslynator.Analyzers\n  dependency-version: 5.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n  dependency-group: dotnet-dependencies\n- dependency-name: SonarAnalyzer.CSharp\n  dependency-version: 10.34.0.3385\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: Testcontainers.MsSql\n  dependency-version: 4.15.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: Testcontainers.MsSql\n  dependency-version: 4.15.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: Xunit.SkippableFact\n  dependency-version: 1.5.85\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Xunit.SkippableFact\n  dependency-version: 1.5.85\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* build(deps): bring GcProfileWorkload in line with the group bump\n\nStage 1 fails restore on this PR:\n\n  error NU1605: Warning As Error: Detected package downgrade:\n  Microsoft.Data.SqlClient from 7.1.0 to 7.0.2\n\ntools/GcProfileWorkload is not in the PR's file list. The group bump raised\nMicrosoft.Data.SqlClient to 7.1.0 in src/, tests/ and samples/, but this project\nreferences the library by ProjectReference AND pins SqlClient 7.0.2 directly, so\nits direct reference is now lower than what it gets transitively. That is a\ndowngrade, TreatWarningsAsErrors makes NU1605 an error, and restore fails for the\nwhole build rather than just this project.\n\nThe same file also raised the SSH.NET advisories - NU1903 for\nGHSA-q939-rpr3-3284 and GHSA-mggc-4xg6-vcxf - because Testcontainers pulls\nSSH.NET 2025.1.0 transitively and this is the one project that never received\nthe forward pin its two siblings carry.\n\nSo: SqlClient to 7.1.0, Testcontainers.MsSql to 4.15.0 to match the rest of the\nrepository, and the SSH.NET 2026.0.0 security pin with the same rationale and the\nsame removal condition as Tests.Integration and ShadowWorkloads.\n\nVerified locally rather than by inference: restoring this project before the\nchange reproduces error NU1605 and NU1903 and exits 1; after it, restore is clean\nand exits 0.\n\nNote this commit ends Dependabot's management of this branch - it will not rebase\nor update the PR again, which is fine if it merges from here.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* test: let the SqlConnection guard skip on PlatformNotSupportedException too\n\n*** TEST-CODE CHANGE - flagged for review per the house rule. ***\n\nWith restore fixed, Stage 1 got as far as running tests and 10 failed on the\nnet5.0 leg with:\n\n  System.PlatformNotSupportedException : Microsoft.Data.SqlClient is not\n  supported on this platform.\n    at Microsoft.Data.SqlClient.SqlConnection..ctor()\n\nBoth test classes already have a guard whose stated purpose is exactly this -\n\"the facts that need a real SqlConnection skip instead of fail there\" - but it\ncatches only TypeInitializationException, the SqlPerformanceCounters cctor\nfailure. Microsoft.Data.SqlClient ships lib/ assets for net462, net8.0, net9.0\nand netstandard2.0 only, so the net5.0-net7.0 legs bind netstandard2.0, whose\nmembers throw PlatformNotSupportedException outright. That escapes the catch,\npropagates out of the Lazy, and fails every test calling NewConnection().\n\nThe guard now treats it the same way, for the same reason: no real SqlConnection\nis available on that leg.\n\nThis is NOT caused by the version bump. 7.0.2 and 7.1.0 ship identical target\nframeworks - verified against both packages in the local NuGet cache - so the\nnet5.0 leg binds netstandard2.0 either way. The failures were latent and only\nbecame visible once the NU1605 downgrade stopped failing the build at restore.\n\nNo assertion is weakened and nothing is suppressed: on every leg where\nSqlClient works (net8.0/9.0/10.0, and the .NET Framework legs) these tests run\nexactly as before. Verified locally on net10.0: 338 passed, 0 skipped.\n\nWhat I could NOT verify locally: the skip itself. The PlatformNotSupportedException\nonly occurs on the Linux net5.0-net7.0 legs, and this machine is Windows, where\nSqlClient loads. CI is the real check.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n---------\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Chris Wolfgang <210299580+Chris-Wolfgang@users.noreply.github.com>\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-23T11:32:11-04:00",
+          "tree_id": "72a5728435ce3d5c44405bce2b819c8e8d96be0d",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/cd91466d98d3e1fa307fabc559e4111450a4a12d"
+        },
+        "date": 1790177702509,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 84021.60518391927,
+            "unit": "ns",
+            "range": "± 138.47690190198776"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7581856.825520833,
+            "unit": "ns",
+            "range": "± 9264.767031355079"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 5.828696275750796,
+            "unit": "ns",
+            "range": "± 0.015391254946927776"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.7267665540178617,
+            "unit": "ns",
+            "range": "± 0.0145552772299511"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 12.044687151908875,
+            "unit": "ns",
+            "range": "± 0.055691885363228374"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 7.0717465082804365,
+            "unit": "ns",
+            "range": "± 0.0759854602313002"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.6290344471732776,
+            "unit": "ns",
+            "range": "± 0.0304457694863852"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10933.168228149414,
+            "unit": "ns",
+            "range": "± 69.06551366185344"
           }
         ]
       }
