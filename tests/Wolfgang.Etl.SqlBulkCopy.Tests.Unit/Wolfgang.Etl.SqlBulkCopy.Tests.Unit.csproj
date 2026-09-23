@@ -33,7 +33,7 @@
          Microsoft.Data.SqlClient 6.x is not functional on Linux (SqlPerformanceCounters
          depends on Windows-only PerformanceCounter), so those tests are scoped to
          the Windows stages. -->
-    <PackageReference Include="Xunit.SkippableFact" Version="1.5.61" />
+    <PackageReference Include="Xunit.SkippableFact" Version="1.5.85" />
     <PackageReference Include="Wolfgang.Etl.TestKit" Version="0.26.0" />
     <PackageReference Include="Wolfgang.Etl.TestKit.Xunit" Version="0.26.0" />
     <PackageReference Include="xunit" Version="2.9.3" />

@@ -27,7 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="CsCheck" Version="4.8.0" />
+    <PackageReference Include="CsCheck" Version="4.9.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" PrivateAssets="all" />
   </ItemGroup>
 
