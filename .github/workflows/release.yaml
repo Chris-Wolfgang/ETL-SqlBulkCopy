@@ -283,7 +283,7 @@ jobs:
 
           dotnet tool restore
 
-          reportgenerator `
+          dotnet reportgenerator `
             -reports:"TestResults/**/coverage.cobertura.xml" `
             -targetdir:"CoverageReport" `
             -reporttypes:"TextSummary;Html"
@@ -781,7 +781,7 @@ jobs:
         # Same rule/glob configuration as pr.yaml so a release cannot fail on a
         # finding a PR would have accepted, or vice versa.
         run: |
-          devskim analyze             --source-code .             --file-format text             --output-file devskim-results.txt             --ignore-rule-ids DS176209             --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
+          dotnet devskim analyze             --source-code .             --file-format text             --output-file devskim-results.txt             --ignore-rule-ids DS176209             --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
 
       - name: Display DevSkim results
         if: always()
