@@ -160,8 +160,9 @@ public class BulkLoadShadowWorkloads
     private async Task ExecuteAsync(string sql)
     {
         using var command = _connection.CreateCommand();
-        // nosemgrep: csharp.lang.security.sqli.csharp-sqli
         // Sample harness: every call site below passes a literal DDL/DML string.
+        // Full rule id, and directly above the statement: Semgrep needs both.
+        // nosemgrep: csharp.lang.security.sqli.csharp-sqli.csharp-sqli
         command.CommandText = sql;
         await command.ExecuteNonQueryAsync();
     }
