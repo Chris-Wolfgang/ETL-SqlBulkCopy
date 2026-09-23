@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790118104453,
+  "lastUpdate": 1790165929658,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2304,6 +2304,78 @@ window.BENCHMARK_DATA = {
             "value": 10512.28803507487,
             "unit": "ns",
             "range": "± 30.48519861096264"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "00279fe5a0fb06929ca0f88d41cf1049f98b8269",
+          "message": "fix(semgrep): make the csharp-sqli waiver actually apply (#394)\n\n* fix(semgrep): make the csharp-sqli waiver actually apply\n\nThe `nosemgrep` marker on `SqlConnectionCommandExecutor.ExecuteNonQueryAsync`\nwas inert, so the SQL-injection finding kept reporting despite the waiver having\nbeen written months ago. Two independent reasons, both confirmed by running\nsemgrep 1.170.0 with `--config p/csharp` over the file:\n\n- The id was `csharp.lang.security.sqli.csharp-sqli`, one segment short of the\n  rule's actual id `csharp.lang.security.sqli.csharp-sqli.csharp-sqli`. A\n  `nosemgrep:` that names an id suppresses only an exact match; a near-miss is\n  silently ignored rather than reported as unknown.\n- The marker sat seven lines above the flagged statement, with the justification\n  comment in between. Semgrep honours the marker only on the finding's own line\n  or the line immediately before it.\n\nFixing either alone still leaves the finding reporting; the matrix was checked\nall four ways. The justification text now sits above the marker, so the marker\nkeeps its required adjacency, and a note records both constraints since getting\nthem wrong fails silently.\n\nNo behaviour change: comments only.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* fix(semgrep): repair the same inert waiver in the samples harness\n\n`BulkLoadShadowWorkloads.ExecuteAsync` carried a `nosemgrep` marker with the same\ntwo faults as the one in src/: the short rule id, and the marker sitting above the\njustification rather than directly above the statement.\n\n`semgrep.yaml` scans only `src/`, so this one was not producing an alert. It is\nfixed anyway so a known-broken waiver is not left behind for whoever widens the\nscan scope. Verified: a scan over `src/ samples/` with the workflow's three\nconfigs reports 0 findings.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-23T08:16:15-04:00",
+          "tree_id": "6b0900b7a4f4a1231940879f13ddf6745dce850c",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/00279fe5a0fb06929ca0f88d41cf1049f98b8269"
+        },
+        "date": 1790165925787,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 83958.77661132812,
+            "unit": "ns",
+            "range": "± 840.3224145155173"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7769380.020833333,
+            "unit": "ns",
+            "range": "± 68144.53900521297"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.457654863595963,
+            "unit": "ns",
+            "range": "± 0.0030209397489510182"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6935901020963987,
+            "unit": "ns",
+            "range": "± 0.05596622541947328"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.961353490749994,
+            "unit": "ns",
+            "range": "± 0.09311041383336947"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 18.354169925053913,
+            "unit": "ns",
+            "range": "± 0.7590903826090335"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7259952699144683,
+            "unit": "ns",
+            "range": "± 0.0021665825532329384"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11905.812642415365,
+            "unit": "ns",
+            "range": "± 95.90561669628882"
           }
         ]
       }
