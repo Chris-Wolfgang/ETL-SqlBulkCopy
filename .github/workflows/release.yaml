@@ -283,7 +283,7 @@ jobs:
 
           dotnet tool restore
 
-          reportgenerator `
+          dotnet reportgenerator `
             -reports:"TestResults/**/coverage.cobertura.xml" `
             -targetdir:"CoverageReport" `
             -reporttypes:"TextSummary;Html"
@@ -651,12 +651,12 @@ jobs:
 
       - name: Build DocFX metadata
         if: steps.check.outputs.found == 'true'
-        run: docfx metadata
+        run: dotnet docfx metadata
         working-directory: docfx_project
 
       - name: Build documentation (no deploy)
         if: steps.check.outputs.found == 'true'
-        run: docfx build
+        run: dotnet docfx build
         working-directory: docfx_project
 
       - name: Verify documentation output
@@ -781,7 +781,7 @@ jobs:
         # Same rule/glob configuration as pr.yaml so a release cannot fail on a
         # finding a PR would have accepted, or vice versa.
         run: |
-          devskim analyze             --source-code .             --file-format text             --output-file devskim-results.txt             --ignore-rule-ids DS176209             --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
+          dotnet devskim analyze             --source-code .             --file-format text             --output-file devskim-results.txt             --ignore-rule-ids DS176209             --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
 
       - name: Display DevSkim results
         if: always()
