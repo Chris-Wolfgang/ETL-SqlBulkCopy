@@ -34,6 +34,15 @@ public class SqlBulkCopyLoaderTests
         {
             return false;
         }
+        catch (PlatformNotSupportedException)
+        {
+            // Microsoft.Data.SqlClient ships lib/ assets for net462, net8.0, net9.0 and
+            // netstandard2.0 only. The net5.0-net7.0 legs therefore bind the netstandard2.0
+            // asset, whose members throw PlatformNotSupportedException outright rather than
+            // failing in the SqlPerformanceCounters cctor. Same situation as the catch above -
+            // no real SqlConnection is available - so it skips for the same reason.
+            return false;
+        }
     }
 
     private static void SkipUnlessSqlConnectionConstructible()
