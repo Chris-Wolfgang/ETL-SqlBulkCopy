@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790050721138,
+  "lastUpdate": 1790137165318,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -928,6 +928,64 @@ window.BENCHMARK_DATA = {
             "value": 432980931.1666667,
             "unit": "ns",
             "range": "± 5530981.472527758"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "ee8ef86e33de955aefc21cbebe803db7d3f78aaa",
+          "message": "ci(release): call the manifest-local tools as `dotnet <tool>` (#392)\n\n* ci(release): call the manifest-local tools as `dotnet <tool>`\n\nThe move from global tool installs to `.config/dotnet-tools.json` landed here, but the call\nsites did not move with it. A manifest-local tool is not on PATH, so after `dotnet tool restore`\nthe bare invocation dies with \"The term 'reportgenerator' is not recognized as a name of a\ncmdlet, function, script file, or executable program\" and the Validate job fails — taking Pack,\nDocs, Publish, Attest and Attach down as skipped with it.\n\nCaught by ETL-Csv's v0.10.0 release run (35800394348), which failed at \"Verify coverage\nthreshold\" after restoring all eight tools successfully.\n\nrepo-template already reads `dotnet tool restore` + `dotnet reportgenerator`; this catches the\nrepository up to it.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* ci(release): call docfx as `dotnet docfx` too (Copilot review on #392)\n\nverify-docs-build runs `docfx metadata` and `docfx build` bare. docfx is manifest-local\nhere as well, so `dotnet tool restore` does not put it on PATH and the docs job fails the\nsame way the coverage step did — before publish-nuget can run.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-23T01:18:56Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/ee8ef86e33de955aefc21cbebe803db7d3f78aaa"
+        },
+        "date": 1790137161702,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 12208178.666666666,
+            "unit": "ns",
+            "range": "± 371344.3195261418"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 14926625.333333334,
+            "unit": "ns",
+            "range": "± 246411.51517397343"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 14548359,
+            "unit": "ns",
+            "range": "± 208906.54278169462"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 445327005,
+            "unit": "ns",
+            "range": "± 9074837.729504643"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 496063617.1666667,
+            "unit": "ns",
+            "range": "± 11244867.64642663"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 441537336.6666667,
+            "unit": "ns",
+            "range": "± 28974415.657474548"
           }
         ]
       }
