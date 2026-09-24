@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790137165318,
+  "lastUpdate": 1790223537450,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -986,6 +986,64 @@ window.BENCHMARK_DATA = {
             "value": 441537336.6666667,
             "unit": "ns",
             "range": "± 28974415.657474548"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "40c5736b32f396182601411d14ca6e5f0c602af3",
+          "message": "test(sourcelink): add the PDB gates that make F11-into-source verifiable (#398)\n\n* test(sourcelink): add the PDB gates that make F11-into-source verifiable\n\nPorts Etl-DbClient's SourceLink PDB checks, the pattern five sibling repos\nclosed this issue on, so the mechanical preconditions for debugger step-into\nare gated rather than assumed. Three checks against the runtime PDB:\n\n- it is a portable PDB (BSJB magic), since SourceLink is portable-only and a\n  full-format PDB would silently give consumers decompiled placeholders\n- it carries a SourceLink CustomDebugInformation record mapping this repo's\n  source paths to raw.githubusercontent.com URLs\n- a real source URL built from that mapping resolves (not 404)\n\nTwo deviations from the DbClient original, both deliberate:\n\nThe reachability check there could never run. A SourceLink mapping value is a\nprefix pattern ending in a literal `*`, and the test skipped whenever the URL\ncontained `*` — which is always — so it never probed anything; its\n`Replace(x, x)` was a no-op too. Here the document table is read from the PDB,\na document is matched against its mapping prefix, and the remainder is\nsubstituted to form a URL naming an actual file. Verified: the probe resolves\nHTTP 200 against a pushed commit, and 404 is the failure the check exists for.\nThe skip now triggers only on the genuine case, an unsubstituted SHA in a local\nunpushed build.\n\nThe runner is xunit.runner.visualstudio 3.0.1 uncapped, not the 2.8.2 capped\n`(,3.0.0)` DbClient pins. This project is net10.0-only, which is the modern\nslot, where 3.0.1 is the settled fleet convention.\n\nNo coverlet.collector, matching the repo's five other auxiliary test projects:\nthey contribute no coverage data and so cannot perturb the gate.\n\nRefs #96.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* test(sourcelink): assert the raw-GitHub host exactly, not by substring\n\nPer Copilot on #398: `Assert.Contains(\"raw.githubusercontent.com\", url)` does not\nprove the mapping targets GitHub's raw host. A look-alike such as\nraw.githubusercontent.com.example, or an unrelated host carrying that text in its\npath, satisfies a substring test.\n\nReplaces both substring assertions with AssertIsOurRawGitHubUrl, which parses the\nvalue as an absolute URI and requires scheme == https, Host == the raw host\n(equality, case-insensitive) and an AbsolutePath under /<slug>/. Verified against\nthe look-alike shapes: the genuine URL is accepted, while a suffixed host, a host\ncarrying the text only in its path, and plain http are each rejected.\n\nThe slug-only filter in ReadOurSourceLinkMappings stays loose on purpose, and now\nsays why: it exists only to separate our mappings from the ones third-party\npackages contribute. Tightening it as well would mean a mapping naming this repo\nwith a WRONG host got silently filtered out, leaving an empty-collection failure\nas the only symptom. Selecting loosely and asserting strictly is what surfaces\nthe real defect.\n\n3/3 tests pass; 0 warnings, 0 errors.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-24T01:27:06Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/40c5736b32f396182601411d14ca6e5f0c602af3"
+        },
+        "date": 1790223533819,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 13603971.666666666,
+            "unit": "ns",
+            "range": "± 264288.309257775"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 16997626.166666668,
+            "unit": "ns",
+            "range": "± 683841.2140623971"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 15133160.666666666,
+            "unit": "ns",
+            "range": "± 479000.33264741406"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 472470397.1666667,
+            "unit": "ns",
+            "range": "± 15994023.321290562"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 502632413.8333333,
+            "unit": "ns",
+            "range": "± 10540271.005591001"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 464736704.8333333,
+            "unit": "ns",
+            "range": "± 21259611.78028727"
           }
         ]
       }
