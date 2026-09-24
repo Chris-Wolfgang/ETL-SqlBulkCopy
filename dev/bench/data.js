@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790177706893,
+  "lastUpdate": 1790257232316,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2592,6 +2592,78 @@ window.BENCHMARK_DATA = {
             "value": 10933.168228149414,
             "unit": "ns",
             "range": "± 69.06551366185344"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7f595424432b65b963c96c4bc5ad1bf264d005c6",
+          "message": "fix(generator): mark generated accessor types ExcludeFromCodeCoverage (#400)\n\nBulkCopyAccessorGenerator emits one BulkCopyAccessors_<mangled> class per\n[BulkCopyable] type. Those types carried no marker identifying them as generated,\nso coverage tools instrumented them like hand-written code.\n\nThat bites twice. Here, five generated classes reported 88% / 66% purely because\nsome tests map a fixture without reading every column, which broke the Stage 1\ngate on the v0.6.0 release PR. More importantly it bites consumers: our accessors\nare compiled into THEIR assembly, where they surface as partially-covered lines in\ncoverage they did not write and cannot test directly.\n\nExcludeFromCodeCoverage is the conventional marker for generator output and\ncoverlet honours it out of the box; it is already in this repo's ExcludeByAttribute\nlist. The generated code sits inside `#if NET5_0_OR_GREATER`, so TFM availability\nof the attribute is not a concern.\n\nThe accompanying test reflects over compiled metadata rather than generated text,\nwhich proves the attribute survived into the assembly. It counts the generated\ntypes it inspected and asserts that count is non-zero, so it cannot pass vacuously\nif the generator stops running.\n\nGeneratedCode was considered and deliberately left out: its version argument would\nchurn on every version bump for no coverage benefit.\n\nRemoving the now-redundant coverlet.runsettings exclusion is a follow-up, since\nthat file is protected and cannot share a PR with these changes.\n\nRefs #262\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-24T09:37:37-04:00",
+          "tree_id": "9d6802e132e8d08f7cd4ad114aa0ca4b59352e46",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/7f595424432b65b963c96c4bc5ad1bf264d005c6"
+        },
+        "date": 1790257228054,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 84447.25748697917,
+            "unit": "ns",
+            "range": "± 406.09309524019415"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7631187.536458333,
+            "unit": "ns",
+            "range": "± 15583.152690924118"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 6.3697086075941725,
+            "unit": "ns",
+            "range": "± 0.07282536014964064"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.8229002679387728,
+            "unit": "ns",
+            "range": "± 0.018948185010068352"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.048541128635406,
+            "unit": "ns",
+            "range": "± 0.08212985887063068"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 8.301847825447718,
+            "unit": "ns",
+            "range": "± 0.11596711444170082"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.2521676992376647,
+            "unit": "ns",
+            "range": "± 0.0676584563260926"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10801.64219156901,
+            "unit": "ns",
+            "range": "± 100.0920004532381"
           }
         ]
       }
