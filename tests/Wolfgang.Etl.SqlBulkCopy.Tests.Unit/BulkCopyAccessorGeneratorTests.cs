@@ -77,5 +77,37 @@ public class BulkCopyAccessorGeneratorTests
         // Generator_registers_a_getter_for_each_mappable_property.
         Assert.Equal(123, value);
     }
+
+
+
+    [Fact]
+    public void Generated_accessor_types_are_excluded_from_code_coverage()
+    {
+        var found = 0;
+
+        foreach (var type in typeof(BulkCopyAccessorGeneratorTests).Assembly.GetTypes())
+        {
+            if (!string.Equals(type.Namespace, "Wolfgang.Etl.SqlBulkCopy.Generated", System.StringComparison.Ordinal)
+                || !type.Name.StartsWith("BulkCopyAccessors_", System.StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            found++;
+
+            Assert.True
+            (
+                type.IsDefined(typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute), inherit: false),
+                $"{type.FullName} must carry [ExcludeFromCodeCoverage]. Without it, coverage tools instrument the generated thunks like hand-written code - here, and in every consumer assembly that marks a type [BulkCopyable]."
+            );
+        }
+
+        // Without this the loop above passes vacuously when the generator has not run.
+        Assert.True
+        (
+            found > 0,
+            "No generated BulkCopyAccessors_* type was found in this assembly, so the attribute assertion proved nothing."
+        );
+    }
 #endif
 }

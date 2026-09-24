@@ -698,6 +698,11 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         builder.AppendLine("#if NET5_0_OR_GREATER");
         builder.AppendLine("namespace Wolfgang.Etl.SqlBulkCopy.Generated");
         builder.AppendLine("{");
+        // Generator output is not hand-written code: coverage tools would otherwise
+        // instrument these thunks, both here and in every consumer assembly that marks
+        // a type [BulkCopyable]. ExcludeFromCodeCoverage is the conventional marker and
+        // coverlet honours it out of the box.
+        builder.AppendLine("    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]");
         builder.AppendLine($"    internal static class BulkCopyAccessors_{model.MangledName}");
         builder.AppendLine("    {");
 
