@@ -821,16 +821,41 @@ jobs:
             work=$(mktemp -d)
             unzip -q "$snupkg" -d "$work"
 
-            # Every runtime TFM MUST have a PDB under lib/<tfm>/. A missing entry
-            # means SymbolPackageFormat / IncludeSymbols got misconfigured upstream,
-            # and consumers on that TFM would fall back to decompiled placeholders.
-            pdbs=$(find "$work/lib" -name 'Wolfgang.Etl.SqlBulkCopy.pdb' | sort)
-            if [ -z "$pdbs" ]; then
-              echo "::error::No PDBs found under $snupkg / lib/*/"
+            # Every runtime TFM MUST have a PDB, so the expected set is derived
+            # from the runtime .nupkg rather than assumed: any lib/<tfm>/ that
+            # ships the assembly must have a matching PDB in the .snupkg. Merely
+            # asserting "at least one PDB exists" would pass while a single TFM
+            # was silently missing its symbols, and consumers on exactly that TFM
+            # would get decompiled placeholders.
+            nupkg="${snupkg%.snupkg}.nupkg"
+            if [ ! -f "$nupkg" ]; then
+              echo "::error::No runtime .nupkg beside $snupkg - cannot derive the expected TFM set."
               fail=1
               echo "::endgroup::"
+              rm -rf "$work"
               continue
             fi
+
+            expected=$(unzip -Z1 "$nupkg" | awk -F/ '$1=="lib" && $3=="Wolfgang.Etl.SqlBulkCopy.dll" {print $2}' | sort -u)
+            actual=$(unzip -Z1 "$snupkg" | awk -F/ '$1=="lib" && $3=="Wolfgang.Etl.SqlBulkCopy.pdb" {print $2}' | sort -u)
+
+            if [ -z "$expected" ]; then
+              echo "::error::No lib/<tfm>/Wolfgang.Etl.SqlBulkCopy.dll in $nupkg - nothing to verify against."
+              fail=1
+              echo "::endgroup::"
+              rm -rf "$work"
+              continue
+            fi
+
+            missing=$(comm -23 <(echo "$expected") <(echo "$actual"))
+            if [ -n "$missing" ]; then
+              echo "::error::.snupkg is missing a PDB for these runtime TFMs: $(echo $missing)"
+              fail=1
+            fi
+            echo "expected TFMs: $(echo $expected)"
+            echo "PDBs present : $(echo $actual)"
+
+            pdbs=$(find "$work/lib" -name 'Wolfgang.Etl.SqlBulkCopy.pdb' | sort)
 
             for pdb in $pdbs; do
               tfm=$(basename "$(dirname "$pdb")")
@@ -939,8 +964,15 @@ jobs:
           name: nuget-packages
           path: ./packages
 
-      - name: Install dotnet-symbol
-        run: dotnet tool install --global dotnet-symbol
+      - name: Check out the tool manifest
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Restore CI tools (dotnet-symbol)
+        # Pinned in .config/dotnet-tools.json, never installed unversioned: an
+        # upstream release could otherwise change CLI behaviour mid-release.
+        run: dotnet tool restore
 
       - name: Extract a representative DLL from the packed .nupkg
         shell: bash
@@ -967,7 +999,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          export PATH="$PATH:$HOME/.dotnet/tools"
 
           # nuget.org's SSQP endpoint. dotnet-symbol defaults to
           # msdl.microsoft.com, so the server path must be overridden.
@@ -979,7 +1010,9 @@ jobs:
           attempts=30
           for i in $(seq 1 "$attempts"); do
             echo "Attempt $i/$attempts - dotnet-symbol from $server"
-            if dotnet-symbol --symbols --server-path "$server" --output "$out" "$PROBE_DLL"; then
+            # `dotnet dotnet-symbol`, not bare `dotnet-symbol`: `dotnet tool
+            # restore` installs into the manifest, which is NOT on PATH.
+            if dotnet dotnet-symbol --symbols --server-path "$server" --output "$out" "$PROBE_DLL"; then
               if find "$out" -name '*.pdb' | grep -q .; then
                 echo "Symbol server served the PDB on attempt $i."
                 exit 0
