@@ -1,0 +1,259 @@
+// SourceLink PDB gates — the mechanical preconditions for F11-into-source.
+//
+// Interactive-debugger step-into is not automatable in an ordinary CI job, but
+// the things that make it work ARE: the assembly's PDB must be portable (not
+// full-format), it must carry a SourceLink CustomDebugInformation record, that
+// record must map this repo's source paths to GitHub raw URLs, and those URLs
+// must actually resolve. If all of those hold, F11-into-source works by
+// construction; if any breaks, a consumer's debugger silently falls back to
+// decompiled placeholders.
+//
+// Refs #96.
+
+using System.Net;
+using System.Net.Http;
+using System.Reflection.Metadata;
+using System.Text;
+using System.Text.Json;
+using Xunit;
+
+namespace Wolfgang.Etl.SqlBulkCopy.Tests.SourceLink;
+
+public class SourceLinkPdbTests
+{
+    private const string RepoSlug = "Chris-Wolfgang/ETL-SqlBulkCopy";
+
+
+    private const string RuntimePdbFileName = "Wolfgang.Etl.SqlBulkCopy.pdb";
+
+
+    private static readonly Guid SourceLinkGuid = new("CC110556-A091-4D38-9FEC-25AB9A351A6A");
+
+
+
+    /// <summary>
+    /// Portable PDBs start with the four bytes 'B','S','J','B' — the ECMA-335
+    /// metadata-blob magic. Full-format Windows PDBs start with
+    /// "Microsoft C/C++ MSF 7.00". SourceLink is portable-PDB only, so
+    /// full-format is an immediate fail.
+    /// </summary>
+    [Fact]
+    public void Runtime_pdb_is_portable_format()
+    {
+        var pdbPath = LocateRuntimePdb();
+        Assert.True(File.Exists(pdbPath), $"Runtime PDB not found at {pdbPath}");
+
+        Span<byte> magic = stackalloc byte[4];
+        using (var fs = File.OpenRead(pdbPath))
+        {
+            Assert.Equal(4, fs.Read(magic));
+        }
+
+        Assert.Equal((byte)'B', magic[0]);
+        Assert.Equal((byte)'S', magic[1]);
+        Assert.Equal((byte)'J', magic[2]);
+        Assert.Equal((byte)'B', magic[3]);
+    }
+
+
+
+    /// <summary>
+    /// The runtime PDB must carry a SourceLink record whose JSON maps this
+    /// repo's source paths to GitHub raw URLs. Third-party packages contribute
+    /// their own mappings, so only entries pointing at this repo are asserted.
+    /// </summary>
+    [Fact]
+    public void Runtime_pdb_has_sourcelink_pointing_at_github_raw()
+    {
+        var mappings = ReadOurSourceLinkMappings();
+
+        Assert.NotEmpty(mappings);
+
+        foreach (var (_, url) in mappings)
+        {
+            Assert.Contains("raw.githubusercontent.com", url, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(RepoSlug, url, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+
+
+    /// <summary>
+    /// Resolves a real source URL out of the SourceLink mapping and checks that
+    /// GitHub serves it. This is what catches a force-pushed or deleted commit
+    /// that would leave a consumer's debugger with a dead raw URL — the
+    /// structural checks above cannot see that.
+    /// </summary>
+    /// <remarks>
+    /// A SourceLink mapping is a prefix pair, e.g.
+    /// <c>"/_/*" -&gt; "https://raw.githubusercontent.com/{slug}/{sha}/*"</c>.
+    /// Probing the mapping value verbatim is useless: it still contains the
+    /// literal <c>*</c> and would 404 for that reason alone. A real URL only
+    /// exists once an actual document path is substituted into it, which is
+    /// what this test does. Skipped when the SHA has not been substituted
+    /// (local dev builds), since only a pushed commit resolves.
+    /// </remarks>
+    [Fact]
+    public async Task Sourcelink_github_raw_url_resolves_for_a_real_source_file()
+    {
+        var mappings = ReadOurSourceLinkMappings();
+        if (mappings.Count == 0)
+        {
+            // The structural test above already failed with a precise
+            // diagnostic; nothing further to add here.
+            return;
+        }
+
+        var probeUrl = BuildProbeUrl(mappings);
+        if (probeUrl is null)
+        {
+            // No document matched a mapping prefix, or the URL still holds the
+            // unresolved "*" SHA placeholder — a local, unpushed build.
+            return;
+        }
+
+        Assert.DoesNotContain("*", probeUrl, StringComparison.Ordinal);
+
+        using var http = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(15)
+        };
+
+        try
+        {
+            using var response = await http.GetAsync(probeUrl, HttpCompletionOption.ResponseHeadersRead);
+
+            // 404 means the SHA no longer resolves (force-push, repo rename).
+            // 403/429 is GitHub rate-limiting the runner, which is infra noise
+            // rather than a SourceLink defect.
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                Assert.Fail($"SourceLink URL 404s — the commit SHA no longer resolves: {probeUrl}");
+            }
+        }
+        catch (HttpRequestException)
+        {
+            // Network unavailable / GitHub outage: the deterministic checks
+            // above carry the per-PR gate, so don't fail on infra.
+        }
+        catch (TaskCanceledException)
+        {
+            // Timeout — same rationale.
+        }
+    }
+
+
+
+    // ------------------------------------------------------------------
+
+
+    private static string LocateRuntimePdb()
+    {
+        // ProjectReference copies the runtime assembly's PDB into this test
+        // project's output directory.
+        return Path.Combine(AppContext.BaseDirectory, RuntimePdbFileName);
+    }
+
+
+
+    /// <summary>
+    /// Returns the SourceLink prefix mappings that point at this repository,
+    /// as (localPathPrefix, urlPrefix) pairs with the trailing '*' removed.
+    /// </summary>
+    private static List<(string LocalPrefix, string UrlPrefix)> ReadOurSourceLinkMappings()
+    {
+        var pdbPath = LocateRuntimePdb();
+        Assert.True(File.Exists(pdbPath), $"Runtime PDB not found at {pdbPath}");
+
+        using var stream = File.OpenRead(pdbPath);
+        using var provider = MetadataReaderProvider.FromPortablePdbStream(stream);
+        var reader = provider.GetMetadataReader();
+
+        var payload = ReadSourceLinkPayload(reader);
+        Assert.False(string.IsNullOrEmpty(payload), "PDB has no SourceLink CustomDebugInformation record.");
+
+        using var doc = JsonDocument.Parse(payload);
+        Assert.True
+        (
+            doc.RootElement.TryGetProperty("documents", out var documents),
+            $"SourceLink payload has no 'documents' property: {payload}"
+        );
+
+        var result = new List<(string, string)>();
+        foreach (var entry in documents.EnumerateObject())
+        {
+            var url = entry.Value.GetString();
+            if (url is null || !url.Contains(RepoSlug, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            result.Add((entry.Name.TrimEnd('*'), url.TrimEnd('*')));
+        }
+
+        return result;
+    }
+
+
+
+    /// <summary>
+    /// Picks a source document from the PDB, matches it against a SourceLink
+    /// prefix mapping and substitutes the remainder into the URL, yielding a
+    /// URL that names an actual file. Returns <c>null</c> when nothing matches
+    /// or the SHA is still the unresolved '*' placeholder.
+    /// </summary>
+    private static string? BuildProbeUrl(List<(string LocalPrefix, string UrlPrefix)> mappings)
+    {
+        var pdbPath = LocateRuntimePdb();
+        using var stream = File.OpenRead(pdbPath);
+        using var provider = MetadataReaderProvider.FromPortablePdbStream(stream);
+        var reader = provider.GetMetadataReader();
+
+        foreach (var handle in reader.Documents)
+        {
+            var name = reader.GetString(reader.GetDocument(handle).Name);
+            if (string.IsNullOrEmpty(name) || !name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (var (localPrefix, urlPrefix) in mappings)
+            {
+                if (localPrefix.Length == 0 || !name.StartsWith(localPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // The URL still carrying '*' means Microsoft.SourceLink.GitHub
+                // never substituted a commit SHA — an unpushed local build.
+                if (urlPrefix.Contains('*', StringComparison.Ordinal))
+                {
+                    return null;
+                }
+
+                var relative = name.Substring(localPrefix.Length).Replace('\\', '/');
+                return urlPrefix + relative;
+            }
+        }
+
+        return null;
+    }
+
+
+
+    private static string ReadSourceLinkPayload(MetadataReader reader)
+    {
+        foreach (var handle in reader.CustomDebugInformation)
+        {
+            var cdi = reader.GetCustomDebugInformation(handle);
+            if (reader.GetGuid(cdi.Kind) != SourceLinkGuid)
+            {
+                continue;
+            }
+
+            return Encoding.UTF8.GetString(reader.GetBlobBytes(cdi.Value));
+        }
+
+        return string.Empty;
+    }
+}
