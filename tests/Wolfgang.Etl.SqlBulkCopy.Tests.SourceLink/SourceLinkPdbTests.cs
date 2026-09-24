@@ -27,6 +27,9 @@ public class SourceLinkPdbTests
     private const string RuntimePdbFileName = "Wolfgang.Etl.SqlBulkCopy.pdb";
 
 
+    private const string RawHost = "raw.githubusercontent.com";
+
+
     private static readonly Guid SourceLinkGuid = new("CC110556-A091-4D38-9FEC-25AB9A351A6A");
 
 
@@ -71,8 +74,7 @@ public class SourceLinkPdbTests
 
         foreach (var (_, url) in mappings)
         {
-            Assert.Contains("raw.githubusercontent.com", url, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(RepoSlug, url, StringComparison.OrdinalIgnoreCase);
+            AssertIsOurRawGitHubUrl(url);
         }
     }
 
@@ -147,6 +149,37 @@ public class SourceLinkPdbTests
     // ------------------------------------------------------------------
 
 
+    /// <summary>
+    /// Asserts that <paramref name="url"/> is an absolute HTTPS URL served by
+    /// GitHub's raw host whose path names this repository.
+    /// </summary>
+    /// <remarks>
+    /// The host is compared for equality rather than with a substring test. A
+    /// substring test would accept a look-alike host such as
+    /// <c>raw.githubusercontent.com.example</c>, or an unrelated host carrying
+    /// that text somewhere in its path, and so would not actually prove the
+    /// mapping points where a debugger needs it to.
+    /// </remarks>
+    private static void AssertIsOurRawGitHubUrl(string url)
+    {
+        Assert.True
+        (
+            Uri.TryCreate(url, UriKind.Absolute, out var uri),
+            $"SourceLink mapping is not an absolute URI: {url}"
+        );
+
+        Assert.Equal(Uri.UriSchemeHttps, uri!.Scheme);
+        Assert.Equal(RawHost, uri.Host, ignoreCase: true);
+
+        Assert.True
+        (
+            uri.AbsolutePath.StartsWith($"/{RepoSlug}/", StringComparison.OrdinalIgnoreCase),
+            $"SourceLink mapping path does not name {RepoSlug}: {uri.AbsolutePath}"
+        );
+    }
+
+
+
     private static string LocateRuntimePdb()
     {
         // ProjectReference copies the runtime assembly's PDB into this test
@@ -183,6 +216,14 @@ public class SourceLinkPdbTests
         foreach (var entry in documents.EnumerateObject())
         {
             var url = entry.Value.GetString();
+
+            // Deliberately a loose, slug-only filter. Its job is to separate our
+            // mappings from the ones third-party packages contribute, nothing
+            // more. Applying the strict host check here instead would mean a
+            // mapping with the right repo but a WRONG host got silently filtered
+            // out, and the only symptom would be an empty-collection failure;
+            // selecting it loosely and asserting strictly reports the actual
+            // defect. See AssertIsOurRawGitHubUrl.
             if (url is null || !url.Contains(RepoSlug, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
