@@ -849,11 +849,11 @@ jobs:
 
             missing=$(comm -23 <(echo "$expected") <(echo "$actual"))
             if [ -n "$missing" ]; then
-              echo "::error::.snupkg is missing a PDB for these runtime TFMs: $(echo $missing)"
+              echo "::error::.snupkg is missing a PDB for these runtime TFMs: ${missing//$'\n'/ }"
               fail=1
             fi
-            echo "expected TFMs: $(echo $expected)"
-            echo "PDBs present : $(echo $actual)"
+            echo "expected TFMs: ${expected//$'\n'/ }"
+            echo "PDBs present : ${actual//$'\n'/ }"
 
             pdbs=$(find "$work/lib" -name 'Wolfgang.Etl.SqlBulkCopy.pdb' | sort)
 
