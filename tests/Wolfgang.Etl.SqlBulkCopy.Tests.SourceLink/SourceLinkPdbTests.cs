@@ -11,7 +11,6 @@
 // Refs #96.
 
 using System.Net;
-using System.Net.Http;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
@@ -31,6 +30,13 @@ public class SourceLinkPdbTests
 
 
     private static readonly Guid SourceLinkGuid = new("CC110556-A091-4D38-9FEC-25AB9A351A6A");
+
+
+    // One long-lived client rather than one per call: HttpClient is thread-safe,
+    // and per-call instances exhaust sockets under load. Holding it in a static
+    // field also removes the `using` statement whose object initializer was the
+    // disposal hazard flagged separately.
+    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
 
 
@@ -116,14 +122,9 @@ public class SourceLinkPdbTests
 
         Assert.DoesNotContain("*", probeUrl, StringComparison.Ordinal);
 
-        using var http = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(15)
-        };
-
         try
         {
-            using var response = await http.GetAsync(probeUrl, HttpCompletionOption.ResponseHeadersRead);
+            using var response = await Http.GetAsync(probeUrl, HttpCompletionOption.ResponseHeadersRead);
 
             // 404 means the SHA no longer resolves (force-push, repo rename).
             // 403/429 is GitHub rate-limiting the runner, which is infra noise
@@ -168,7 +169,7 @@ public class SourceLinkPdbTests
             $"SourceLink mapping is not an absolute URI: {url}"
         );
 
-        Assert.Equal(Uri.UriSchemeHttps, uri!.Scheme);
+        Assert.Equal(Uri.UriSchemeHttps, uri.Scheme);
         Assert.Equal(RawHost, uri.Host, ignoreCase: true);
 
         Assert.True
@@ -221,8 +222,8 @@ public class SourceLinkPdbTests
             // mappings from the ones third-party packages contribute, nothing
             // more. Applying the strict host check here instead would mean a
             // mapping with the right repo but a WRONG host got silently filtered
-            // out, and the only symptom would be an empty-collection failure;
-            // selecting it loosely and asserting strictly reports the actual
+            // out, and the only symptom would be an empty-collection failure.
+            // Selecting it loosely and asserting strictly reports the actual
             // defect. See AssertIsOurRawGitHubUrl.
             if (url is null || !url.Contains(RepoSlug, StringComparison.OrdinalIgnoreCase))
             {
