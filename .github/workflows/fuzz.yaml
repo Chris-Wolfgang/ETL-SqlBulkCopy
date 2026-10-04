@@ -32,6 +32,9 @@ jobs:
     name: Continuous fuzz (${{ inputs.iterations || '100000' }} iters)
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: read
+      issues: write   # file an issue when the fuzz step falsifies a property
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,6 +67,7 @@ jobs:
             --no-restore --configuration Release
 
       - name: Run fuzz suite
+        id: fuzz
         if: steps.check.outputs.found == 'true'
         env:
           CsCheck_Iterations: ${{ inputs.iterations || '100000' }}
@@ -88,3 +92,29 @@ jobs:
           name: fuzz-reports
           path: reports/
           retention-days: 60
+
+      - name: File issue on failure
+        # Only when the fuzz step itself failed, so a runner/setup failure does
+        # not file a "property falsified" issue. A scheduled failure is
+        # otherwise invisible; this makes it land on the issue list.
+        if: failure() && steps.fuzz.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # CsCheck prints the shrunk counter-example and a replayable seed in
+          # the failure output; the issue carries the log tail so the seed can
+          # be pinned as a deterministic regression in the unit suite.
+          {
+            echo "The scheduled fuzz sweep falsified a property."
+            echo ""
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo ""
+            echo '```'
+            tail -c 4000 reports/fuzz.log || true
+            echo '```'
+          } > issue-body.txt
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Fuzz sweep falsified a property ($(date -u +%Y-%m-%d))" \
+            --label bug \
+            --body-file issue-body.txt
