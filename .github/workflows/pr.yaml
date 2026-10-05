@@ -586,6 +586,14 @@ jobs:
         # `dotnet test ... | tee` below needs so a failing test run is not
         # masked by tee's exit code.
         shell: bash
+        # This loop runs the *.Tests.Integration.* projects too (Testcontainers
+        # starts a real SQL Server Linux container; ubuntu-latest has Docker),
+        # so it is their only run. ETL_REQUIRE_DOCKER=1 flips the fixture from
+        # "skip when Docker is unavailable" to "FAIL when Docker is unavailable":
+        # a broken/absent daemon on the one stage that is supposed to have Docker
+        # is a real defect to fix, never something to silently skip past.
+        env:
+          ETL_REQUIRE_DOCKER: "1"
         run: |
           # Find all test projects (C#, VB.NET, F#).
           # Gracefully skip if there is no ./tests directory (e.g. template-publishing
@@ -604,15 +612,19 @@ jobs:
             exit 0
           fi
 
-          mapfile -d '' -t test_projects < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -not -name "*.Tests.Integration.*" -print0)
+          # Every test project runs here, *.Tests.Integration.* included: this is the
+          # job that gates coverage, and every test assembly is held to
+          # CODECOV_TEST_MINIMUM. Linux runners have Docker, so Testcontainers-based
+          # integration suites run as they do locally. (Integration projects used to be
+          # excluded "for a separate workflow", which left them unmeasured everywhere.)
+          mapfile -d '' -t test_projects < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -print0)
 
-          # Report any integration test projects deliberately excluded from the
-          # coverage gate, so the skip is visible rather than silent (they are
-          # expected to run in a separate workflow).
-          mapfile -d '' -t excluded_integration < <(find ./tests -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -name "*.Tests.Integration.*" -print0)
-          if [ ${#excluded_integration[@]} -gt 0 ]; then
-            echo "::notice::Excluded ${#excluded_integration[@]} integration test project(s) from the coverage gate (expected to run in a separate workflow): ${excluded_integration[*]}"
-          fi
+          # Assemblies that actually ran tests in this job. The coverage steps below
+          # require a coverage row for each one, so a test project whose coverage is
+          # never collected (e.g. no coverlet.collector) fails the gate instead of
+          # silently dropping out of it.
+          ran_assemblies_file="$RUNNER_TEMP/stage1-ran-test-assemblies.txt"
+          : > "$ran_assemblies_file"
 
           if [ ${#test_projects[@]} -eq 0 ]; then
             if find ./src -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -print -quit 2>/dev/null | grep -q .; then
@@ -711,67 +723,14 @@ jobs:
               fi
               rm -f "$test_log"
             done <<< "$frameworks"
-            echo ""
-          done
-
-      # The unit-test loop above deliberately excludes *.Tests.Integration.*
-      # (find ... -not -name). Those tests use Testcontainers to start a REAL
-      # SQL Server Linux container — and ubuntu-latest has a working Docker
-      # daemon, so this is the ONE stage that exercises them for real. The
-      # Windows / macOS stages skip the project entirely (GitHub's Windows and
-      # macOS runners can't run Linux containers), so this Linux run is the
-      # integration tests' only home.
-      #
-      # ETL_REQUIRE_DOCKER=1 flips the fixture from "skip when Docker is
-      # unavailable" to "FAIL when Docker is unavailable" — a broken/absent
-      # daemon on the one stage that is supposed to have Docker is a real defect
-      # to fix, never something to silently skip past.
-      - name: Integration tests (real SQL Server via Docker)
-        shell: bash
-        env:
-          ETL_REQUIRE_DOCKER: "1"
-        run: |
-          set -euo pipefail
-
-          mapfile -d '' -t integ_projects < <(find ./tests -type f \( -name "*.Tests.Integration.csproj" -o -name "*.Tests.Integration.vbproj" -o -name "*.Tests.Integration.fsproj" \) -print0)
-
-          if [ ${#integ_projects[@]} -eq 0 ]; then
-            echo "ℹ️  No *.Tests.Integration.* projects found — nothing to run."
-            exit 0
-          fi
-
-          for proj in "${integ_projects[@]}"; do
-            echo "=========================================="
-            echo "Integration project: $proj"
-            echo "=========================================="
-
-            tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFrameworks 2>/dev/null \
-              | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFrameworks[=:][[:space:]]*//' | tr -d '[:space:]' || true)
-            if [ -z "$tfm_raw" ]; then
-              tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFramework 2>/dev/null \
-                | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFramework[=:][[:space:]]*//' | tr -d '[:space:]' || true)
+            # Same assembly-name rule as the coverage gate below. This step runs under
+            # pipefail, and grep exits 1 when the csproj sets no <AssemblyName>; the
+            # `|| true` covers only that no-match case (the basename fallback follows).
+            asm=$(grep -oE '<AssemblyName>[^<]+' "$test_proj" 2>/dev/null | head -1 | cut -d'>' -f2 || true)
+            if [ -z "$asm" ]; then
+              asm=$(basename "$test_proj"); asm="${asm%.*}"
             fi
-            frameworks=$(printf '%s' "$tfm_raw" | tr ';' '\n' | grep -E '^(net(5\.0|6\.0|7\.0|8\.0|9\.0|10\.0)|netcoreapp3\.1)$' || true)
-
-            if [ -z "$frameworks" ]; then
-              echo "⊘ Skipping: no compatible .NET 5.0-10.0 target frameworks found"
-              echo ""
-              continue
-            fi
-
-            echo "Target frameworks: $(echo "$frameworks" | tr '\n' ' ')"
-            echo ""
-
-            while IFS= read -r fw; do
-              [ -z "$fw" ] && continue
-              echo "Testing framework: $fw"
-
-              dotnet test "$proj" \
-                --configuration Release \
-                --framework "$fw" \
-                --no-build --no-restore \
-                --logger "console;verbosity=minimal" || exit 1
-            done <<< "$frameworks"
+            echo "$asm" >> "$ran_assemblies_file"
             echo ""
           done
 
@@ -781,6 +740,10 @@ jobs:
           if find TestResults -type f -name "coverage.cobertura.xml" 2>/dev/null | grep -q .; then
             echo "has-coverage=true" >> "$GITHUB_OUTPUT"
             echo "✅ Coverage files found"
+          elif [ -s "$RUNNER_TEMP/stage1-ran-test-assemblies.txt" ]; then
+            echo "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated. Test assemblies that ran:"
+            cat "$RUNNER_TEMP/stage1-ran-test-assemblies.txt"
+            exit 1
           else
             echo "has-coverage=false" >> "$GITHUB_OUTPUT"
             echo "ℹ️  No coverage files found - skipping coverage report generation"
@@ -896,6 +859,20 @@ jobs:
           if [ "$matched_count" -eq 0 ]; then
             echo "❌ Coverage parser matched 0 modules in Summary.txt - regex or report format is out of sync. Refusing to silently pass the gate."
             exit 1
+          fi
+
+          # Every test assembly that ran must appear in the report. A missing row means
+          # its coverage was never collected, and an unmeasured assembly must not pass.
+          ran_assemblies_file="$RUNNER_TEMP/stage1-ran-test-assemblies.txt"
+          if [ -f "$ran_assemblies_file" ]; then
+            while IFS= read -r asm; do
+              [ -z "$asm" ] && continue
+              if ! awk -v asm="$asm" '/^[^ ]/ && $1 == asm { found = 1 } END { exit !found }' CoverageReport/Summary.txt; then
+                echo "Checking test module: '$asm' - Coverage: none collected"
+                echo "  ❌ FAIL: tests ran but no coverage was recorded (is coverlet.collector referenced?)"
+                failed_projects="$failed_projects $asm (no coverage data)"
+              fi
+            done < <(sort -u "$ran_assemblies_file")
           fi
 
           if [ -n "$failed_projects" ]; then
