@@ -61,11 +61,10 @@ public class ReflectionHelpersTests
 
 
 
-    // ExcludeFromCodeCoverage: this PropertyInfo subclass exists solely to
-    // supply a single value (DeclaringType => null) that the production
-    // helper's guard clause must reject. The rest of the overrides are
-    // boilerplate to satisfy the abstract base and are not exercised.
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    // This PropertyInfo subclass exists to supply a single value
+    // (DeclaringType => null) that the production helper's guard clause must
+    // reject. The rest of the overrides satisfy the abstract base; the
+    // NullDeclaringTypePropertyInfo_* test below pins what each one returns.
     private sealed class NullDeclaringTypePropertyInfo : PropertyInfo
     {
         public override Type? DeclaringType => null;
@@ -322,6 +321,49 @@ public class ReflectionHelpersTests
 
         Assert.IsType<short>(value);
         Assert.Equal((short)-32_000, value);
+    }
+
+
+
+    [Fact]
+    public void Sample_probe_indexer_and_set_only_property_are_real_members()
+    {
+        // The guard tests above reject these two shapes by reflection only. Calling
+        // them proves they are an invocable indexer and a writable property, i.e.
+        // that the guards are rejecting the shape and not a broken member.
+        var sample = new Sample();
+
+        sample.SetOnly = "ignored";
+
+        Assert.Equal("7", sample[7]);
+    }
+
+
+
+    [Fact]
+    public void NullDeclaringTypePropertyInfo_reports_a_readable_string_property_with_no_accessors()
+    {
+        // Pins the fake's overrides so the null-DeclaringType test exercises the
+        // guard against an otherwise ordinary-looking property.
+        var fake = new NullDeclaringTypePropertyInfo();
+
+        fake.SetValue(null, "ignored", BindingFlags.Default, binder: null, index: null, culture: null);
+
+        Assert.Null(fake.DeclaringType);
+        Assert.Equal("Fake", fake.Name);
+        Assert.Equal(typeof(string), fake.PropertyType);
+        Assert.Equal(PropertyAttributes.None, fake.Attributes);
+        Assert.True(fake.CanRead);
+        Assert.False(fake.CanWrite);
+        Assert.Equal(typeof(object), fake.ReflectedType);
+        Assert.Empty(fake.GetAccessors(nonPublic: true));
+        Assert.Null(fake.GetGetMethod(nonPublic: true));
+        Assert.Null(fake.GetSetMethod(nonPublic: true));
+        Assert.Empty(fake.GetIndexParameters());
+        Assert.Null(fake.GetValue(null, BindingFlags.Default, binder: null, index: null, culture: null));
+        Assert.Empty(fake.GetCustomAttributes(inherit: true));
+        Assert.Empty(fake.GetCustomAttributes(typeof(Attribute), inherit: true));
+        Assert.False(fake.IsDefined(typeof(Attribute), inherit: true));
     }
 }
 // ReSharper restore UnusedMember.Local
