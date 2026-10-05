@@ -7,6 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <!-- Needs Linux containers (Testcontainers): pr.yaml Stages 2/3 (Windows/macOS) and release.yaml skip it; Stage 1 (Linux) runs it. -->
+    <RequiresLinuxContainers>true</RequiresLinuxContainers>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
   </PropertyGroup>
