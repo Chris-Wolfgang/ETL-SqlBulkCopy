@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -27,17 +28,6 @@ public sealed class SqlServerFixture : IAsyncLifetime
     // initializer — which would tear down every test in the collection
     // before they have a chance to call Skip.IfNot().
     private MsSqlContainer? _container;
-
-
-
-    // When ETL_REQUIRE_DOCKER is set (the Linux CI stage, where Docker IS
-    // available and the integration tests are meant to run for real), a
-    // missing or broken Docker daemon must be a HARD failure — never a silent
-    // skip — so Docker problems get fixed instead of ignored. When it is unset
-    // (local dev without Docker; the Windows/macOS stages, which don't run
-    // these tests at all) the graceful skip below still applies.
-    private static readonly bool RequireDocker =
-        !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ETL_REQUIRE_DOCKER"));
 
 
 
@@ -92,20 +82,59 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// <inheritdoc />
     public async Task InitializeAsync()
     {
+        UnavailableReason = await DockerUnavailableReasonAsync(StartContainerAsync).ConfigureAwait(false);
+        IsAvailable = UnavailableReason is null;
+    }
+
+
+
+    private async Task StartContainerAsync()
+    {
+        // Pin to a specific SQL Server 2022 CU tag for deterministic test
+        // behaviour. Update this when consciously moving to a newer CU
+        // (avoid floating ":2022-latest" so upstream image updates don't
+        // surprise CI).
+        // Testcontainers 4.13+ deprecated the parameterless MsSqlBuilder()
+        // in favour of passing the image to the constructor.
+        _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
+            .Build();
+        await _container.StartAsync().ConfigureAwait(false);
+    }
+
+
+
+    /// <summary>
+    /// Runs <paramref name="start"/> and returns <c>null</c> when it succeeds, or
+    /// a skip reason when it fails because Docker is unavailable on this runner.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// When ETL_REQUIRE_DOCKER is set (the Linux CI stage, where Docker IS
+    /// available and the integration tests are meant to run for real), a
+    /// missing or broken Docker daemon must be a HARD failure — never a silent
+    /// skip — so Docker problems get fixed instead of ignored. When it is unset
+    /// (local dev without Docker) the graceful skip still applies. All other
+    /// exceptions (e.g. bad image tag, invalid Testcontainers configuration, NRE
+    /// in fixture code) propagate so CI fails loudly instead of silently
+    /// skipping every integration test in the collection.
+    /// </para>
+    /// <para>
+    /// Excluded from coverage: an infrastructure check whose skip branch only
+    /// runs on a machine without Docker, which is never the case where these
+    /// tests run in CI. The decision about WHICH exceptions mean "no Docker"
+    /// lives in <see cref="IsDockerUnavailable"/>, which is covered by tests.
+    /// </para>
+    /// </remarks>
+    [ExcludeFromCodeCoverage]
+    private static async Task<string?> DockerUnavailableReasonAsync(Func<Task> start)
+    {
+        var requireDocker = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ETL_REQUIRE_DOCKER"));
         try
         {
-            // Pin to a specific SQL Server 2022 CU tag for deterministic test
-            // behaviour. Update this when consciously moving to a newer CU
-            // (avoid floating ":2022-latest" so upstream image updates don't
-            // surprise CI).
-            // Testcontainers 4.13+ deprecated the parameterless MsSqlBuilder()
-            // in favour of passing the image to the constructor.
-            _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
-                .Build();
-            await _container.StartAsync().ConfigureAwait(false);
-            IsAvailable = true;
+            await start().ConfigureAwait(false);
+            return null;
         }
-        catch (Exception ex) when (!RequireDocker && IsDockerUnavailable(ex))
+        catch (Exception ex) when (!requireDocker && IsDockerUnavailable(ex))
         {
             // Unwrap one level of AggregateException so the skip reason
             // surfaces the actionable inner message ("Docker is not running...")
@@ -113,14 +142,8 @@ public sealed class SqlServerFixture : IAsyncLifetime
             var reported = ex is AggregateException aggregate && aggregate.InnerException is not null
                 ? aggregate.InnerException
                 : ex;
-            UnavailableReason = $"{reported.GetType().Name}: {reported.Message}";
-            IsAvailable = false;
+            return $"{reported.GetType().Name}: {reported.Message}";
         }
-
-        // Note: all other exceptions (e.g. bad image tag, invalid
-        // Testcontainers configuration, NRE in fixture code) propagate so
-        // CI fails loudly instead of silently skipping every integration
-        // test in the collection.
     }
 
 
@@ -132,7 +155,7 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// outcome. Anything else (a typo in the image tag, a misconfigured
     /// MsSqlBuilder, etc.) is treated as a real CI failure.
     /// </summary>
-    private static bool IsDockerUnavailable(Exception ex)
+    internal static bool IsDockerUnavailable(Exception ex)
     {
         // Unwrap one level of aggregation — Testcontainers occasionally
         // wraps the underlying socket/IO failure in an AggregateException

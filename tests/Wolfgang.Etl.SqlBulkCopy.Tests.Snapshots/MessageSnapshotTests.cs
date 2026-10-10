@@ -53,7 +53,7 @@ public class MessageSnapshotTests
     (
         (_, _, type, method) => new PathInfo
         (
-            directory: Path.Combine(ResolveProjectDirectory(), "Snapshots"),
+            directory: Path.Combine(ResolveProjectDirectory(AppContext.BaseDirectory), "Snapshots"),
             typeName: type.Name,
             methodName: method.Name
         )
@@ -61,9 +61,9 @@ public class MessageSnapshotTests
 
 
 
-    private static string ResolveProjectDirectory()
+    private static string ResolveProjectDirectory(string startDirectory)
     {
-        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)
+        for (var dir = new DirectoryInfo(startDirectory); dir != null; dir = dir.Parent)
         {
             if (dir.GetFiles("*.csproj").Length > 0)
             {
@@ -73,8 +73,29 @@ public class MessageSnapshotTests
 
         throw new InvalidOperationException
         (
-            $"Could not locate the Tests.Snapshots project directory by walking up from '{AppContext.BaseDirectory}'."
+            $"Could not locate the Tests.Snapshots project directory by walking up from '{startDirectory}'."
         );
+    }
+
+
+
+    [Fact]
+    public void ResolveProjectDirectory_when_no_ancestor_holds_a_csproj_throws_InvalidOperationException()
+    {
+        // A fresh directory under the temp root has no *.csproj anywhere above
+        // it, so the walk reaches the filesystem root.
+        var orphan = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+
+        try
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() => ResolveProjectDirectory(orphan.FullName));
+
+            Assert.Contains(orphan.FullName, ex.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            orphan.Delete();
+        }
     }
 
 
@@ -133,6 +154,39 @@ public class MessageSnapshotTests
         );
 
         return Verifier.Verify(rendered);
+    }
+
+
+
+    [Fact]
+    public Task Column_mappings_and_values_render_consistently()
+    {
+        // Pins the table/column naming each probe type maps to AND that every
+        // column reads its own property — a swapped or dropped column changes
+        // the rendered text.
+        var rendered = string.Join
+        (
+            Environment.NewLine,
+            RenderColumns(new Customer { Id = 1, Name = "Ada" }),
+            RenderColumns(new NoTableAttribute { Id = 2 }),
+            RenderColumns(new BracketedTable { Id = 3 }),
+            RenderColumns(new Validatable { Id = 4, Name = "Bob", Quantity = 5 })
+        );
+
+        return Verifier.Verify(rendered);
+    }
+
+
+
+    private static string RenderColumns(object instance)
+    {
+        var map = TypeMap.Create(instance.GetType());
+
+        return map.QualifiedTableName + ": " + string.Join
+        (
+            ", ",
+            map.Columns.Select(column => $"{column.PropertyName}->{column.ColumnName}={column.GetValue(instance)}")
+        );
     }
 
 

@@ -93,4 +93,51 @@ public class BoundaryCoverageTests
             () => sut.LoadAsync(ToAsyncEnumerableAsync(parents), cts.Token)
         );
     }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_not_cancelled_writes_every_parent_and_child_row()
+    {
+        // Counterpart to the cancellation test above: the same nested graph, fed
+        // through the same async source, runs to completion when nothing cancels,
+        // so the cancellation test's exception is down to the token alone.
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = new SqlBulkCopyLoader<ParentRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentRecord>
+            {
+                BatchSize = 100
+            }
+        );
+
+        var parents = Enumerable.Range(1, 3)
+            .Select(i => new ParentRecord
+            {
+                ParentId = i,
+                Name = $"p{i}",
+                Children = Enumerable.Range(1, 2)
+                    .Select(c => new ChildRecord { ChildId = c, Description = $"c{c}" })
+                    .ToList()
+            })
+            .ToList();
+
+        await sut.LoadAsync(ToAsyncEnumerableAsync(parents), CancellationToken.None);
+
+        Assert.Equal
+        (
+            (3, 6),
+            (RowsWritten(factory, "[ParentRecords]"), RowsWritten(factory, "[ChildRecords]"))
+        );
+    }
+
+
+
+    private static int RowsWritten(FakeSqlBulkCopyWrapperFactory factory, string destinationTable) =>
+        factory.CreatedWrappers
+            .Where(w => string.Equals(w.DestinationTableName, destinationTable, StringComparison.Ordinal))
+            .Sum(w => w.BatchRowCounts.Sum());
 }

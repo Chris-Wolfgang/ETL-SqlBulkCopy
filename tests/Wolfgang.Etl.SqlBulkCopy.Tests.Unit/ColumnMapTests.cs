@@ -177,6 +177,22 @@ public class ColumnMapTests
 
 
 
+    // The getter the enum-converter test registers. The ctor rejects the column
+    // before it ever reads a value, so the getter is pinned by its own test below.
+    private static object? EnumProbeGetter(object _) => UnregisteredProbeEnum.One;
+
+
+
+    [Fact]
+    public void EnumProbeGetter_returns_the_unregistered_probe_enum_value()
+    {
+        // Proves the converter test's InvalidOperationException can only come from
+        // the ctor's converter check: the registered getter itself is well-formed.
+        Assert.Equal(UnregisteredProbeEnum.One, EnumProbeGetter(new GeneratedAccessorProbeRecord()));
+    }
+
+
+
     [Fact]
     public void Constructor_descriptor_when_enum_clrType_has_no_generated_converter_throws_InvalidOperationException()
     {
@@ -186,7 +202,7 @@ public class ColumnMapTests
         (
             typeof(GeneratedAccessorProbeRecord),
             "__enum_probe__",
-            _ => UnregisteredProbeEnum.One
+            EnumProbeGetter
         );
 
         var ex = Assert.Throws<InvalidOperationException>
