@@ -26,6 +26,10 @@ public class SqlBulkCopyLoaderOptionsRecordTests
     // Linux or locked-down runners, so the facts that need a real SqlConnection skip instead of fail there.
     private static readonly Lazy<bool> _sqlConnectionConstructible = new(IsSqlConnectionConstructible, LazyThreadSafetyMode.PublicationOnly);
 
+    // Infrastructure check: which branch runs depends on the runner's
+    // Microsoft.Data.SqlClient asset, not on the code under test, so it is the
+    // one kind of member the coverage policy lets carry [ExcludeFromCodeCoverage].
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private static bool IsSqlConnectionConstructible()
     {
         try
