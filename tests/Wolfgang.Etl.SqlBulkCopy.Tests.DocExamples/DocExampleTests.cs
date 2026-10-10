@@ -21,7 +21,7 @@ public class DocExampleTests
     [Fact]
     public void Every_xml_doc_example_snippet_compiles()
     {
-        var srcDir = LocateLibrarySourceDirectory();
+        var srcDir = LocateLibrarySourceDirectory(AppContext.BaseDirectory);
         var examples = ExtractExamples(srcDir).ToList();
 
         // Sanity: the scanner must actually find the source. (If the library
@@ -44,10 +44,11 @@ public class DocExampleTests
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             );
 
+            // Diagnostic.ToString() is what string.Join renders below; no
+            // projection to string here, so no lambda that only runs on failure.
             var errors = compilation
                 .GetDiagnostics()
                 .Where(d => d.Severity == DiagnosticSeverity.Error)
-                .Select(d => d.ToString())
                 .ToList();
 
             Assert.True
@@ -61,12 +62,33 @@ public class DocExampleTests
         }
     }
 
+    [Fact]
+    public void LocateLibrarySourceDirectory_when_no_ancestor_holds_the_src_project_throws_DirectoryNotFoundException()
+    {
+        // A fresh directory under the temp root has no src/Wolfgang.Etl.SqlBulkCopy
+        // anywhere above it, so the walk reaches the filesystem root.
+        var orphan = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+
+        try
+        {
+            var ex = Assert.Throws<DirectoryNotFoundException>(() => LocateLibrarySourceDirectory(orphan.FullName));
+
+            Assert.Contains(orphan.FullName, ex.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            orphan.Delete();
+        }
+    }
+
+
+
     // Walk up from the test binary's directory to the repo root (identified by
     // the src project folder). Deliberately avoids [CallerFilePath], which
     // resolves to a deterministic '/_/...' path under CI and can't be read.
-    private static string LocateLibrarySourceDirectory()
+    private static string LocateLibrarySourceDirectory(string startDirectory)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        var dir = new DirectoryInfo(startDirectory);
         while (dir is not null)
         {
             var candidate = Path.Combine(dir.FullName, "src", "Wolfgang.Etl.SqlBulkCopy");
@@ -80,7 +102,7 @@ public class DocExampleTests
 
         throw new DirectoryNotFoundException
         (
-            "Could not locate src/Wolfgang.Etl.SqlBulkCopy by walking up from " + AppContext.BaseDirectory
+            "Could not locate src/Wolfgang.Etl.SqlBulkCopy by walking up from " + startDirectory
         );
     }
 

@@ -17,7 +17,6 @@
 #pragma warning restore S125
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.Coyote;
 using Microsoft.Coyote.SystematicTesting;
@@ -25,7 +24,6 @@ using Xunit;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency;
 
-[ExcludeFromCodeCoverage]
 [UsedImplicitly(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.WithMembers)]
 [Table("concurrent_probe")]
 internal sealed class ConcurrentProbe
@@ -83,6 +81,33 @@ public class TypeMapCacheConcurrencyTests
                     i);
             }
         });
+    }
+
+
+
+    /// <summary>
+    /// The map the workers above race to publish must also be a working map for
+    /// the probe: each column reads the matching property value. Without this a
+    /// cache that published an empty or mis-wired map would still satisfy the
+    /// reference-equality invariant.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Concurrency")]
+    public void TypeMap_Create_for_the_probe_reads_its_property_values()
+    {
+        var probe = new ConcurrentProbe { Id = 7, Value = "seven" };
+
+        var values = TypeMap
+            .Create(typeof(ConcurrentProbe))
+            .Columns
+            .Select(column => column.GetValue(probe))
+            .ToArray();
+
+        Assert.Equal
+        (
+            new object?[] { 7, "seven" },
+            values
+        );
     }
 
 
