@@ -10,6 +10,7 @@
 //
 // Refs #96.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection.Metadata;
 using System.Text;
@@ -98,50 +99,30 @@ public class SourceLinkPdbTests
     /// Probing the mapping value verbatim is useless: it still contains the
     /// literal <c>*</c> and would 404 for that reason alone. A real URL only
     /// exists once an actual document path is substituted into it, which is
-    /// what this test does. Skipped when the SHA has not been substituted
-    /// (local dev builds), since only a pushed commit resolves.
+    /// what this test does. The HTTP probe is skipped when the SHA has not been
+    /// substituted (a local, unpushed build), since only a pushed commit
+    /// resolves; see <see cref="HasSubstitutedCommitSha"/>.
     /// </remarks>
     [Fact]
     public async Task Sourcelink_github_raw_url_resolves_for_a_real_source_file()
     {
-        var mappings = ReadOurSourceLinkMappings();
-        if (mappings.Count == 0)
+        var probeUrl = BuildProbeUrl(ReadOurSourceLinkMappings());
+
+        Assert.True(probeUrl is not null, "No .cs document in the PDB matched one of this repo's SourceLink mapping prefixes.");
+
+        if (HasSubstitutedCommitSha(probeUrl))
         {
-            // The structural test above already failed with a precise
-            // diagnostic; nothing further to add here.
-            return;
-        }
-
-        var probeUrl = BuildProbeUrl(mappings);
-        if (probeUrl is null)
-        {
-            // No document matched a mapping prefix, or the URL still holds the
-            // unresolved "*" SHA placeholder — a local, unpushed build.
-            return;
-        }
-
-        Assert.DoesNotContain("*", probeUrl, StringComparison.Ordinal);
-
-        try
-        {
-            using var response = await Http.GetAsync(probeUrl, HttpCompletionOption.ResponseHeadersRead);
-
             // 404 means the SHA no longer resolves (force-push, repo rename).
             // 403/429 is GitHub rate-limiting the runner, which is infra noise
-            // rather than a SourceLink defect.
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                Assert.Fail($"SourceLink URL 404s — the commit SHA no longer resolves: {probeUrl}");
-            }
-        }
-        catch (HttpRequestException)
-        {
-            // Network unavailable / GitHub outage: the deterministic checks
-            // above carry the per-PR gate, so don't fail on infra.
-        }
-        catch (TaskCanceledException)
-        {
-            // Timeout — same rationale.
+            // rather than a SourceLink defect; null means the network was
+            // unreachable (see TryGetStatusCodeAsync).
+            var status = await TryGetStatusCodeAsync(probeUrl);
+
+            Assert.True
+            (
+                status != HttpStatusCode.NotFound,
+                $"SourceLink URL 404s — the commit SHA no longer resolves: {probeUrl}"
+            );
         }
     }
 
@@ -213,27 +194,19 @@ public class SourceLinkPdbTests
             $"SourceLink payload has no 'documents' property: {payload}"
         );
 
-        var result = new List<(string, string)>();
-        foreach (var entry in documents.EnumerateObject())
-        {
-            var url = entry.Value.GetString();
-
-            // Deliberately a loose, slug-only filter. Its job is to separate our
-            // mappings from the ones third-party packages contribute, nothing
-            // more. Applying the strict host check here instead would mean a
-            // mapping with the right repo but a WRONG host got silently filtered
-            // out, and the only symptom would be an empty-collection failure.
-            // Selecting it loosely and asserting strictly reports the actual
-            // defect. See AssertIsOurRawGitHubUrl.
-            if (url is null || !url.Contains(RepoSlug, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            result.Add((entry.Name.TrimEnd('*'), url.TrimEnd('*')));
-        }
-
-        return result;
+        // Deliberately a loose, slug-only filter. Its job is to separate our
+        // mappings from the ones third-party packages contribute, nothing
+        // more. Applying the strict host check here instead would mean a
+        // mapping with the right repo but a WRONG host got silently filtered
+        // out, and the only symptom would be an empty-collection failure.
+        // Selecting it loosely and asserting strictly reports the actual
+        // defect. See AssertIsOurRawGitHubUrl.
+        return documents
+            .EnumerateObject()
+            .Select(entry => (Name: entry.Name, Url: entry.Value.GetString()))
+            .Where(entry => entry.Url is not null && entry.Url.Contains(RepoSlug, StringComparison.OrdinalIgnoreCase))
+            .Select(entry => (entry.Name.TrimEnd('*'), entry.Url!.TrimEnd('*')))
+            .ToList();
     }
 
 
@@ -241,8 +214,7 @@ public class SourceLinkPdbTests
     /// <summary>
     /// Picks a source document from the PDB, matches it against a SourceLink
     /// prefix mapping and substitutes the remainder into the URL, yielding a
-    /// URL that names an actual file. Returns <c>null</c> when nothing matches
-    /// or the SHA is still the unresolved '*' placeholder.
+    /// URL that names an actual file. Returns <c>null</c> when nothing matches.
     /// </summary>
     private static string? BuildProbeUrl(List<(string LocalPrefix, string UrlPrefix)> mappings)
     {
@@ -251,51 +223,73 @@ public class SourceLinkPdbTests
         using var provider = MetadataReaderProvider.FromPortablePdbStream(stream);
         var reader = provider.GetMetadataReader();
 
-        foreach (var handle in reader.Documents)
-        {
-            var name = reader.GetString(reader.GetDocument(handle).Name);
-            if (string.IsNullOrEmpty(name) || !name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            foreach (var (localPrefix, urlPrefix) in mappings)
-            {
-                if (localPrefix.Length == 0 || !name.StartsWith(localPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // The URL still carrying '*' means Microsoft.SourceLink.GitHub
-                // never substituted a commit SHA — an unpushed local build.
-                if (urlPrefix.Contains('*', StringComparison.Ordinal))
-                {
-                    return null;
-                }
-
-                var relative = name.Substring(localPrefix.Length).Replace('\\', '/');
-                return urlPrefix + relative;
-            }
-        }
-
-        return null;
+        return reader.Documents
+            .Select(handle => reader.GetString(reader.GetDocument(handle).Name))
+            .Where(name => name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            .SelectMany
+            (
+                name => mappings
+                    .Where(m => m.LocalPrefix.Length > 0 && name.StartsWith(m.LocalPrefix, StringComparison.OrdinalIgnoreCase))
+                    .Select(m => m.UrlPrefix + name.Substring(m.LocalPrefix.Length).Replace('\\', '/'))
+            )
+            .FirstOrDefault();
     }
 
 
 
-    private static string ReadSourceLinkPayload(MetadataReader reader)
+    /// <summary>
+    /// Infrastructure check: <c>false</c> when the URL still carries the
+    /// unresolved <c>*</c> commit-SHA placeholder, which only happens for a
+    /// local build Microsoft.SourceLink.GitHub could not tie to a pushed commit.
+    /// CI builds always substitute the SHA.
+    /// </summary>
+    /// <remarks>
+    /// Excluded from coverage because its <c>false</c> branch never runs in CI;
+    /// it is the one exclusion the coverage policy allows (a dedicated
+    /// infrastructure check).
+    /// </remarks>
+    [ExcludeFromCodeCoverage]
+    private static bool HasSubstitutedCommitSha([NotNullWhen(true)] string? url) =>
+        url is not null && !url.Contains('*', StringComparison.Ordinal);
+
+
+
+    /// <summary>
+    /// Infrastructure check: the HTTP status GitHub returns for
+    /// <paramref name="url"/>, or <c>null</c> when the network is unreachable or
+    /// the request times out. The deterministic checks above carry the per-PR
+    /// gate, so an infra outage must not fail the test.
+    /// </summary>
+    /// <remarks>
+    /// Excluded from coverage because its catch branches only run when the
+    /// runner has no network, which never happens in CI; it is the one
+    /// exclusion the coverage policy allows (a dedicated infrastructure check).
+    /// </remarks>
+    [ExcludeFromCodeCoverage]
+    private static async Task<HttpStatusCode?> TryGetStatusCodeAsync(string url)
     {
-        foreach (var handle in reader.CustomDebugInformation)
+        try
         {
-            var cdi = reader.GetCustomDebugInformation(handle);
-            if (reader.GetGuid(cdi.Kind) != SourceLinkGuid)
-            {
-                continue;
-            }
-
-            return Encoding.UTF8.GetString(reader.GetBlobBytes(cdi.Value));
+            using var response = await Http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            return response.StatusCode;
         }
-
-        return string.Empty;
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+        catch (TaskCanceledException)
+        {
+            return null;
+        }
     }
+
+
+
+    private static string ReadSourceLinkPayload(MetadataReader reader) =>
+        reader.CustomDebugInformation
+            .Select(reader.GetCustomDebugInformation)
+            .Where(cdi => reader.GetGuid(cdi.Kind) == SourceLinkGuid)
+            .Select(cdi => Encoding.UTF8.GetString(reader.GetBlobBytes(cdi.Value)))
+            .FirstOrDefault()
+        ?? string.Empty;
 }
