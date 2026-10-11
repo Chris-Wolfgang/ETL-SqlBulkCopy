@@ -23,6 +23,10 @@ public class SqlBulkCopyLoaderTests
     // instance skip rather than fail. Determine this once per process.
     private static readonly Lazy<bool> _sqlConnectionConstructible = new(IsSqlConnectionConstructible, LazyThreadSafetyMode.PublicationOnly);
 
+    // Infrastructure check: which branch runs depends on the runner's
+    // Microsoft.Data.SqlClient asset, not on the code under test, so it is the
+    // one kind of member the coverage policy lets carry [ExcludeFromCodeCoverage].
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     private static bool IsSqlConnectionConstructible()
     {
         try
@@ -1091,6 +1095,27 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    // Inert custom actions for the two *_CustomAction_without_connection_throws
+    // tests: the loader rejects the configuration before it would invoke them.
+    private static Task NoOpPreLoadActionAsync(PreLoadActionParameters _) => Task.CompletedTask;
+
+
+
+    private static Task NoOpPostLoadActionAsync(PostLoadActionParameters _) => Task.CompletedTask;
+
+
+
+    [Fact]
+    public void NoOp_custom_actions_return_the_completed_task()
+    {
+        // Proves the InvalidOperationException those tests expect can only come
+        // from the loader's missing-connection guard, never from the action.
+        Assert.Same(Task.CompletedTask, NoOpPreLoadActionAsync(null!));
+        Assert.Same(Task.CompletedTask, NoOpPostLoadActionAsync(null!));
+    }
+
+
+
     [Fact]
     public Task LoadAsync_when_PreAction_CustomAction_without_connection_throws()
     {
@@ -1104,7 +1129,7 @@ public class SqlBulkCopyLoaderTests
             options: new SqlBulkCopyLoaderOptions<TestRecord>
             {
                 PreAction = PreAction.CustomAction,
-                PreLoadCustomAction = _ => Task.CompletedTask
+                PreLoadCustomAction = NoOpPreLoadActionAsync
             }
         );
 
@@ -1129,7 +1154,7 @@ public class SqlBulkCopyLoaderTests
             options: new SqlBulkCopyLoaderOptions<TestRecord>
             {
                 PostAction = PostAction.CustomAction,
-                PostLoadCustomAction = _ => Task.CompletedTask
+                PostLoadCustomAction = NoOpPostLoadActionAsync
             }
         );
 
