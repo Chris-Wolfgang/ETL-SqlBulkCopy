@@ -22,7 +22,7 @@
          warnings-as-errors. No upstream fix exists yet; remove this line when
          Testcontainers depends on a patched SSH.NET. -->
     <PackageReference Include="SSH.NET" Version="2026.0.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
   </ItemGroup>
 
   <ItemGroup>
