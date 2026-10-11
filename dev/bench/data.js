@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790257232316,
+  "lastUpdate": 1791726870022,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2664,6 +2664,78 @@ window.BENCHMARK_DATA = {
             "value": 10801.64219156901,
             "unit": "ns",
             "range": "± 100.0920004532381"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "05d260c67e09408ac2ac9adb313a2386c6e6d47f",
+          "message": "Bump the dotnet-dependencies group with 8 updates (#461)\n\n* Bump the dotnet-dependencies group with 8 updates\n\nBumps coverlet.collector from 10.0.1 to 10.1.0\nBumps docfx from 2.80.1 to 2.81.0\nBumps jetbrains.resharper.globaltools from 2026.2.2 to 2026.2.3.1\nBumps Meziantou.Analyzer from 3.0.283 to 3.0.294\nBumps microsoft.cst.devskim.cli from 1.0.90 to 1.0.100\nBumps Microsoft.Data.SqlClient from 7.1.0 to 7.1.1\nBumps Roslynator.Analyzers from 5.0.0 to 5.0.1\nBumps SonarAnalyzer.CSharp from 10.34.0.3385 to 10.35.0.4138\n\n---\nupdated-dependencies:\n- dependency-name: coverlet.collector\n  dependency-version: 10.1.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: coverlet.collector\n  dependency-version: 10.1.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: docfx\n  dependency-version: 2.81.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n- dependency-name: jetbrains.resharper.globaltools\n  dependency-version: 2026.2.3.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Meziantou.Analyzer\n  dependency-version: 3.0.294\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: microsoft.cst.devskim.cli\n  dependency-version: 1.0.100\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Microsoft.Data.SqlClient\n  dependency-version: 7.1.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Roslynator.Analyzers\n  dependency-version: 5.0.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: SonarAnalyzer.CSharp\n  dependency-version: 10.35.0.4138\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: dotnet-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* build(deps): bump Microsoft.Data.SqlClient to 7.1.1 in GcProfileWorkload\n\nDependabot bumped the library to 7.1.1 but not this tool project, which still\npinned 7.1.0, so restore failed with NU1605 (package downgrade).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Chris Wolfgang <210299580+Chris-Wolfgang@users.noreply.github.com>\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-11T09:44:42-04:00",
+          "tree_id": "ba585a3ddccfcb379e616eea46734a6bb14a9841",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/05d260c67e09408ac2ac9adb313a2386c6e6d47f"
+        },
+        "date": 1791726867328,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 82303.28173828125,
+            "unit": "ns",
+            "range": "± 1312.5340687891128"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7702678.135416667,
+            "unit": "ns",
+            "range": "± 6350.968703684425"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.10641135275364,
+            "unit": "ns",
+            "range": "± 0.005044517894254344"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6651688565810522,
+            "unit": "ns",
+            "range": "± 0.0038647975885903177"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.881431847810745,
+            "unit": "ns",
+            "range": "± 0.171091056891579"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 16.003244310617447,
+            "unit": "ns",
+            "range": "± 2.4819602531722147"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7218671391407647,
+            "unit": "ns",
+            "range": "± 0.0007127850751608549"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11632.703521728516,
+            "unit": "ns",
+            "range": "± 113.76841430559972"
           }
         ]
       }
