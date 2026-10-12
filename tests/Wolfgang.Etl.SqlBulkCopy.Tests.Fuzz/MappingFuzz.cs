@@ -30,15 +30,15 @@ public class MappingFuzz
     [Trait("Category", "Fuzz")]
     public void QualifiedTableName_bracket_quoting_round_trips()
     {
-        Gen.Select(Gen.String, Gen.String).Sample((schema, table) =>
-        {
-            // Blank overrides normalise to the type's attribute default rather
-            // than the override, so they aren't part of this invariant.
-            if (string.IsNullOrWhiteSpace(schema) || string.IsNullOrWhiteSpace(table))
-            {
-                return true;
-            }
+        // Blank overrides normalise to the type's attribute default rather than
+        // the override, so they aren't part of this invariant. Filtering them out
+        // of the generator (instead of an early `return true` in the property)
+        // keeps every line of the property executed on every run; the early
+        // return only ran when the random sample happened to contain a blank.
+        var identifier = Gen.String.Where(value => !string.IsNullOrWhiteSpace(value));
 
+        Gen.Select(identifier, identifier).Sample((schema, table) =>
+        {
             var map = TypeMap.Create(typeof(FuzzRecord), schema, table);
             var (recoveredSchema, recoveredTable) = Unbracket(map.QualifiedTableName);
 
@@ -65,16 +65,17 @@ public class MappingFuzz
             var instance = new FuzzRecord { A = a, B = b, C = c, D = d };
             var map = TypeMap.Create(typeof(FuzzRecord));
 
-            foreach (var column in map.Columns)
-            {
-                var property = typeof(FuzzRecord).GetProperty(column.PropertyName)!;
-                if (!Equals(property.GetValue(instance), column.GetValue(instance)))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            // One boolean expression rather than an early `return false`: that
+            // branch never executes while the property holds, so it would be a
+            // permanently uncovered line in a test assembly gated at 100%.
+            return map.Columns.All
+            (
+                column => Equals
+                (
+                    typeof(FuzzRecord).GetProperty(column.PropertyName)!.GetValue(instance),
+                    column.GetValue(instance)
+                )
+            );
         });
     }
 
