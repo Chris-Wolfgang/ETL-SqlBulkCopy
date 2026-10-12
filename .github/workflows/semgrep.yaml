@@ -50,7 +50,9 @@ jobs:
         # listed, so the transitive tree is pinned too. Regenerate with the uv
         # command recorded in the header of the requirements file; the resolution
         # is universal, so it covers every runner platform and Python version.
-        run: pip install --require-hashes -r .github/requirements/semgrep.txt
+        # --no-deps: the file already lists the complete hash-pinned tree, so pip
+        # has nothing to resolve.
+        run: pip install --no-deps --require-hashes -r .github/requirements/semgrep.txt
 
       - name: Run Semgrep
         # --error makes findings exit 1; they are reported through the SARIF upload, so
@@ -73,12 +75,37 @@ jobs:
             *) echo "::error::semgrep failed with exit code $rc (not a findings result)"; exit "$rc" ;;
           esac
 
+      - name: Drop in-source-suppressed results from the SARIF
+        # Semgrep honours `// nosemgrep: <rule>` by keeping the result in the SARIF with a
+        # `suppressions` entry, but Code Scanning opens an alert for it anyway (alert 1214 on
+        # SqlConnectionCommandExecutor.cs stayed open with its nosemgrep in place). Remove those
+        # results before upload so an in-source suppression actually suppresses. Unsuppressed
+        # findings are untouched.
+        shell: bash
+        run: |
+          python3 - semgrep.sarif <<'PY'
+          import json, sys
+          path = sys.argv[1]
+          with open(path, encoding="utf-8") as f:
+              sarif = json.load(f)
+          dropped = 0
+          for run in sarif.get("runs", []):
+              results = run.get("results", [])
+              kept = [r for r in results if not r.get("suppressions")]
+              dropped += len(results) - len(kept)
+              run["results"] = kept
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(sarif, f)
+          kept_total = sum(len(r.get("results", [])) for r in sarif.get("runs", []))
+          print(f"dropped {dropped} in-source-suppressed result(s); kept {kept_total}")
+          PY
+
       - name: Upload Semgrep SARIF
         # A fork's pull_request token cannot write Code Scanning (security-events: write is
         # not granted), so the upload would fail after a successful scan. Skip it there; the
         # scan step above still runs (report-only, as documented) and its SARIF is available
         # once the change lands in this repository.
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
           sarif_file: semgrep.sarif
