@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790309971032,
+  "lastUpdate": 1791779206445,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1102,6 +1102,64 @@ window.BENCHMARK_DATA = {
             "value": 440159765.5,
             "unit": "ns",
             "range": "± 10836125.896001255"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "492a24ed202798a742325bb3a41d0f281fcf4ebd",
+          "message": "deps(semgrep): PyJWT 2.15.1 (override) + urllib3 2.8.0 (2/2, merge after 1/2) (#422)\n\n* deps(semgrep): add semgrep-overrides.txt (PyJWT ~=2.15.0)\n\n* deps(semgrep): recompile semgrep.txt (PyJWT 2.15.1, urllib3 2.8.0)",
+          "timestamp": "2026-10-11T14:30:54Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/492a24ed202798a742325bb3a41d0f281fcf4ebd"
+        },
+        "date": 1791779202592,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 13032969.833333334,
+            "unit": "ns",
+            "range": "± 674980.3762964768"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 17593085,
+            "unit": "ns",
+            "range": "± 852439.6706154635"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 15393109.333333334,
+            "unit": "ns",
+            "range": "± 524298.5736937812"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 462474981.3333333,
+            "unit": "ns",
+            "range": "± 14000729.215193376"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 494340777.6666667,
+            "unit": "ns",
+            "range": "± 16578753.887101898"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 463902936.5,
+            "unit": "ns",
+            "range": "± 12206279.297480088"
           }
         ]
       }
