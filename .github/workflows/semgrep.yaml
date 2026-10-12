@@ -50,9 +50,8 @@ jobs:
         # listed, so the transitive tree is pinned too. Regenerate with the uv
         # command recorded in the header of the requirements file; the resolution
         # is universal, so it covers every runner platform and Python version.
-        # --no-deps: the file already lists the complete tree, and the tree
-        # deliberately overrides one of semgrep's own pins (see
-        # semgrep-overrides.txt), which pip's resolver would otherwise re-apply.
+        # --no-deps: the file already lists the complete hash-pinned tree, so pip
+        # has nothing to resolve.
         run: pip install --no-deps --require-hashes -r .github/requirements/semgrep.txt
 
       - name: Run Semgrep
@@ -75,6 +74,31 @@ jobs:
             1) echo "semgrep: findings reported (see the Security tab after upload)" ;;
             *) echo "::error::semgrep failed with exit code $rc (not a findings result)"; exit "$rc" ;;
           esac
+
+      - name: Drop in-source-suppressed results from the SARIF
+        # Semgrep honours `// nosemgrep: <rule>` by keeping the result in the SARIF with a
+        # `suppressions` entry, but Code Scanning opens an alert for it anyway (alert 1214 on
+        # SqlConnectionCommandExecutor.cs stayed open with its nosemgrep in place). Remove those
+        # results before upload so an in-source suppression actually suppresses. Unsuppressed
+        # findings are untouched.
+        shell: bash
+        run: |
+          python3 - semgrep.sarif <<'PY'
+          import json, sys
+          path = sys.argv[1]
+          with open(path, encoding="utf-8") as f:
+              sarif = json.load(f)
+          dropped = 0
+          for run in sarif.get("runs", []):
+              results = run.get("results", [])
+              kept = [r for r in results if not r.get("suppressions")]
+              dropped += len(results) - len(kept)
+              run["results"] = kept
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(sarif, f)
+          kept_total = sum(len(r.get("results", [])) for r in sarif.get("runs", []))
+          print(f"dropped {dropped} in-source-suppressed result(s); kept {kept_total}")
+          PY
 
       - name: Upload Semgrep SARIF
         # A fork's pull_request token cannot write Code Scanning (security-events: write is
