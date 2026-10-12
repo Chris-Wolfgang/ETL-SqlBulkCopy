@@ -94,10 +94,12 @@ jobs:
           retention-days: 60
 
       - name: File issue on failure
-        # Only when the fuzz step itself failed, so a runner/setup failure does
-        # not file a "property falsified" issue. A scheduled failure is
+        # Only a scheduled run, and only when the fuzz step itself failed: a
+        # runner/setup failure does not file a "property falsified" issue, and a
+        # manual workflow_dispatch run (e.g. reproducing a known failure) is
+        # already visible to whoever started it. A scheduled failure is
         # otherwise invisible; this makes it land on the issue list.
-        if: failure() && steps.fuzz.outcome == 'failure'
+        if: failure() && steps.fuzz.outcome == 'failure' && github.event_name == 'schedule'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
