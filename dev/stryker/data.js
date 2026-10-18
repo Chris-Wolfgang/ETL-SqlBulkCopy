@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791699991191,
+  "lastUpdate": 1792304793814,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "Mutation score": [
@@ -75,6 +75,33 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/b00d80b9b4faa57a57e58cf81ad4d950c9599f1f"
         },
         "date": 1791699984557,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Mutation score",
+            "value": 83.85,
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "2e5de53b997288772be33e6b56c3f6aed2edb1c7",
+          "message": "fix(scripts): security-alerts updates the open summary issue instead of filing a new one (#478)\n\nGet-TrackedIssues keyed each marker to the LAST issue in the listing. The REST\nissues listing (state=all) is newest first, so with a closed old summary and an\nopen newer one the map kept the CLOSED issue, and every weekly run filed a\nduplicate summary issue. Prefer the OPEN issue for a marker, and between two of\nthe same state the higher number. Port of Chris-Wolfgang/repo-template#719.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-14T20:23:30Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/2e5de53b997288772be33e6b56c3f6aed2edb1c7"
+        },
+        "date": 1792304784649,
         "tool": "customBiggerIsBetter",
         "benches": [
           {
