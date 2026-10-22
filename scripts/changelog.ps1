@@ -246,7 +246,14 @@ function Invoke-Assemble
         [void]$sb.AppendLine()
         [void]$sb.AppendLine("### $($kinds[$kind])")
         [void]$sb.AppendLine()
-        foreach ($g in $group) { [void]$sb.AppendLine("- $($g.Description)$(Get-PrSuffix $g.RelPath)") }
+        foreach ($g in $group)
+        {
+            $suffix = Get-PrSuffix $g.RelPath
+            # A fragment whose text already ends with its PR reference must not get it a
+            # second time - that is how 0.9.0 ended up with "(#300) (#300)".
+            if ($suffix -and $g.Description.TrimEnd().EndsWith($suffix.Trim(), [StringComparison]::Ordinal)) { $suffix = '' }
+            [void]$sb.AppendLine("- $($g.Description)$suffix")
+        }
     }
     $section = $sb.ToString().TrimEnd()
 
@@ -259,6 +266,23 @@ function Invoke-Assemble
 
     $block = @($section -split "`n") + @('')
     $lines.InsertRange($insertAt, [string[]]$block)
+
+    # Keep the Keep-a-Changelog footer links in step: [Unreleased] compares from the new tag and
+    # the new version gets its own compare link. They were maintained by hand and stopped being
+    # updated at 0.8.0, leaving later headings unlinked. Skipped when the footer has no
+    # "[Unreleased]: <repo>/compare/<tag>...HEAD" line or already defines this version.
+    $hasVersionLink = @($lines | Where-Object { $_ -like "[$Version]:*" }).Count -gt 0
+    for ($i = 0; $i -lt $lines.Count -and -not $hasVersionLink; $i++)
+    {
+        if ($lines[$i] -match '^\[Unreleased\]:\s*(?<repo>\S+)/compare/(?<prev>\S+)\.\.\.HEAD\s*$')
+        {
+            $repoUrl = $Matches['repo']
+            $prevTag = $Matches['prev']
+            $lines[$i] = "[Unreleased]: $repoUrl/compare/v$Version...HEAD"
+            $lines.Insert($i + 1, "[$Version]: $repoUrl/compare/$prevTag...v$Version")
+            break
+        }
+    }
     Set-Content -Path $ChangelogPath -Value ($lines -join "`n") -NoNewline
     Add-Content -Path $ChangelogPath -Value ''
 
