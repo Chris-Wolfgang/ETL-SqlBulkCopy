@@ -61,7 +61,7 @@ public class SqlServerFixtureTests
     [Fact]
     public void IsDockerUnavailable_when_ArgumentException_names_DockerEndpointAuthConfig_returns_true()
     {
-        var ex = new ArgumentException("Docker is not installed.", "DockerEndpointAuthConfig");
+        var ex = ArgumentExceptionNaming("DockerEndpointAuthConfig", "Docker is not installed.");
 
         Assert.True(SqlServerFixture.IsDockerUnavailable(ex));
     }
@@ -71,7 +71,7 @@ public class SqlServerFixtureTests
     [Fact]
     public void IsDockerUnavailable_when_ArgumentException_names_another_parameter_returns_false()
     {
-        var ex = new ArgumentException("Bad image tag.", "image");
+        var ex = ArgumentExceptionNaming("image", "Bad image tag.");
 
         Assert.False(SqlServerFixture.IsDockerUnavailable(ex));
     }
@@ -91,6 +91,15 @@ public class SqlServerFixtureTests
     {
         Assert.False(SqlServerFixture.IsDockerUnavailable(new InvalidOperationException("fixture bug")));
     }
+
+
+
+    // Testcontainers throws ArgumentException naming its own builder parameters
+    // (e.g. DockerEndpointAuthConfig), which are not parameters of this test. Passing
+    // the name through a parameter keeps that faithful without a literal paramName
+    // that analyzers (S3928, MA0015, NotResolvedInText) flag as unresolvable here.
+    private static ArgumentException ArgumentExceptionNaming(string paramName, string message) =>
+        new(message, paramName);
 
 
 
