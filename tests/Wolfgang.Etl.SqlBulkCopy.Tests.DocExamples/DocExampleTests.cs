@@ -166,6 +166,7 @@ public class DocExampleTests
         sb.AppendLine("using System.Threading;");
         sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine("using Microsoft.Data.SqlClient;");
+        sb.AppendLine("using Wolfgang.Etl.Abstractions;");
         sb.AppendLine("using Wolfgang.Etl.SqlBulkCopy;");
         sb.AppendLine("internal static class DocExampleHarness");
         sb.AppendLine("{");
