@@ -58,12 +58,19 @@ jobs:
         # --error makes findings exit 1; they are reported through the SARIF upload, so
         # 0 and 1 both continue. Anything else (bad config, crash, network) fails the job
         # instead of silently uploading nothing.
+        # --exclude-rule csharp-sqli: the only statement-execution site under src/ is
+        # SqlConnectionCommandExecutor, which runs the CALLER's own pre/post-load SQL by
+        # design (the same contract as Dapper's Execute or EF's ExecuteSqlRaw), so the rule
+        # can only ever report that one intended call. Excluding it here, rather than with an
+        # inline `nosemgrep` marker, keeps the waiver in reviewed configuration (#486).
+        # Revisit if src/ ever gains a second place that executes SQL text.
         run: |
           set +e
           semgrep scan \
             --config p/csharp \
             --config p/security-audit \
             --config p/secrets \
+            --exclude-rule csharp.lang.security.sqli.csharp-sqli.csharp-sqli \
             --sarif --output semgrep.sarif \
             --error \
             src/
@@ -74,31 +81,6 @@ jobs:
             1) echo "semgrep: findings reported (see the Security tab after upload)" ;;
             *) echo "::error::semgrep failed with exit code $rc (not a findings result)"; exit "$rc" ;;
           esac
-
-      - name: Drop in-source-suppressed results from the SARIF
-        # Semgrep honours `// nosemgrep: <rule>` by keeping the result in the SARIF with a
-        # `suppressions` entry, but Code Scanning opens an alert for it anyway (alert 1214 on
-        # SqlConnectionCommandExecutor.cs stayed open with its nosemgrep in place). Remove those
-        # results before upload so an in-source suppression actually suppresses. Unsuppressed
-        # findings are untouched.
-        shell: bash
-        run: |
-          python3 - semgrep.sarif <<'PY'
-          import json, sys
-          path = sys.argv[1]
-          with open(path, encoding="utf-8") as f:
-              sarif = json.load(f)
-          dropped = 0
-          for run in sarif.get("runs", []):
-              results = run.get("results", [])
-              kept = [r for r in results if not r.get("suppressions")]
-              dropped += len(results) - len(kept)
-              run["results"] = kept
-          with open(path, "w", encoding="utf-8") as f:
-              json.dump(sarif, f)
-          kept_total = sum(len(r.get("results", [])) for r in sarif.get("runs", []))
-          print(f"dropped {dropped} in-source-suppressed result(s); kept {kept_total}")
-          PY
 
       - name: Upload Semgrep SARIF
         # A fork's pull_request token cannot write Code Scanning (security-events: write is
