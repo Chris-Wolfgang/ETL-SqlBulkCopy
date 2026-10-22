@@ -9,7 +9,7 @@ permissions:
   contents: read  # Default to read-only; individual jobs declare write where required
 
 env:
-  CODECOV_MINIMUM: 90
+  CODECOV_MINIMUM: 95
 
 concurrency:
   # Serialize releases so a duplicate / re-published Release event can't run two
