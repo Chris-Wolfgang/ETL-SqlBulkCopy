@@ -53,13 +53,8 @@ internal sealed class SqlConnectionCommandExecutor : ISqlCommandExecutor
         // actions, the same contract as Dapper's Execute or EF's ExecuteSqlRaw.
         // There is nothing here to parameterise - the SQL never mixes library
         // data with the caller's string - and the public API documents that the
-        // caller owns the statement.
-        // Two things the marker below depends on, both verified against semgrep
-        // 1.170.0 with `--config p/csharp`: the rule id must be the full
-        // `...csharp-sqli.csharp-sqli` (a `nosemgrep:` naming an id only
-        // suppresses an exact match), and it must sit on the line directly above
-        // the finding. Getting either wrong silently does nothing.
-        // nosemgrep: csharp.lang.security.sqli.csharp-sqli.csharp-sqli
+        // caller owns the statement. Semgrep's csharp-sqli rule is excluded for
+        // this reason in .github/workflows/semgrep.yaml, not with an inline marker.
         command.CommandText = commandText;
         command.CommandTimeout = commandTimeout;
 
