@@ -189,6 +189,18 @@ public class SqlBulkCopyLoaderOptionsRecordTests
 
 
     [Fact]
+    public void Record_when_BulkCopyTimeout_is_zero_accepts_it()
+    {
+        // 0 means "no timeout" to SqlBulkCopy, so it is the lowest valid value: pins the
+        // guard as `< 0`, not `<= 0` (#414, Stryker equality mutant on the init accessor).
+        var options = new SqlBulkCopyLoaderOptions<TestRecord> { BulkCopyTimeout = 0 };
+
+        Assert.Equal(0, options.BulkCopyTimeout);
+    }
+
+
+
+    [Fact]
     public void Record_when_BulkCopyTimeout_is_negative_throws_at_init()
     {
         var exception = Assert.Throws<ArgumentOutOfRangeException>

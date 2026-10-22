@@ -231,13 +231,10 @@ internal sealed class TypeMap
         string? tableOverride
     )
     {
-        var schema = string.IsNullOrWhiteSpace(schemaOverride) ? descriptor.SchemaName : schemaOverride;
-        // `!` retained because net462/netstandard2.0 System.String lacks
-        // [NotNullWhen(false)] on IsNullOrWhiteSpace's parameter; the modern-TFM
-        // compiler narrows without it, but the older TFMs still emit CS8604.
-        var table = tableOverride is not null && !string.IsNullOrWhiteSpace(tableOverride)
-            ? tableOverride
-            : descriptor.TableName;
+        // Create normalizes empty/whitespace overrides to null before they get here, so an
+        // override is either null or a real name and `??` is the whole resolution.
+        var schema = schemaOverride ?? descriptor.SchemaName;
+        var table = tableOverride ?? descriptor.TableName;
 
         var columns = new ColumnMap[descriptor.Columns.Count];
         for (var i = 0; i < descriptor.Columns.Count; i++)
@@ -410,15 +407,10 @@ internal sealed class TypeMap
             return (null, type.Name);
         }
 
-        var resolvedSchemaName = string.IsNullOrWhiteSpace(schemaName)
-            ? tableAttribute?.Schema
-            : schemaName;
-
-        // See TypeMap.BuildFromDescriptor for the `!` rationale (older-TFM
-        // System.String lacks [NotNullWhen(false)] on IsNullOrWhiteSpace).
-        var resolvedTableName = tableName is not null && !string.IsNullOrWhiteSpace(tableName)
-            ? tableName
-            : tableAttribute?.Name ?? type.Name;
+        // Overrides arrive already normalized by Create (empty/whitespace -> null), as in
+        // BuildFromDescriptor, so `??` is the whole resolution.
+        var resolvedSchemaName = schemaName ?? tableAttribute?.Schema;
+        var resolvedTableName = tableName ?? tableAttribute?.Name ?? type.Name;
 
         return (resolvedSchemaName, resolvedTableName);
     }
