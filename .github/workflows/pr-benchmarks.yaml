@@ -10,10 +10,16 @@
 # deterministic per-PR. The end-to-end LoaderBenchmarks (heavier, even via the
 # no-op wrapper) stays on the nightly benchmarks.yaml trend.
 #
-# Gate: informational today (every PR gets a delta comment). Threshold-based
-# failure is a follow-up once a few runs have sized the normal noise.
+# Gate (#234): every PR still gets the delta comment. The job then FAILS when a
+# benchmark regresses past a threshold - mean time by more than
+# MAX_MEAN_REGRESSION_PCT AND by at least MIN_MEAN_DELTA_NS, or allocations by
+# more than MAX_ALLOC_REGRESSION_PCT AND by at least MIN_ALLOC_DELTA_BYTES -
+# unless the PR carries the `perf-impact-acknowledged` label (a deliberate,
+# reviewed regression). The thresholds live in the `env:` of the delta step.
+# The percentages sit well above the Short job's ~5% run-to-run noise, and the
+# absolute floors keep nanosecond-scale benchmarks from tripping on jitter.
 #
-# Refs #106.
+# Refs #106, #234.
 
 name: PR benchmarks delta
 
@@ -91,10 +97,22 @@ jobs:
       - name: Compute per-benchmark delta
         id: delta
         shell: bash
+        env:
+          # Gate thresholds (#234). A row fails only when BOTH the relative and the
+          # absolute limit are exceeded.
+          MAX_MEAN_REGRESSION_PCT: "20"
+          MIN_MEAN_DELTA_NS: "5"
+          MAX_ALLOC_REGRESSION_PCT: "50"
+          MIN_ALLOC_DELTA_BYTES: "16"
         run: |
           set -euo pipefail
           python3 - <<'PY' > delta.md
-          import glob, json
+          import glob, json, os
+
+          MAX_MEAN_PCT = float(os.environ["MAX_MEAN_REGRESSION_PCT"])
+          MIN_MEAN_NS = float(os.environ["MIN_MEAN_DELTA_NS"])
+          MAX_ALLOC_PCT = float(os.environ["MAX_ALLOC_REGRESSION_PCT"])
+          MIN_ALLOC_B = float(os.environ["MIN_ALLOC_DELTA_BYTES"])
 
           def load(root):
               out = {}
@@ -135,26 +153,41 @@ jobs:
               sign = "+" if d >= 0 else ""
               return f"{sign}{d:.1f}%"
 
+          def regressed(new, old, max_pct, min_abs):
+              # Both limits must be exceeded: the percentage alone would flap on
+              # tiny absolute numbers, the floor alone would miss real slow-downs.
+              if new is None or old is None or old <= 0: return False
+              return (new - old) / old * 100 > max_pct and (new - old) >= min_abs
+
           def esc(s): return str(s).replace("|", "\|")
           def short(n): return n.rsplit(".", 1)[-1]
 
+          failures = []
           print("<!-- pr-benchmarks-delta -->")
           print("## PR benchmark delta")
           print()
           if not all_names:
               print("_No benchmarks ran on either side._")
           else:
-              print("| Benchmark | Base mean | HEAD mean | Δ mean | Base alloc | HEAD alloc | Δ alloc |")
-              print("|---|---|---|---|---|---|---|")
+              print("| Benchmark | Base mean | HEAD mean | Δ mean | Base alloc | HEAD alloc | Δ alloc | Gate |")
+              print("|---|---|---|---|---|---|---|---|")
               for n in all_names:
                   b = base.get(n, {}); h = head.get(n, {})
+                  slow = regressed(h.get("meanNs"), b.get("meanNs"), MAX_MEAN_PCT, MIN_MEAN_NS)
+                  heavy = regressed(h.get("allocBytes"), b.get("allocBytes"), MAX_ALLOC_PCT, MIN_ALLOC_B)
+                  if slow or heavy:
+                      failures.append(short(n))
+                  gate = "fail" if (slow or heavy) else "pass"
                   print("| " + " | ".join([
                       esc(short(n)),
                       esc(fmt_ns(b.get("meanNs"))), esc(fmt_ns(h.get("meanNs"))), esc(pct(h.get("meanNs"), b.get("meanNs"))),
                       esc(fmt_bytes(b.get("allocBytes"))), esc(fmt_bytes(h.get("allocBytes"))), esc(pct(h.get("allocBytes"), b.get("allocBytes"))),
+                      gate,
                   ]) + " |")
               print()
-              print("_Job: Short (~5% variance). Filter: `*PropertyGetter*|*SliceList*` — DB-free micro-benchmarks. Gate mode: informational; see #106 for threshold-gate follow-up._")
+              print(f"_Job: Short (~5% variance). Filter: `*PropertyGetter*|*SliceList*` — DB-free micro-benchmarks. Gate: fails on mean > +{MAX_MEAN_PCT:g}% (and ≥ {MIN_MEAN_NS:g} ns) or alloc > +{MAX_ALLOC_PCT:g}% (and ≥ {MIN_ALLOC_B:g} B), unless the PR has the `perf-impact-acknowledged` label (#234)._")
+          with open("regressions.txt", "w", encoding="utf-8") as fp:
+              fp.write("\n".join(failures))
           PY
           echo "---delta.md---"; cat delta.md
 
@@ -174,6 +207,30 @@ jobs:
           else
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file delta.md
           fi
+
+      - name: Gate on regression threshold
+        # After the comment step, so the delta table is posted even when this fails.
+        shell: bash
+        env:
+          ACKNOWLEDGED: ${{ contains(github.event.pull_request.labels.*.name, 'perf-impact-acknowledged') }}
+        run: |
+          set -euo pipefail
+          if [ ! -f regressions.txt ]; then
+            echo "::error::regressions.txt is missing - the delta step did not evaluate the gate."
+            exit 1
+          fi
+          if [ ! -s regressions.txt ]; then
+            echo "No benchmark regressed past the threshold."
+            exit 0
+          fi
+          echo "Benchmarks past the regression threshold:"
+          cat regressions.txt; echo
+          if [ "$ACKNOWLEDGED" = "true" ]; then
+            echo "::warning::Regression acknowledged by the perf-impact-acknowledged label; not failing."
+            exit 0
+          fi
+          echo "::error::Benchmark regression past the threshold (see the PR comment). Fix it, or add the perf-impact-acknowledged label if it is deliberate and reviewed."
+          exit 1
 
       - name: Upload raw BDN outputs
         if: always()
