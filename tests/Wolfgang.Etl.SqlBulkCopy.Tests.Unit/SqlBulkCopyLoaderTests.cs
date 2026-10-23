@@ -1419,11 +1419,6 @@ public class SqlBulkCopyLoaderTests
 
 
 
-    // (The two former "Additional constructor tests" were byte-for-byte
-    // duplicates of Constructor_with_connection_and_logger_when_connection_is_null_throws_ArgumentNullException
-    // and Constructor_full_when_connection_is_null_throws_ArgumentNullException
-    // above, differing only in `null!` vs `(SqlConnection)null!`.)
-
     // --- Report tests ---
 
     [Fact]
