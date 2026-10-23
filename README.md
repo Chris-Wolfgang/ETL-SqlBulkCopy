@@ -286,6 +286,15 @@ docfx build --serve
 
 ---
 
+## 🔐 Verify the build
+
+Release assemblies are built deterministically. Each GitHub release carries a
+`reproducible-build-manifest.json` with the SHA-256 of every shipped assembly, so you
+can rebuild the tagged source and compare. The procedure, tooling and how to report a
+mismatch are in [REPRODUCIBLE-BUILD.md](REPRODUCIBLE-BUILD.md).
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
