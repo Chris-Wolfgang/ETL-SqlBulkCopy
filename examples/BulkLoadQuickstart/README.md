@@ -7,8 +7,8 @@ pre-action, and live per-batch progress reporting.
 It exercises the loader's core public surface — attribute-driven column
 mapping (`[Table]` / `[Column]` / `[NotMapped]`), `BatchSize`,
 `BulkCopyTimeout`, `PreAction`, and `LoadAsync(source, progress)` — in one
-realistic flow, and doubles as the workload for the shadow-test harness tracked
-in [#82](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/issues/82).
+realistic flow. (The shadow-workload latency harness is a separate project,
+`samples/Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads/`.)
 
 ## Prerequisites
 
