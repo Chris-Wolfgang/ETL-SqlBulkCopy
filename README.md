@@ -98,14 +98,14 @@ the loader are deprecated and will be removed in a later release.
 | **Progress reporting** | `IProgress<SqlBulkCopyReport>` — rows written (`CurrentItemCount`), rows skipped, batch count |
 | **Data validation** | Opt in with `EnableDataValidation`; DataAnnotations failures throw or skip per `ValidationFailureBehavior`, with `OnValidationFailed` / `OnNestedValidationFailed` callbacks |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
-| **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` (or the loader) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
+| **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
 | **Native AOT ready** | Opt a record into compile-time source-generated accessors with `[BulkCopyable]` — no runtime IL emission on the hot path (net5.0+) |
 | **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net5.0`, `net6.0`, `net7.0`, `net8.0`, `net10.0` |
 
 **Examples:**
 - **Truncate before load:** `PreAction = PreAction.TruncateTable` on the options record (shown above).
-- **Custom pre-action:** `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ }` on the options record.
+- **Custom pre-action:** `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.ColumnMappings, p.CancellationToken */ }` on the options record.
 - **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
 - **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, options, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
 - **Dry run:** set `IsDryRun = true` on the options record to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.

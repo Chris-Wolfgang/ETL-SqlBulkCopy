@@ -72,8 +72,9 @@ All code is analyzed by these tools during build:
 
 3. **AsyncFixer**
    - Detects common async/await anti-patterns (AsyncFixer01–05)
-   - Flags missing or incorrect cancellation-token propagation
    - Prevents fire-and-forget async calls (`async void` outside event handlers)
+   - NOTE: cancellation-token propagation is checked by Meziantou's MA0040 and
+     CA2016, not by AsyncFixer.
    - NOTE: `ConfigureAwait()` enforcement is handled by Meziantou's
      MA0004 / SonarAnalyzer S3216 / CA2007, not by AsyncFixer.
 
@@ -121,12 +122,10 @@ await Task.WhenAll(tasks);
 // Banned
 File.ReadAllText(path);
 stream.Read(buffer, 0, count);
-streamReader.ReadLine();
 
 // Required
 await File.ReadAllTextAsync(path);
 await stream.ReadAsync(buffer, 0, count);
-await streamReader.ReadLineAsync();
 ```
 
 #### ❌ Thread Blocking
