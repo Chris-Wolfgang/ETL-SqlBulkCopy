@@ -117,10 +117,12 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// {
     ///     foreach (var file in files)
     ///     {
-    ///         var loader = new SqlBulkCopyLoader&lt;Person&gt;(connection, SqlBulkCopyOptions.Default, transaction)
-    ///         {
-    ///             DestinationTableName = "People"
-    ///         };
+    ///         var loader = new SqlBulkCopyLoader&lt;Person&gt;
+    ///         (
+    ///             connection,
+    ///             new SqlBulkCopyLoaderOptions&lt;Person&gt; { DestinationTableName = "People" },
+    ///             transaction
+    ///         );
     ///
     ///         await loader.LoadAsync(file, cancellationToken);
     ///     }
@@ -150,10 +152,12 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// foreach (var file in files)
     /// {
     ///     using var transaction = connection.BeginTransaction();
-    ///     var loader = new SqlBulkCopyLoader&lt;Person&gt;(connection, SqlBulkCopyOptions.Default, transaction)
-    ///     {
-    ///         DestinationTableName = "People"
-    ///     };
+    ///     var loader = new SqlBulkCopyLoader&lt;Person&gt;
+    ///     (
+    ///         connection,
+    ///         new SqlBulkCopyLoaderOptions&lt;Person&gt; { DestinationTableName = "People" },
+    ///         transaction
+    ///     );
     ///
     ///     await loader.LoadAsync(file, cancellationToken);
     ///     transaction.Commit();
