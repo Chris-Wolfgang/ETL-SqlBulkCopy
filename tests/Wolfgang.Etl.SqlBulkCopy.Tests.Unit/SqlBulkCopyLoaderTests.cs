@@ -1241,7 +1241,7 @@ public class SqlBulkCopyLoaderTests
         Assert.NotNull(captured);
 #pragma warning disable S8969 // multi-TFM: Assert.NotNull's [MemberNotNullWhen] not honored by older-TFM analyzer path
         Assert.Equal(5, captured!.CurrentItemCount);
-        Assert.True(captured.BatchCount >= 1);
+        Assert.Equal(3, captured.BatchCount); // 5 items at BatchSize 2 -> 2 + 2 + 1
 #pragma warning restore S8969
     }
 
@@ -1268,36 +1268,78 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
-    public async Task LoadAsync_called_twice_with_different_progress_swaps_Elapsed_handler()
+    public async Task LoadAsync_called_twice_with_different_progress_reports_only_to_the_current_progress()
     {
-        // Reusing a single loader across multiple LoadAsync calls must not
-        // continue invoking the first IProgress after the second call has
-        // wired a new one — the prior Elapsed handler must be detached and
-        // replaced. Verify via reflection on the internal handler field
-        // because ManualProgressTimer is disposed by each LoadAsync, so we
-        // can't Fire() it post-call to observe routing directly.
+        // Reusing a single loader across LoadAsync calls must route timer ticks to the
+        // CURRENT call's IProgress: the first call's handler has to be detached, not left
+        // on the timer next to the second one. Observed through behaviour - ticks fired
+        // during the second call must not reach the first IProgress.
         var factory = new FakeSqlBulkCopyWrapperFactory();
-        var timer = new ManualProgressTimer();
+        var timer = new ReusableManualProgressTimer();
         var sut = new SqlBulkCopyLoader<TestRecord>(factory, timer, logger: null);
 
-        var progressA = new SynchronousProgress<SqlBulkCopyReport>(_ => { });
-        var progressB = new SynchronousProgress<SqlBulkCopyReport>(_ => { });
+        var reportsToA = 0;
+        var reportsToB = 0;
+        var progressA = new SynchronousProgress<SqlBulkCopyReport>(_ => reportsToA++);
+        var progressB = new SynchronousProgress<SqlBulkCopyReport>(_ => reportsToB++);
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)), progressA);
-        var handlerField = typeof(SqlBulkCopyLoader<TestRecord>).GetField
-        (
-            "_progressTimerHandler",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
-        );
-        Assert.NotNull(handlerField);
-        var handlerAfterFirstCall = handlerField.GetValue(sut);
+        await sut.LoadAsync(FiringSourceAsync(timer, CreateTestItems(3)), progressA);
+        var reportsToAAfterFirstCall = reportsToA;
 
-        await sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(3)), progressB);
-        var handlerAfterSecondCall = handlerField.GetValue(sut);
+        await sut.LoadAsync(FiringSourceAsync(timer, CreateTestItems(3)), progressB);
 
-        Assert.NotNull(handlerAfterFirstCall);
-        Assert.NotNull(handlerAfterSecondCall);
-        Assert.NotSame(handlerAfterFirstCall, handlerAfterSecondCall);
+        Assert.True(reportsToAAfterFirstCall >= 3, $"first call saw {reportsToAAfterFirstCall} report(s)");
+        Assert.Equal(reportsToAAfterFirstCall, reportsToA);
+        Assert.True(reportsToB >= 3, $"second call saw {reportsToB} report(s)");
+    }
+
+
+
+    // Fires the timer once per item while the loader is enumerating, so a tick lands
+    // inside the LoadAsync call that owns the current Elapsed handler.
+    private static async IAsyncEnumerable<TestRecord> FiringSourceAsync
+    (
+        ReusableManualProgressTimer timer,
+        IEnumerable<TestRecord> items
+    )
+    {
+        foreach (var item in items)
+        {
+            timer.Fire();
+            yield return item;
+        }
+
+        await Task.CompletedTask.ConfigureAwait(false);
+    }
+
+
+
+    // TestKit's ManualProgressTimer is sealed and throws from Fire() once disposed, and
+    // LoadAsync disposes its timer, so it cannot be fired during a second call on the
+    // same loader. This one ignores Dispose so the reuse path can be driven.
+    private sealed class ReusableManualProgressTimer : Wolfgang.Etl.Abstractions.IProgressTimer
+    {
+        public event Action? Elapsed;
+
+        public void Fire() => Elapsed?.Invoke();
+
+        // Interface obligations only: the loader never starts or stops an injected timer
+        // (measured: neither is called during LoadAsync), and the test drives ticks through
+        // Fire(), so these bodies are unreachable here.
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        public void Start(int intervalMilliseconds)
+        {
+        }
+
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        public void StopTimer()
+        {
+        }
+
+        public void Dispose()
+        {
+            // Deliberately reusable across LoadAsync calls.
+        }
     }
 
 
