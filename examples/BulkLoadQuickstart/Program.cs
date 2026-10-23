@@ -30,10 +30,6 @@ internal sealed record Customer
 /// Minimal end-to-end consumer of <see cref="SqlBulkCopyLoader{T}"/>: stream a
 /// realistic, variable-size workload into SQL Server with batching, a
 /// truncate-before-load pre-action, and live progress reporting.
-///
-/// This doubles as the workload for the (deferred) shadow-test harness in
-/// issue #82 — replaying it against a candidate build and comparing latency /
-/// allocations to a baseline release.
 /// </summary>
 internal static class Program
 {

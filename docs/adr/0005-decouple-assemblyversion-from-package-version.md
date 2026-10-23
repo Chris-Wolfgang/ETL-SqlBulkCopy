@@ -1,6 +1,6 @@
 # 0005. Decouple AssemblyVersion from the package version
 
-- **Status:** Accepted
+- **Status:** Superseded by [0007](0007-derive-assemblyversion-from-the-minor.md) (0.9.0)
 - **Date:** 2026-07-10
 
 ## Context

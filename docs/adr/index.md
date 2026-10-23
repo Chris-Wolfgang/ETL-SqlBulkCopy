@@ -19,8 +19,9 @@ record is marked accordingly.
 | [0002](0002-isolate-sqlbulkcopy-sdk-behind-wrapper-interfaces.md) | Isolate the SqlBulkCopy SDK behind wrapper interfaces | Accepted |
 | [0003](0003-enforce-async-only-io-via-banned-symbols.md) | Enforce async-only I/O via BannedSymbols.txt | Accepted |
 | [0004](0004-compiled-property-getters-and-native-aot.md) | Compile property getters with expression trees | Superseded by [0006](0006-source-generated-property-accessors.md) (0.5.0) |
-| [0005](0005-decouple-assemblyversion-from-package-version.md) | Decouple AssemblyVersion from the package version | Accepted |
+| [0005](0005-decouple-assemblyversion-from-package-version.md) | Decouple AssemblyVersion from the package version | Superseded by [0007](0007-derive-assemblyversion-from-the-minor.md) (0.9.0) |
 | [0006](0006-source-generated-property-accessors.md) | Source-generate property accessors for AOT-safe, zero-cost mapping | Accepted (0.5.0) |
+| [0007](0007-derive-assemblyversion-from-the-minor.md) | Derive AssemblyVersion from the minor version | Accepted (0.9.0) |
 
 ## Adding a new ADR
 
