@@ -19,18 +19,4 @@ internal sealed class NetCoreApp31SkippedFactAttribute : FactAttribute
         Skip = "Xunit.SkippableFact cannot build test cases on netcoreapp3.1 (SupportedOSPlatformAttribute is .NET 5+); covered on the other target frameworks.";
     }
 }
-
-
-
-/// <summary>
-/// <c>[SkippableTheory]</c> counterpart of <see cref="NetCoreApp31SkippedFactAttribute"/>.
-/// </summary>
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-internal sealed class NetCoreApp31SkippedTheoryAttribute : TheoryAttribute
-{
-    public NetCoreApp31SkippedTheoryAttribute()
-    {
-        Skip = "Xunit.SkippableFact cannot build test cases on netcoreapp3.1 (SupportedOSPlatformAttribute is .NET 5+); covered on the other target frameworks.";
-    }
-}
 #endif

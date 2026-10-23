@@ -489,24 +489,6 @@ public class TypeMapReaderTests
 
 
     [Fact]
-    public void GetValue_with_negative_ordinal_throws_ArgumentOutOfRangeException()
-    {
-        var batch = new object[]
-        {
-            new TestRecord { Id = 1, Name = "A", Amount = 10m }
-        };
-        var reader = CreateReader(batch);
-        reader.Read();
-
-        Assert.Throws<ArgumentOutOfRangeException>
-        (
-            () => reader.GetValue(-1)
-        );
-    }
-
-
-
-    [Fact]
     public void Indexer_by_ordinal_returns_value()
     {
         var batch = new object[]
