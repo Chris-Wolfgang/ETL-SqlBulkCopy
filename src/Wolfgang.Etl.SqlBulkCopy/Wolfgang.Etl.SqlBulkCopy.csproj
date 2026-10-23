@@ -41,6 +41,17 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <!-- Native AOT / trimming (repository baseline item 18). The library maps
+       columns through source-generated accessors (ADR-0006), so it is meant to
+       be AOT- and trim-safe; these flags turn on the trim, AOT and
+       single-file analyzers so a regression fails the build instead of
+       surfacing only in tests/Wolfgang.Etl.SqlBulkCopy.AotSmoke. The SDK
+       supports them only on net8.0+ (NETSDK1210 elsewhere). -->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
