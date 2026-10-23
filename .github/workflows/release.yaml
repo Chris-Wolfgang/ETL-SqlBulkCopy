@@ -1089,14 +1089,12 @@ jobs:
       - name: Zip coverage report
         run: zip -r release-coverage.zip ./release-coverage
 
-      # `gh` is pre-installed on the runner, so no third-party action is needed
-      # to upload release assets (zizmor superfluous-actions).
       - name: Generate reproducible-build manifest
         # Publishes the expected sha256 of each SHIPPED assembly (the deterministic
         # artifact) so a third party can rebuild from the tag and verify byte-for-byte
-        # (#147). Hashes the .dll inside the .nupkg, not the .nupkg itself — the zip
+        # (#107). Hashes the .dll inside the .nupkg, not the .nupkg itself — the zip
         # envelope carries non-deterministic timestamps; the assembly does not. See
-        # docs/REPRODUCIBLE-BUILD.md for the verification procedure.
+        # REPRODUCIBLE-BUILD.md for the verification procedure.
         shell: bash
         run: |
           set -euo pipefail
