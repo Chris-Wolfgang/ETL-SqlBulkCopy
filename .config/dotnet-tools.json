@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "cyclonedx": {
-      "version": "6.2.0",
+      "version": "6.3.1",
       "commands": [
         "dotnet-CycloneDX"
       ],
@@ -24,7 +24,7 @@
       "rollForward": true
     },
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.5.11",
+      "version": "5.5.12",
       "commands": [
         "reportgenerator"
       ],
@@ -59,7 +59,7 @@
       "rollForward": true
     },
     "dotnet-symbol": {
-      "version": "10.0.745401",
+      "version": "10.0.750501",
       "commands": [
         "dotnet-symbol"
       ],
