@@ -352,6 +352,8 @@ jobs:
     runs-on: windows-latest
     outputs:
       has-packages: ${{ steps.check-packages.outputs.has-packages }}
+      sdk-version: ${{ steps.build-tooling.outputs.sdk-version }}
+      build-image: ${{ steps.build-tooling.outputs.build-image }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -369,6 +371,19 @@ jobs:
             8.0.x
             9.0.x
             10.0.x
+
+      # Records the exact SDK and runner image that build the shipped assemblies, so
+      # the reproducible-build manifest can name them (#107). There is no global.json,
+      # so `10.0.x` above resolves to whatever SDK is current on the release day.
+      - name: Record build tooling
+        id: build-tooling
+        shell: pwsh
+        run: |
+          $sdk = (dotnet --version).Trim()
+          $image = "$($env:ImageOS) $($env:ImageVersion)".Trim()
+          "sdk-version=$sdk" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "build-image=$image" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Build SDK: $sdk; runner image: $image"
 
       - name: Restore and build
         run: |
@@ -1096,8 +1111,21 @@ jobs:
         # envelope carries non-deterministic timestamps; the assembly does not. See
         # REPRODUCIBLE-BUILD.md for the verification procedure.
         shell: bash
+        env:
+          SDK_VERSION: ${{ needs.pack-and-validate.outputs.sdk-version }}
+          BUILD_IMAGE: ${{ needs.pack-and-validate.outputs.build-image }}
         run: |
           set -euo pipefail
+          # The exact tooling that built the assemblies (pack-and-validate's job outputs).
+          # Validate before writing them into JSON: an SDK version is x.y.z with an
+          # optional prerelease suffix; an image is "<os> <version>" on hosted runners.
+          if ! [[ "$SDK_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "pack-and-validate reported no usable SDK version: '$SDK_VERSION'" >&2
+            exit 1
+          fi
+          if ! [[ "$BUILD_IMAGE" =~ ^[0-9A-Za-z._-]+( [0-9A-Za-z._-]+)?$ ]]; then
+            BUILD_IMAGE="unknown"
+          fi
           # Pick the first non-symbols .nupkg via a glob loop (SC2010: avoid ls | grep).
           pkg=""
           for candidate in ./nuget-packages/*.nupkg; do
@@ -1116,6 +1144,7 @@ jobs:
           unzip -q "$pkg" 'lib/*/*.dll' -d "$workdir"
           {
             printf '{\n  "package": "Wolfgang.Etl.SqlBulkCopy",\n  "version": "%s",\n' "$version"
+            printf '  "sdk": "%s",\n  "buildImage": "%s",\n' "$SDK_VERSION" "$BUILD_IMAGE"
             printf '  "algorithm": "sha256",\n  "assemblies": {\n'
             first=1
             while IFS= read -r dll; do
