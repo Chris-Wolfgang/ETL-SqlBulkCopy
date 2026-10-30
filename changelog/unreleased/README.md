@@ -39,11 +39,15 @@ The CI check reads labels at the time the PR event fires. **A re-run reuses the 
 so a label added after the check failed does not reach it - push a commit (or rebase) to fire a fresh event.
 
 Some files under `src/` never need a fragment and the check ignores them, so no label is required:
-a nested `.editorconfig`, a `*.globalconfig` / `*.ruleset` / `*.DotSettings`, and the
-`PublicAPI.Shipped.txt` / `PublicAPI.Unshipped.txt` baselines. They cannot change what the library
-does for a consumer, and a PR that touches only them usually *cannot* carry a fragment anyway: the
-protected-file guard fails a PR that mixes a protected file (a nested `.editorconfig` is one) with
-anything else.
+nested `.editorconfig` files, `*.globalconfig` / `*.ruleset` / `*.DotSettings` files, and the
+`PublicAPI.Shipped.txt` / `PublicAPI.Unshipped.txt` baselines. None of them can change what the
+library does for a consumer.
+
+The analyzer-config files among those are also **protected**, so a PR touching one usually *cannot*
+carry a fragment even if you wanted it to: the protected-file guard fails any PR that mixes a
+protected file with anything else. The `PublicAPI.*.txt` baselines are **not** protected, so a
+baseline-only PR - or a baseline change riding along with code - can carry a fragment. It simply
+does not need one.
 
 ## The check
 
