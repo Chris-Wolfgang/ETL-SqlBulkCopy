@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+A release date is the local date the release PR assembled its section (`scripts/changelog.ps1 assemble`),
+so it can be one day earlier than the GitHub release, which is timestamped in UTC.
+
 ## [Unreleased]
 
 ### Added
@@ -33,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- `THIRD-PARTY-NOTICES.md` added at the repo root (shipped runtime dependencies with version and licence) and packed into the NuGet package. (#300) (#300)
+- `THIRD-PARTY-NOTICES.md` added at the repo root (shipped runtime dependencies with version and licence) and packed into the NuGet package. (#300)
 
 ### Internal
 
@@ -41,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `src/.editorconfig`: S1133 (scheduled `[Obsolete]` setters, #317) and S3427 (optional-parameter overlaps with the single-argument constructor that #297 retires) are off for the src project until the 2026-12-15 removal wave, with dated notes. (#365)
 - Test code: `[AttributeUsage(AttributeTargets.Method)]` on the two netcoreapp3.1 skip attributes (S3993); an unused `SkippableTheoryAttribute` alias removed. (#366)
 - `AssemblyVersion` and `FileVersion` are now derived from `<Version>` (`0.{Minor}.0.0` / `{Version}.0`) instead of hand-pinned, so they can no longer fall behind on a minor bump.
-- The options constructor assigns the stage's backing fields directly instead of going through the deprecated setters, so the `CS0618` suppressions that covered those writes are gone. The `BatchSize` (≥ 1) and `BulkCopyTimeout` (≥ 0) guards now also run on the record's init accessors; the two record tests that expected the loader constructor to throw now assert the throw at `new SqlBulkCopyLoaderOptions { … }` and no longer need a SqlConnection. (#345) (#345)
+- The options constructor assigns the stage's backing fields directly instead of going through the deprecated setters, so the `CS0618` suppressions that covered those writes are gone. The `BatchSize` (≥ 1) and `BulkCopyTimeout` (≥ 0) guards now also run on the record's init accessors; the two record tests that expected the loader constructor to throw now assert the throw at `new SqlBulkCopyLoaderOptions { … }` and no longer need a SqlConnection. (#345)
 - Record the compiler-synthesized members of the shipped records in `PublicAPI.Shipped.txt` (per-TFM files for the covariant `<Clone>$` lines); they were public all along, no surface change. (#320)
 - The two Semgrep SQL-injection findings are suppressed at source with a justification: `SqlConnectionCommandExecutor` runs the caller's own statement for pre/post-load custom actions (the same contract as `ExecuteSqlRaw`), and the sample harness passes literals. (#385)
 - Review polish: the source generator's Roslyn pin is documented as intentional; no behaviour change.
@@ -117,6 +120,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `TimeSpan.FromSeconds(5)` for MA0009 compliance).
 
 ## [0.7.1] - 2026-08-22
+
+> **Never published.** The 0.7.1 release PR (#286) merged, but `v0.7.1` was never tagged and no 0.7.1
+> package exists on NuGet. These changes first shipped in [0.7.2](#072---2026-08-23).
 
 ### Changed
 
@@ -445,8 +451,12 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.2...v0.8.0
+[0.7.2]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.0...v0.7.2
+[0.7.1]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.0...38b6580
+[0.7.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.3.0...v0.4.0
