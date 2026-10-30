@@ -34,7 +34,7 @@ that path is investigated (embedded path / SourceLink normalization differences)
 For now, verify against a build on the **same OS** as the release runner. The jobs
 that build and pack the released artifact (`validate-release`, `pack-and-validate`,
 `publish-nuget`) all run on **`windows-latest`** — so reproduce on Windows. (Only
-the ancillary `aot-consumer` and `attest-build-provenance` jobs run on Ubuntu.)
+the ancillary `aot-smoke` (which calls `aot-smoke.yaml`) and `attest-build-provenance` jobs run on Ubuntu.)
 
 ## How to verify a released version
 
