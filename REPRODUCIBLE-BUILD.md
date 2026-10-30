@@ -38,10 +38,19 @@ jobs that build and pack the released artifact (`validate-release`,
 
 ## Tooling
 
-- **.NET SDK:** the release jobs install the latest 10.0.x SDK (plus the older
-  runtimes the tests need). There is no `global.json`. Use the 10.0 SDK feature
-  band that was current on the release date; the release's `release.yaml` run
-  log prints the exact SDK version in its *Setup .NET* step.
+- **.NET SDK:** use the exact SDK version in the `"sdk"` field of the release's
+  `reproducible-build-manifest.json` (for example `"sdk": "10.0.400"`). The
+  release jobs install the latest 10.0.x SDK and there is no `global.json`, so
+  each release records the SDK that built its assemblies. Pin it for your
+  rebuild with `dotnet new globaljson --sdk-version <sdk>` in the checkout (or
+  install it with the `dotnet-install` script: `-Version <sdk>` in PowerShell,
+  `--version <sdk>` in bash). For releases published before the manifest
+  carried this field, the `release.yaml` run log prints the SDK in the
+  *Pack & Validate NuGet* job's *Setup .NET* step.
+- **Build machine:** the manifest's `"buildImage"` field names the GitHub-hosted
+  runner image the release built on (for example `win25 20261020.1`). Your OS
+  does not have to match for the managed assembly, but quote it when you report
+  a discrepancy.
 - **Build flags:** `-c Release -p:ContinuousIntegrationBuild=true`, one target
   framework at a time (`-f <tfm>`).
 - **Hashing:** any SHA-256 tool (`sha256sum`, `Get-FileHash`, `shasum -a 256`).
@@ -68,7 +77,8 @@ Then compare that hash against:
 
 - the release's **`reproducible-build-manifest.json`** asset (on the GitHub
   release page). It lists the SHA-256 of every shipped assembly, keyed by its
-  path inside the package (for example `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`);
+  path inside the package (for example `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`),
+  plus the exact SDK (`"sdk"`) and runner image (`"buildImage"`) that built them;
 - the assembly extracted from the published `.nupkg`
   (`nuget install Wolfgang.Etl.SqlBulkCopy -Version X.Y.Z`, unzip, hash
   `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`); and/or
@@ -87,8 +97,9 @@ commit produces.
   above (`-c Release -f net8.0 -p:ContinuousIntegrationBuild=true`). A plain
   `dotnet build` without `ContinuousIntegrationBuild=true` will embed local
   paths and will not match.
-- Use the same major .NET SDK band the release was built with; large SDK version
-  gaps can change emitted IL.
+- Use the exact SDK version from the manifest's `"sdk"` field (see
+  [Tooling](#tooling)); a different SDK, even within the same band, can change
+  emitted IL.
 
 ## Reporting a discrepancy
 
