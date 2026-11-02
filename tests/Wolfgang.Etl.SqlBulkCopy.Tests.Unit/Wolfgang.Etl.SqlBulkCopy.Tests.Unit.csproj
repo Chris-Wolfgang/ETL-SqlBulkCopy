@@ -48,13 +48,13 @@
                       allowedVersions="(,3.0.0)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+    </PackageReference>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" NoWarn="NU1701"
                       Condition="'$(TargetFramework)' != 'netcoreapp3.1' And '$(TargetFramework)' != 'net5.0'"
                       allowedVersions="(,3.0.0)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
