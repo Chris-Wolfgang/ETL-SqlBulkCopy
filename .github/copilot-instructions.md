@@ -10,7 +10,7 @@ consumers write no manual `ColumnMappings`. It builds on
 
 **Repository Type**: Library (ships one NuGet package)
 **Package ID**: `Wolfgang.Etl.SqlBulkCopy`
-**Target Frameworks**: `net462;net481;netstandard2.0;net8.0;net10.0`
+**Target Frameworks**: `net462;net481;netstandard2.0;net5.0;net6.0;net7.0;net8.0;net10.0`
 **Primary Language**: C#
 **Solution**: `ETL-SqlBulkCopy.slnx` (XML solution format — there is no `.sln`)
 
@@ -40,7 +40,7 @@ Before pushing, run the local mirror of the PR pipeline:
 pwsh ./scripts/build-pr.ps1
 ```
 
-Formatting is enforced (`dotnet format --verify-no-changes` in CI):
+Formatting is a local convention - CI does not run `dotnet format`; run it before pushing:
 
 ```powershell
 pwsh ./scripts/format.ps1
@@ -62,7 +62,7 @@ pwsh ./scripts/format.ps1
 | `samples/`, `examples/`, `tools/` | Supporting projects, not shipped. |
 | `docfx_project/` | DocFX source for the published docs site. |
 | `docs/` | Hand-written docs: ADRs, migration guides, workflow/security notes. **Not** generated output — DocFX emits to `docfx_project/_site`. |
-| `scripts/` | `build-pr.ps1`, `format.ps1`, `Fix-BranchRuleset.ps1`, `Setup-Labels.ps1`, `Validate-DocsDeploy.sh`. |
+| `scripts/` | `build-pr.ps1`, `format.ps1`, `Fix-BranchRuleset.ps1`, `Setup-Labels.ps1`, `Validate-DocsDeploy.ps1`. |
 
 ## Code Standards
 
@@ -86,21 +86,25 @@ Meziantou.Analyzer, SonarAnalyzer.CSharp, and Microsoft.CodeAnalysis.PublicApiAn
 
 ## CI/CD
 
-`.github/workflows/` holds **19** workflows. The ones that gate day-to-day work:
+`.github/workflows/` holds **23** workflows. The ones that gate day-to-day work:
 
 - **`pr.yaml`** — the main gate. Three sequential stages: Stage 1 Linux (tests +
   coverage gate + the Docker-backed integration tests), Stage 2 Windows (.NET
-  Framework + modern TFMs), Stage 3 macOS. Also runs gitleaks, DevSkim, InspectCode
-  and a **protected-configuration-file guard** that fails any PR touching
-  `.editorconfig`, `Directory.Build.props`, `BannedSymbols.txt`, `*.globalconfig`,
-  `*.ruleset` or `.github/workflows/*` — those need a separate maintainer-reviewed PR.
+  Framework + modern TFMs), Stage 3 macOS. Also runs gitleaks, DevSkim and InspectCode.
+  Runs on `pull_request`, so a PR is validated with its own files.
+- **`protected-files.yaml`** — the protected-configuration-file guard, the only
+  `pull_request_target` workflow (it never checks out PR code). It fails any PR that
+  changes a protected file (`.editorconfig`, `Directory.Build.*`, `BannedSymbols.txt`,
+  `*.globalconfig`, `*.ruleset`, `.github/workflows/*`, ...) together with anything
+  else — those need their own maintainer-reviewed PR. See `docs/WORKFLOW_SECURITY.md`.
 - **`release.yaml`** — triggered on `release: published`; packs, validates, publishes
   to NuGet via **Trusted Publishing (OIDC — no API-key secret)**, attests SLSA
   provenance, and calls `docfx.yaml`. It runs from the **tag's** commit, not `main`.
 - Scheduled/specialised: `codeql`, `scorecard`, `stryker` (mutation), `fuzz`,
   `concurrency`, `benchmarks`, `pr-benchmarks`, `aot-smoke`, `sourcelink`,
   `reproducible-build`, `cross-platform-differential`, `license-audit`,
-  `workflow-security`, `build-all-versions`, `gc-profile`, `shadow`, `docfx`.
+  `actions-audit`, `semgrep`, `sbom`, `security-alerts`, `build-all-versions`,
+  `gc-profile`, `shadow`, `docfx`.
 
 ### Branch flow
 
