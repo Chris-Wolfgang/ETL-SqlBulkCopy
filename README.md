@@ -109,6 +109,7 @@ the loader are deprecated and will be removed in a later release.
 - **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
 - **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, options, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
 - **Dry run:** set `IsDryRun = true` on the options record to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.
+- **Pipeline sink:** end an `EtlPipeline` chain in a bulk insert with `EtlPipeline.Create().From(records).SqlBulkCopyLoader(connection, options).RunAsync()` - the source can be any package's extractor (CSV, JSON, XML, ...).
 
 See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) for the full surface.
 
