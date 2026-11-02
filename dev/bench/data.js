@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791726870022,
+  "lastUpdate": 1793582044864,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2736,6 +2736,78 @@ window.BENCHMARK_DATA = {
             "value": 11632.703521728516,
             "unit": "ns",
             "range": "± 113.76841430559972"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0e3fd036ca27d9fa5b136b1f1cff4803b1ac1eca",
+          "message": "fix(deps): pin System.Security.Cryptography.Pkcs 9.0.21 (CVE-2026-84008, CVE-2026-70162) (#480)\n\nMicrosoft.Data.SqlClient 7.1.1 brings in Pkcs 8.0.1 (9.0.18 on net10.0), now\nflagged by GHSA-846f-f764-76mx (high) and GHSA-2fmv-rv2c-59x7 (moderate).\nWith warnings as errors, restore fails NU1902/NU1903 on every branch, main\nincluded. A direct 9.0.21 reference is patched and satisfies SqlClient's\nranges on every TFM; a per-TFM 8.0.2 pin was a NU1605 downgrade for test\nprojects consuming the net8.0 asset from net9.0.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T20:02:29-05:00",
+          "tree_id": "c0aa83072f7f62ff69dfb87ab9104101cf6444d5",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/0e3fd036ca27d9fa5b136b1f1cff4803b1ac1eca"
+        },
+        "date": 1793582042257,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 67547.32588704427,
+            "unit": "ns",
+            "range": "± 245.15271066235513"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 6064676.497395833,
+            "unit": "ns",
+            "range": "± 5585.95988764271"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 5.6788260241349535,
+            "unit": "ns",
+            "range": "± 0.039156098647386235"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 1.0604559034109116,
+            "unit": "ns",
+            "range": "± 0.01653488526515935"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 10.517499253153801,
+            "unit": "ns",
+            "range": "± 0.01770294520431173"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 6.573796729246776,
+            "unit": "ns",
+            "range": "± 0.16977467348952055"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.7259795169035594,
+            "unit": "ns",
+            "range": "± 0.0005055841767561621"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 7970.540751139323,
+            "unit": "ns",
+            "range": "± 328.6649524911507"
           }
         ]
       }
