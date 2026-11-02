@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Testcontainers.MsSql" Version="4.15.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.16.0" />
     <!-- Must track the version src/Wolfgang.Etl.SqlBulkCopy references. This project also
          references that library, so a lower direct version here is a package DOWNGRADE
          (NU1605), which is an error under TreatWarningsAsErrors and fails restore for the
