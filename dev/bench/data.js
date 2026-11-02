@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793582044864,
+  "lastUpdate": 1793639286163,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2808,6 +2808,78 @@ window.BENCHMARK_DATA = {
             "value": 7970.540751139323,
             "unit": "ns",
             "range": "± 328.6649524911507"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1566dff5c54edcf5f23b44f5de83c14c9396721b",
+          "message": "chore(tests): modern-slot xunit runner, drop redundant NoWarn entries (#508)\n\n#488 project-file hygiene:\n- Concurrency, Fuzz, Snapshots (net10.0) and DocExamples (net8.0) move from\n  xunit.runner.visualstudio 2.8.2 capped `(,3.0.0)` to 3.0.1 uncapped - the\n  fleet's modern-slot rule, already followed by Tests.SourceLink. The cap\n  also stopped Dependabot from ever bumping them.\n- Their <NoWarn> lists drop MA0004, S1144, S6966, CA1707 and CA2007, which\n  the root .editorconfig already sets to none for tests/**/*.cs; CA1062 stays.\n- Tests.Unit: the two `</PackageReference>` closing tags were indented 8\n  spaces; now 4 like their siblings.\n\ncoverlet.collector is already 10.1.0 in every test project once the\ndependency stack below merges.\n\nRefs #488\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T11:17:08-05:00",
+          "tree_id": "02b342cb6b4086a41b8cc70a8db806db502a4b3c",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/1566dff5c54edcf5f23b44f5de83c14c9396721b"
+        },
+        "date": 1793639282843,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 46606.349548339844,
+            "unit": "ns",
+            "range": "± 575.6647035110486"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 4536677.065104167,
+            "unit": "ns",
+            "range": "± 106857.12979426686"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 4.069389313459396,
+            "unit": "ns",
+            "range": "± 0.07947792754209716"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.5004923728605112,
+            "unit": "ns",
+            "range": "± 0.022067870517624558"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 8.002686495582262,
+            "unit": "ns",
+            "range": "± 0.045550850796723004"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 4.503205992281437,
+            "unit": "ns",
+            "range": "± 0.24220526343747467"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 0.7418179611365,
+            "unit": "ns",
+            "range": "± 0.007806632176642146"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 7004.200922648112,
+            "unit": "ns",
+            "range": "± 21.704492844982894"
           }
         ]
       }
