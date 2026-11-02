@@ -98,7 +98,7 @@ public class EtlPipelineSqlBulkCopyExtensionsTests
             .RunAsync(progress);
 
         Assert.NotNull(progress.Last);
-        Assert.Equal(3, progress.Last!.LoadedItemCount);
+        Assert.Equal(3, progress.Last.LoadedItemCount);
     }
 
 
