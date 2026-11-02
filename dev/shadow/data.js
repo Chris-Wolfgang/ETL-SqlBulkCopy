@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791779206445,
+  "lastUpdate": 1793621181286,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1160,6 +1160,64 @@ window.BENCHMARK_DATA = {
             "value": 463902936.5,
             "unit": "ns",
             "range": "± 12206279.297480088"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "a4cb55a0cbc61ca2198328a22ffb7cc5c6ad7cef",
+          "message": "ci(pr): run Stage 1 on ubuntu-24.04; netcoreapp3.1 finds no ICU on 26.04 (#545)\n\nubuntu-latest now resolves to ubuntu-26.04, where the netcoreapp3.1 test\nhost aborts with \"Couldn't find a valid ICU package installed on the\nsystem\" (DateTime-Extensions run 40694706624). Pin the Stage 1 job only.\nLong-term fix: Chris-Wolfgang/repo-template#775.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T02:02:13Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/a4cb55a0cbc61ca2198328a22ffb7cc5c6ad7cef"
+        },
+        "date": 1793621178268,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 10634745.833333334,
+            "unit": "ns",
+            "range": "± 741348.9544778041"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 12749119.333333334,
+            "unit": "ns",
+            "range": "± 501273.73893545766"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 21277375.833333332,
+            "unit": "ns",
+            "range": "± 13861293.442360792"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 357477776.6666667,
+            "unit": "ns",
+            "range": "± 6083961.296315118"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 432146616,
+            "unit": "ns",
+            "range": "± 77283815.27010813"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 368174038.3333333,
+            "unit": "ns",
+            "range": "± 33694108.37699014"
           }
         ]
       }
