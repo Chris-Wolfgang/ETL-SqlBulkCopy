@@ -43,7 +43,11 @@ public class SqlServerFixtureTests
     [Fact]
     public void IsDockerUnavailable_when_exception_is_named_DockerUnavailableException_returns_true()
     {
-        Assert.True(SqlServerFixture.IsDockerUnavailable(new DockerUnavailableException()));
+        // The real Testcontainers type. The fixture matches it by simple type name, because
+        // its namespace (DotNet.Testcontainers.Builders) is not under Docker.DotNet.
+        var ex = new DotNet.Testcontainers.Builders.DockerUnavailableException("Docker is either not running or misconfigured.");
+
+        Assert.True(SqlServerFixture.IsDockerUnavailable(ex));
     }
 
 
@@ -100,12 +104,4 @@ public class SqlServerFixtureTests
     // that analyzers (S3928, MA0015, NotResolvedInText) flag as unresolvable here.
     private static ArgumentException ArgumentExceptionNaming(string paramName, string message) =>
         new(message, paramName);
-
-
-
-    // Stands in for Testcontainers' DotNet.Testcontainers.Builders.DockerUnavailableException,
-    // which the fixture matches by simple type name.
-    private sealed class DockerUnavailableException : Exception
-    {
-    }
 }
