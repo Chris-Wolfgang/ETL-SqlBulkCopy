@@ -20,12 +20,13 @@ You can contribute in several ways:
 1. **Fork the repository** and clone it locally.
 2. **Enable the pre-commit secret scan** (once per clone). The repository ships a
    [gitleaks](https://github.com/gitleaks/gitleaks) hook in `.githooks/pre-commit` that blocks
-   commits containing credentials; CI runs the same scan, so enabling it locally only saves you a
-   failed PR check:
+   commits containing secrets (credentials, tokens, private keys); CI runs the same scan, so
+   enabling it locally only saves you a failed PR check:
    ```sh
    git config core.hooksPath .githooks
    ```
-   Install the `gitleaks` CLI (`winget install gitleaks` / `brew install gitleaks`). Without it the
+   Install the `gitleaks` CLI: `winget install gitleaks` (Windows), `brew install gitleaks` (macOS), or a
+   binary from the [releases page](https://github.com/gitleaks/gitleaks/releases) (Linux). Without it, the
    hook prints a warning and lets the commit through. `git commit --no-verify` skips it for one commit.
 3. **Create a new branch** for your feature or bug fix:
    ```sh
@@ -41,16 +42,49 @@ You can contribute in several ways:
    ```
 6. **Open a pull request** describing your changes.
 
-7. **PR Checks:**  
-   Once you create a pull request (PR), several Continuous Integration (CI) steps will run automatically. These may include:
-   - Building the project
-   - Running automated tests
-   - Checking code style and linting
-   - Running static analysis with multiple static analyzers (see list below)
+7. **PR Checks:**
+   Opening a pull request runs these checks (`.github/workflows/pr.yaml` unless noted):
+   - **Secrets Scan (gitleaks)** — the same scan as the pre-commit hook.
+   - **Protected Files Guard** (`protected-files.yaml`) — a PR that changes a **protected
+     configuration file together with anything else** fails here and cannot be bypassed: put those
+     files in a PR of their own, which passes with a notice and is reviewed on its own. Protected
+     means the files that decide what CI checks — the workflows, analyzer and build configuration,
+     coverage and secrets config, the CI tool manifest and dependency pins, the license-audit
+     policy, and the CI scripts `pr.yaml` runs.
+     [**docs/WORKFLOW_SECURITY.md → Protected Files Guard**](docs/WORKFLOW_SECURITY.md#2-protected-files-guard)
+     has the exact names and globs. Deliberately not repeated here: two lists is how the last one
+     drifted.
+   - **Detect .NET Projects** — decides whether the build and test stages run at all.
+   - **Changelog Fragment Check** — a PR that touches `src/` must add a fragment (see below).
+   - **ReSharper InspectCode** — error-severity findings fail; warnings go to the Security tab.
+   - **Stage 1 (Linux), Stage 2 (Windows), Stage 3 (macOS)** — build and test every target framework
+     of every test project. Stage 1 also runs the Docker-backed integration tests and enforces the
+     line-coverage gates: `CODECOV_MINIMUM` for `src/` and `CODECOV_TEST_MINIMUM` for the test
+     assemblies, both set at the top of `pr.yaml`. A framework on which zero tests ran fails the stage.
+   - **Security Scan (DevSkim)** and **Security Scan (CodeQL)** (`codeql.yaml`).
+   - **Publish & run Native AOT consumer** (`aot-smoke.yaml`) — publishes a small consumer with
+     Native AOT and runs it.
+   - **actionlint** and **zizmor** (`actions-audit.yaml`) on the workflow files themselves, plus
+     Semgrep (`semgrep.yaml`).
+   - License audit and SBOM generation for the dependency closure (`license-audit.yaml`, `sbom.yaml`).
 
-   **It is important to make sure that all CI steps pass before your PR can be merged.**
-   - If any CI step fails, please review the error messages and update your PR as needed.
-   - Maintainers will review your PR once all checks have passed.
+   The branch ruleset **requires** Protected Files Guard, Detect .NET Projects, the three test
+   stages, DevSkim, CodeQL, gitleaks and the Native AOT consumer to pass before merging. The other
+   checks are advisory — they annotate the PR and the Security tab but do not block the merge on
+   their own. If a check fails, read its log, fix, and push.
+   `pwsh ./scripts/build-pr.ps1` reproduces the Windows stage locally (see *Build and Test* below).
+
+8. **Add a changelog fragment** if the PR changes anything under `src/`:
+   ```sh
+   # changelog/unreleased/<short-change-name>.md
+   type: fix
+
+   One user-facing sentence describing what changed for the consumer.
+   ```
+   `type` is one of `breaking`, `feature`, `fix`, `docs`, `internal`. `CHANGELOG.md` is never edited by
+   hand — the fragments are assembled into it at release time (`scripts/changelog.ps1 assemble`). A
+   `src/` change with no user-visible effect can carry the `no-changelog` label instead. Details in
+   [changelog/unreleased/README.md](changelog/unreleased/README.md).
 
 ---
 
@@ -58,9 +92,9 @@ You can contribute in several ways:
 
 This project maintains **extremely high code quality standards** through multiple layers of static analysis and automated enforcement.
 
-### The 8 Analyzers
+### The Analyzers
 
-All code is analyzed by these tools during build:
+Seven analyzers run on every build via `Directory.Build.props`; an eighth is opt-in per project:
 
 1. **Microsoft.CodeAnalysis.NetAnalyzers** (Built-in .NET SDK)
    - Correctness, performance, and security rules
@@ -75,8 +109,9 @@ All code is analyzed by these tools during build:
    - Prevents fire-and-forget async calls (`async void` outside event handlers)
    - NOTE: cancellation-token propagation is checked by Meziantou's MA0040 and
      CA2016, not by AsyncFixer.
-   - NOTE: `ConfigureAwait()` enforcement is handled by Meziantou's
-     MA0004 / SonarAnalyzer S3216 / CA2007, not by AsyncFixer.
+   - NOTE: `ConfigureAwait()` is not enforced in `src/`: CA2007, Meziantou MA0004 and
+     SonarAnalyzer S3216 are all set to `none` there in `.editorconfig`. AsyncFixer does not
+     check it either.
 
 4. **Microsoft.VisualStudio.Threading.Analyzers**
    - Thread safety enforcement
@@ -97,8 +132,11 @@ All code is analyzed by these tools during build:
    - Security vulnerability detection
    - Code smell identification
 
-8. **Microsoft.CodeAnalysis.PublicApiAnalyzers**
-   - Tracks the shipped public surface via `PublicAPI.Shipped.txt` / `PublicAPI.Unshipped.txt`
+8. **Microsoft.CodeAnalysis.PublicApiAnalyzers** (opt-in)
+   - Tracks the public API surface in `PublicAPI.Shipped.txt` / `PublicAPI.Unshipped.txt`
+   - Loaded only for a project that has either of those files next to its `.csproj` (both projects
+     under `src/` have them). Don't put them in test, example or benchmark projects; the condition is
+     per project, not per directory, so a stray baseline file opts that project in too
    - Fails the build on an undeclared public API change (RS0016) or a stale entry (RS0017)
 
 ### Async-First Enforcement
@@ -110,11 +148,15 @@ This library **prohibits synchronous blocking calls** via `BannedSymbols.txt`. T
 // Banned - blocks threads
 task.Wait();
 task.Result;
+task.GetAwaiter().GetResult();
 Task.WaitAll(tasks);
+Parallel.ForEach(items, Work);
 
 // Required - truly async
 await task;
 await Task.WhenAll(tasks);
+await Task.WhenAll(items.Select(WorkAsync));      // every TFM
+await Parallel.ForEachAsync(items, WorkAsync);    // .NET 6+ only
 ```
 
 #### ❌ Synchronous I/O
@@ -122,10 +164,12 @@ await Task.WhenAll(tasks);
 // Banned
 File.ReadAllText(path);
 stream.Read(buffer, 0, count);
+source.CopyTo(destination);
 
 // Required
 await File.ReadAllTextAsync(path);
 await stream.ReadAsync(buffer, 0, count);
+await source.CopyToAsync(destination);
 ```
 
 #### ❌ Thread Blocking
@@ -152,6 +196,8 @@ var client = new HttpClient();
 var now = DateTimeOffset.UtcNow;
 ```
 
+The complete list (65 symbols, each with the reason and the replacement) is [`BannedSymbols.txt`](BannedSymbols.txt).
+
 **Why?** This ensures all code is **truly asynchronous** and **non-blocking**, providing optimal performance in async contexts.
 
 ---
@@ -160,7 +206,8 @@ var now = DateTimeOffset.UtcNow;
 
 ### Prerequisites
 - .NET 10.0 SDK or later (required for the repo's net10.0 target; older SDKs cannot load the csproj)
-- PowerShell Core (optional, for formatting scripts)
+- PowerShell 7 (`pwsh`) — every script under `scripts/` is PowerShell (`build-pr.ps1`, `changelog.ps1`, `format.ps1`, ...)
+- [gitleaks](https://github.com/gitleaks/gitleaks#installing) for the pre-commit hook (optional locally; CI runs it regardless)
 
 ### Build the Project
 
@@ -184,6 +231,18 @@ dotnet test --configuration Release
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
+### Run the PR checks locally
+
+```powershell
+# Mirrors pr.yaml's Windows stage on this machine: build, every-TFM tests, coverage gates,
+# DevSkim, gitleaks. The Linux and macOS stages only run in CI.
+pwsh ./scripts/build-pr.ps1
+
+# Skip the security scans or the coverage gate while iterating
+pwsh ./scripts/build-pr.ps1 -SkipSecurity
+pwsh ./scripts/build-pr.ps1 -SkipCoverage
+```
+
 ### Code Formatting
 
 This project uses `.editorconfig` for consistent code style:
@@ -192,7 +251,7 @@ This project uses `.editorconfig` for consistent code style:
 # Format all code
 dotnet format
 
-# Check formatting without changes (CI mode)
+# Check formatting without changes
 dotnet format --verify-no-changes
 
 # PowerShell formatting script
@@ -205,18 +264,21 @@ See [docs/README-FORMATTING.md](docs/README-FORMATTING.md) for detailed formatti
 
 ## .editorconfig Rules
 
-Key style rules enforced:
+Key style rules:
 
-- **Indentation:** 4 spaces (C#), 2 spaces (XML/JSON)
-- **Line endings:** LF (Unix-style)
+- **Indentation:** 4 spaces (C#), 2 spaces (XML/JSON/YAML)
+- **Line endings:** LF for every text file (`.gitattributes`), including `*.ps1`
 - **Charset:** UTF-8
 - **Trim trailing whitespace:** Yes
 - **Final newline:** Yes
-- **Braces:** New line style (Allman)
-- **Naming:** PascalCase for public members, camelCase for parameters/locals
-- **File-scoped namespaces:** Required in C# 10+
-- **`var` preferences:** Use for built-in types and when type is obvious
-- **Null checks:** Prefer pattern matching (`is null`, `is not null`)
+- **Braces:** Opening brace on its own line (Allman)
+- **Using directives:** `System` namespaces first, then sorted
+- **Naming:** PascalCase for types and non-field members, `I`-prefixed interfaces, camelCase for parameters/locals
+- **File-scoped namespaces**, **`var`** where the type is apparent, **pattern-matching null checks**
+  (`is null` / `is not null`): configured as suggestions, so the IDE nudges but the build does not fail on them
+
+Analyzer severities (what *does* fail a Release build) are also set in `.editorconfig`, per directory:
+`src/` is strictest, `tests/`, `benchmarks/` and `examples/` relax rules that only make sense for shipped code.
 
 View the complete configuration in [.editorconfig](.editorconfig).
 
@@ -227,7 +289,7 @@ View the complete configuration in [.editorconfig](.editorconfig).
 - Follow the coding style used in the project.
 - Write clear, concise commit messages.
 - Add relevant tests for new features or bug fixes.
-- Document any public APIs with XML documentation comments.
+- Document any public APIs with XML documentation comments — `GenerateDocumentationFile` is on for the library under `src/`, so a missing comment (CS1591) fails the Release build.
 - Ensure all analyzer warnings are addressed (they're treated as errors in Release builds).
 - Use async/await patterns - no blocking calls allowed.
 - Include `CancellationToken` parameters in async methods where appropriate.
@@ -241,6 +303,10 @@ View the complete configuration in [.editorconfig](.editorconfig).
 - Reference related issues in your pull request description.
 - Keep changes focused and atomic - one feature/fix per PR.
 - Update documentation if you change public APIs.
+
+Stacked pull requests are restacked with `scripts/restack.ps1` after the PR below them is squash-merged — see [docs/STACKED-PRS.md](docs/STACKED-PRS.md).
+
+Changes to protected configuration files (`.editorconfig`, `Directory.Build.props`, workflows, ...) must be a PR of their own, separate from code that depends on them — mixed PRs fail the protected-files guard and cannot be bypassed; a configuration-only PR runs CI with the new configuration and is reviewed by a maintainer on its own. See [docs/WORKFLOW_SECURITY.md](docs/WORKFLOW_SECURITY.md#making-changes-to-protected-configuration-files).
 
 ---
 
