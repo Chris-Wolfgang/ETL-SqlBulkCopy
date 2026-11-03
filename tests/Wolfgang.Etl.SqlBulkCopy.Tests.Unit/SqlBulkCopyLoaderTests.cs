@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Wolfgang.Etl.Abstractions;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 using Wolfgang.Etl.TestKit.Xunit;
@@ -1317,7 +1318,7 @@ public class SqlBulkCopyLoaderTests
     // TestKit's ManualProgressTimer is sealed and throws from Fire() once disposed, and
     // LoadAsync disposes its timer, so it cannot be fired during a second call on the
     // same loader. This one ignores Dispose so the reuse path can be driven.
-    private sealed class ReusableManualProgressTimer : Wolfgang.Etl.Abstractions.IProgressTimer
+    private sealed class ReusableManualProgressTimer : IProgressTimer
     {
         public event Action? Elapsed;
 
