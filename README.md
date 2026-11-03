@@ -4,7 +4,7 @@ A loader that uses SqlBulkCopy for fast inserts into a Microsoft SQL database
 
 [![NuGet](https://img.shields.io/nuget/v/Wolfgang.Etl.SqlBulkCopy.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/)
 [![Downloads](https://img.shields.io/nuget/dt/Wolfgang.Etl.SqlBulkCopy.svg?logo=nuget&label=downloads)](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/)
-[![PR build](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/ETL-SqlBulkCopy/pr.yaml?event=pull_request_target&label=PR%20build&logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/actions/workflows/pr.yaml)
+[![PR build](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/ETL-SqlBulkCopy/pr.yaml?event=pull_request&label=PR%20build&logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/actions/workflows/pr.yaml)
 [![release](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/ETL-SqlBulkCopy/release.yaml?event=release&label=release&logo=github)](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/actions/workflows/release.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-Multi--Targeted-purple.svg)](https://dotnet.microsoft.com/)
@@ -98,17 +98,18 @@ the loader are deprecated and will be removed in a later release.
 | **Progress reporting** | `IProgress<SqlBulkCopyReport>` — rows written (`CurrentItemCount`), rows skipped, batch count |
 | **Data validation** | Opt in with `EnableDataValidation`; DataAnnotations failures throw or skip per `ValidationFailureBehavior`, with `OnValidationFailed` / `OnNestedValidationFailed` callbacks |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
-| **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` (or the loader) to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
+| **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
 | **Async-only** | Banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync` — no sync fallbacks |
 | **Native AOT ready** | Opt a record into compile-time source-generated accessors with `[BulkCopyable]` — no runtime IL emission on the hot path (net5.0+) |
 | **Multi-targeted** | `net462`, `net481`, `netstandard2.0`, `net5.0`, `net6.0`, `net7.0`, `net8.0`, `net10.0` |
 
 **Examples:**
 - **Truncate before load:** `PreAction = PreAction.TruncateTable` on the options record (shown above).
-- **Custom pre-action:** `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.Columns, p.CancellationToken */ }` on the options record.
+- **Custom pre-action:** `PreAction = PreAction.CustomAction` and `PreLoadCustomAction = async p => { /* p.Connection, p.Transaction, p.ColumnMappings, p.CancellationToken */ }` on the options record.
 - **Nested table:** decorate a `[NotMapped]`-free `IEnumerable<TChild>` property; the child rows write to the child's `[Table]` in the same session.
 - **Transaction across multiple files:** build each loader with `new SqlBulkCopyLoader<T>(connection, options, transaction)` and either `Commit()` once for all-or-nothing, or commit per file for restartability (worked examples on the constructor's XML docs).
 - **Dry run:** set `IsDryRun = true` on the options record to run the full pipeline without writing — it still enumerates, maps, validates, counts, and logs, so mapping/validation errors surface without touching the destination.
+- **Pipeline sink:** end an `EtlPipeline` chain in a bulk insert with `EtlPipeline.Create().From(records).SqlBulkCopyLoader(connection, options).RunAsync()` - the source can be any package's extractor (CSV, JSON, XML, ...).
 
 See the [API documentation](https://Chris-Wolfgang.github.io/ETL-SqlBulkCopy/) for the full surface.
 
@@ -213,7 +214,7 @@ This library uses **`BannedSymbols.txt`** to prohibit synchronous APIs and enfor
 >
 > This applies only to **building this repository**. Consuming the package requires
 > nothing of the sort — any runtime matching one of the shipped targets works
-> (.NET Framework 4.6.2+, or anything `netstandard2.0`-compatible, or .NET 8/10).
+> (.NET Framework 4.6.2+, anything `netstandard2.0`-compatible, or .NET 5/6/7/8/10).
 - Optional: [PowerShell Core](https://github.com/PowerShell/PowerShell) for formatting scripts
 
 ### Build Steps
@@ -244,7 +245,7 @@ This project uses `.editorconfig` and `dotnet format`:
 # Format code
 dotnet format
 
-# Verify formatting (as CI does)
+# Verify formatting (local check only - the PR workflow does not run dotnet format)
 dotnet format --verify-no-changes
 ```
 
@@ -263,7 +264,7 @@ cd docfx_project
 docfx metadata  # Extract API metadata from source code
 docfx build     # Build HTML documentation
 
-# Documentation is generated in the docs/ folder at the repository root
+# Documentation is generated in docfx_project/_site
 ```
 
 The documentation is automatically built and deployed to GitHub Pages when changes are pushed to the `main` branch.
@@ -279,7 +280,8 @@ docfx build --serve
 
 **Documentation Structure:**
 - `docfx_project/` - DocFX configuration and source files
-- `docs/` - Generated HTML documentation (published to GitHub Pages)
+- `docfx_project/_site/` - Generated HTML documentation (published to GitHub Pages)
+- `docs/` - Hand-written docs: ADRs, migration guides, workflow and security notes
 - `docfx_project/index.md` - Main landing page content
 - `docfx_project/docs/` - Additional documentation articles
 - `docfx_project/api/` - Auto-generated API reference YAML files

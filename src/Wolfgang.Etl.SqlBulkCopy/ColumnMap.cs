@@ -236,7 +236,6 @@ public sealed class ColumnMap
 
 
 
-
     private static Func<object, object?> CreateGetter(PropertyInfo propertyInfo, Type? mappedType)
     {
         // Prefer a source-generated accessor when one has been registered for
