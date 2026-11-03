@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793639286163,
+  "lastUpdate": 1793670563511,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2880,6 +2880,78 @@ window.BENCHMARK_DATA = {
             "value": 7004.200922648112,
             "unit": "ns",
             "range": "± 21.704492844982894"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b078fdfdc5dd227f4331bbb2256f19169e56e486",
+          "message": "build(deps): re-apply the protected tool, analyzer and action pin bumps (#562)\n\nReportGenerator 5.5.12, Meziantou.Analyzer 3.0.317, Microsoft.SourceLink.GitHub\n10.0.403, actions/setup-python v7.1.0 and github/codeql-action v4.39.1, split out\nof the PR below so each PR changes only protected or only unprotected files.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T20:46:45-05:00",
+          "tree_id": "ee79bd6ad4462552e92687f8508d08084127a685",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/b078fdfdc5dd227f4331bbb2256f19169e56e486"
+        },
+        "date": 1793670560039,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 78999.14115397136,
+            "unit": "ns",
+            "range": "± 700.3740603014364"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7514437.471354167,
+            "unit": "ns",
+            "range": "± 3565.326502635331"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 9.173065150777498,
+            "unit": "ns",
+            "range": "± 0.3483532773193328"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6577230120698611,
+            "unit": "ns",
+            "range": "± 0.0014382553908813664"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.577172855536142,
+            "unit": "ns",
+            "range": "± 0.24638280723805"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 11.325486451387405,
+            "unit": "ns",
+            "range": "± 3.093391126161511"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.723935544490814,
+            "unit": "ns",
+            "range": "± 0.0022343398932664037"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10819.395167032877,
+            "unit": "ns",
+            "range": "± 221.52936816728857"
           }
         ]
       }
