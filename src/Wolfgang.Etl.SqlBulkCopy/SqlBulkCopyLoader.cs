@@ -1108,8 +1108,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
-
-
     /// <summary>
     /// Copies every member of <paramref name="options"/> onto the loader's properties, in declaration
     /// order, so the property setters' own range checks apply. A <see langword="null"/> record leaves the defaults.
