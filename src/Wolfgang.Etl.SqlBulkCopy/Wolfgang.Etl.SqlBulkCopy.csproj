@@ -70,7 +70,7 @@
        them (a per-TFM 8.0.2 pin is a NU1605 downgrade for a net9.0 consumer of the net8.0
        asset). Delete once SqlClient's own dependency is at or above it. -->
   <ItemGroup>
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
   <!-- Source generator: built alongside the runtime, packed into the same
