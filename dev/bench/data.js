@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793670563511,
+  "lastUpdate": 1793825387436,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -2952,6 +2952,78 @@ window.BENCHMARK_DATA = {
             "value": 10819.395167032877,
             "unit": "ns",
             "range": "± 221.52936816728857"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fdcd4c7f8d5bb75116b9fd90d4403e90cebe137c",
+          "message": "Bump the dotnet-dependencies group with 4 updates (#573)\n\nBumps CsCheck from 5.0.0 to 5.0.1\nBumps jetbrains.resharper.globaltools from 2026.2.3.1 to 2026.2.4.1\nBumps Meziantou.Analyzer from 3.0.317 to 3.0.320\nBumps System.Security.Cryptography.Pkcs from 9.0.21 to 10.0.14\n\n---\nupdated-dependencies:\n- dependency-name: CsCheck\n  dependency-version: 5.0.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: jetbrains.resharper.globaltools\n  dependency-version: 2026.2.4.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Meziantou.Analyzer\n  dependency-version: 3.0.320\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: System.Security.Cryptography.Pkcs\n  dependency-version: 10.0.14\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n  dependency-group: dotnet-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-11-04T15:40:38-05:00",
+          "tree_id": "c7c549a1bac68730e63cc258ad9191b83b655d82",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/fdcd4c7f8d5bb75116b9fd90d4403e90cebe137c"
+        },
+        "date": 1793825383868,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 62749.35013834635,
+            "unit": "ns",
+            "range": "± 534.0903562416572"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 5947826.091145833,
+            "unit": "ns",
+            "range": "± 36501.92322284138"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 5.86381883919239,
+            "unit": "ns",
+            "range": "± 0.08226855145393744"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.2577386287351449,
+            "unit": "ns",
+            "range": "± 0.00038892169379873236"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 11.282850325107574,
+            "unit": "ns",
+            "range": "± 0.13342939899839776"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 5.737380124628544,
+            "unit": "ns",
+            "range": "± 0.1353794369376273"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.316773433238268,
+            "unit": "ns",
+            "range": "± 0.0013136884747537926"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9170.252655029297,
+            "unit": "ns",
+            "range": "± 38.49072797012367"
           }
         ]
       }
