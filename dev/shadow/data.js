@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793879989307,
+  "lastUpdate": 1793966136325,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1334,6 +1334,64 @@ window.BENCHMARK_DATA = {
             "value": 431129647,
             "unit": "ns",
             "range": "± 9383553.911739837"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]",
+            "email": "49699333+dependabot[bot]@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "fdcd4c7f8d5bb75116b9fd90d4403e90cebe137c",
+          "message": "Bump the dotnet-dependencies group with 4 updates (#573)\n\nBumps CsCheck from 5.0.0 to 5.0.1\nBumps jetbrains.resharper.globaltools from 2026.2.3.1 to 2026.2.4.1\nBumps Meziantou.Analyzer from 3.0.317 to 3.0.320\nBumps System.Security.Cryptography.Pkcs from 9.0.21 to 10.0.14\n\n---\nupdated-dependencies:\n- dependency-name: CsCheck\n  dependency-version: 5.0.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: jetbrains.resharper.globaltools\n  dependency-version: 2026.2.4.1\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: Meziantou.Analyzer\n  dependency-version: 3.0.320\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: dotnet-dependencies\n- dependency-name: System.Security.Cryptography.Pkcs\n  dependency-version: 10.0.14\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n  dependency-group: dotnet-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-11-04T20:40:38Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/fdcd4c7f8d5bb75116b9fd90d4403e90cebe137c"
+        },
+        "date": 1793966133449,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 6806362,
+            "unit": "ns",
+            "range": "± 180978.99803292094"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 9112404.666666666,
+            "unit": "ns",
+            "range": "± 249414.53903157555"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 9184584.5,
+            "unit": "ns",
+            "range": "± 35614.55775381747"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 379942215.3333333,
+            "unit": "ns",
+            "range": "± 53072867.82149841"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 294766487.8333333,
+            "unit": "ns",
+            "range": "± 7687433.293616884"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 343249889.1666667,
+            "unit": "ns",
+            "range": "± 82389435.50360374"
           }
         ]
       }
