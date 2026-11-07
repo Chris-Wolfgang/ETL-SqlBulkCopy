@@ -28,16 +28,12 @@
 
 .PARAMETER CoverageThreshold
     Minimum line coverage for PRODUCTION assemblies (anything under src/).
-    Defaults to 90. Mirrors CODECOV_MINIMUM in pr.yaml.
+    Defaults to 95. Mirrors CODECOV_MINIMUM in pr.yaml.
 
 .PARAMETER TestCoverageThreshold
     Minimum line coverage for TEST assemblies (anything under tests/).
-    Defaults to 99, mirroring CODECOV_TEST_MINIMUM in pr.yaml. The policy target
-    is 100 - test code that never executes has no purpose - but this repo has a
-    documented floor of 99 because some test lines cannot be executed at all:
-    deferred iterators the consumer throws before enumerating, reflection
-    fixtures, and catch bodies that only fire on the net5.0-net7.0 legs, which
-    coverlet does not instrument. See issue #275.
+    Defaults to 100 - test code that never executes has no purpose. Mirrors
+    CODECOV_TEST_MINIMUM in pr.yaml.
 
 .EXAMPLE
     pwsh ./scripts/build-pr.ps1
@@ -48,8 +44,8 @@ param(
     [switch]$SkipTests,
     [switch]$SkipCoverage,
     [switch]$SkipSecurity,
-    [int]$CoverageThreshold = 90,
-    [int]$TestCoverageThreshold = 99
+    [int]$CoverageThreshold = 95,
+    [int]$TestCoverageThreshold = 100
 )
 
 $ErrorActionPreference = 'Stop'
