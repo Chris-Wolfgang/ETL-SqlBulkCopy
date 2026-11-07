@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793825387436,
+  "lastUpdate": 1794059694645,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -3024,6 +3024,78 @@ window.BENCHMARK_DATA = {
             "value": 9170.252655029297,
             "unit": "ns",
             "range": "± 38.49072797012367"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "972b0b4a161fcff39d26f034e59dab5b68fe9cde",
+          "message": "fix(trim): match the DbDataReader.GetFieldType return annotation (IL2093) (#575)\n\nTypeMapReader.GetFieldType overrides DbDataReader.GetFieldType, whose\nreturn value carries [DynamicallyAccessedMembers(PublicFields |\nPublicProperties)] on net5.0+. The override had no annotation, which\nInspectCode reports as IL2093 (code-scanning alert 1269). Add the same\nannotation under NET5_0_OR_GREATER.\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T08:52:03-05:00",
+          "tree_id": "8ae8b7a080676fc799bb2dab8203bdb15df9e5b4",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/972b0b4a161fcff39d26f034e59dab5b68fe9cde"
+        },
+        "date": 1794059692032,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 63905.61271158854,
+            "unit": "ns",
+            "range": "± 759.9301293513205"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 5941679.9609375,
+            "unit": "ns",
+            "range": "± 13095.126342380687"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 6.071856225530307,
+            "unit": "ns",
+            "range": "± 0.0023938519597204574"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.5375081015129884,
+            "unit": "ns",
+            "range": "± 0.01198568117030146"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 9.904019437730312,
+            "unit": "ns",
+            "range": "± 0.1719517089823212"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 4.95268368224303,
+            "unit": "ns",
+            "range": "± 0.13008603353798084"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.3843094805876415,
+            "unit": "ns",
+            "range": "± 0.004496284720404494"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9159.822230021158,
+            "unit": "ns",
+            "range": "± 25.50954808655218"
           }
         ]
       }
