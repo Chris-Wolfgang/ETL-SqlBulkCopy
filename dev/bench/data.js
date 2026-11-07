@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794059694645,
+  "lastUpdate": 1794072162774,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -3096,6 +3096,78 @@ window.BENCHMARK_DATA = {
             "value": 9159.822230021158,
             "unit": "ns",
             "range": "± 25.50954808655218"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "44848ac67e5ff2e420244c64840b82a18f66ff2c",
+          "message": "fix(trim): justify the IL2026 suppression on the opt-in validation path (#576)\n\nValidateItem and ValidateNestedItem call DataAnnotations'\nValidationContext(object) and Validator.TryValidateObject, both\n[RequiresUnreferencedCode]. InspectCode reports six IL2026 alerts\n(1271-1276). Validation is opt-in (EnableDataValidation, off by\ndefault), so suppress with a justification on the two helpers and\ndocument the trimming requirement on EnableDataValidation.\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T12:20:09-05:00",
+          "tree_id": "c815b63cb571fb6c0ef3a9f82c09431785f6f84d",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/44848ac67e5ff2e420244c64840b82a18f66ff2c"
+        },
+        "date": 1794072159468,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 62931.10467529297,
+            "unit": "ns",
+            "range": "± 637.9185328133797"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 6178633.638020833,
+            "unit": "ns",
+            "range": "± 31159.39827164545"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 5.813269376754761,
+            "unit": "ns",
+            "range": "± 0.0037896440367445605"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.5308145682017008,
+            "unit": "ns",
+            "range": "± 0.0029050660242020154"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 11.180954391757647,
+            "unit": "ns",
+            "range": "± 0.5445842907649641"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 6.1492976148923235,
+            "unit": "ns",
+            "range": "± 0.08349340459758925"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.6084092160065968,
+            "unit": "ns",
+            "range": "± 0.0033161506473593566"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9142.165130615234,
+            "unit": "ns",
+            "range": "± 88.19191419170477"
           }
         ]
       }
