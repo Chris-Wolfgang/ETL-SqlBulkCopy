@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794072162774,
+  "lastUpdate": 1794173932985,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -3168,6 +3168,78 @@ window.BENCHMARK_DATA = {
             "value": 9142.165130615234,
             "unit": "ns",
             "range": "± 88.19191419170477"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4c634bdeda340ad779ffaa0d1f12c5530e143a5f",
+          "message": "chore(semgrep): remove the inline nosemgrep markers (#502)\n\nWith the csharp-sqli rule excluded in semgrep.yaml (previous PR), the\ninline `// nosemgrep:` markers in SqlConnectionCommandExecutor and the\nShadowWorkloads sample harness are no longer needed. The rationale stays as a\nplain comment and points at the workflow, and the tool-version trivia about\nhow the marker had to be written is dropped.\n\nThe sample was never scanned (semgrep scans src/ only), so its marker was\ninert anyway.\n\nReplaces the pending nosemgrep-anchor-sqli changelog fragment, which\nadvertised the inline-marker approach, with one describing the config-level\nexclusion.\n\nRefs #486\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T16:32:36-05:00",
+          "tree_id": "4be287102d77f37e36bbb1b8e034741584abfab9",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/4c634bdeda340ad779ffaa0d1f12c5530e143a5f"
+        },
+        "date": 1794173929632,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 80054.34558105469,
+            "unit": "ns",
+            "range": "± 2350.0487669927434"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7502258.390625,
+            "unit": "ns",
+            "range": "± 85841.93503116406"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.141872773567835,
+            "unit": "ns",
+            "range": "± 0.01889617191969384"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.34939348697662354,
+            "unit": "ns",
+            "range": "± 0.0021423516317398963"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.38496900598208,
+            "unit": "ns",
+            "range": "± 0.4055775909156585"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 15.31400865316391,
+            "unit": "ns",
+            "range": "± 0.9596749464768398"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7233657216032348,
+            "unit": "ns",
+            "range": "± 0.0032236033808296046"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 10683.696212768555,
+            "unit": "ns",
+            "range": "± 53.80618944193857"
           }
         ]
       }
