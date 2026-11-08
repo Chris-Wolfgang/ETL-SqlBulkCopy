@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792304793814,
+  "lastUpdate": 1794142146342,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "Mutation score": [
@@ -107,6 +107,33 @@ window.BENCHMARK_DATA = {
           {
             "name": "Mutation score",
             "value": 83.85,
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "71470642d3f7c0a8d59f5cf06b3af29cef539c09",
+          "message": "docs(reproducible-build): name the exact SDK from the release manifest (#107) (#544)\n\nThe Tooling section said \"the 10.0 feature band current on the release\ndate\". With the manifest now carrying \"sdk\" and \"buildImage\", it tells a\nverifier to use that exact SDK (pinned with `dotnet new globaljson` or\ninstalled with dotnet-install), keeps the run-log pointer for older\nreleases, and the caveat now asks for the exact SDK rather than the band.\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T02:51:44Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/71470642d3f7c0a8d59f5cf06b3af29cef539c09"
+        },
+        "date": 1794142140426,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Mutation score",
+            "value": 84.54,
             "unit": "%"
           }
         ]
