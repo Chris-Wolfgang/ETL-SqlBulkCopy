@@ -23,18 +23,28 @@ The build relies on the standard .NET determinism knobs:
 The guarantee covers the **managed assembly** (`Wolfgang.Etl.SqlBulkCopy.dll`)
 rebuilt on the **same OS and SDK band** the release was built with.
 
-### Cross-OS reproducibility (advisory)
+### Cross-OS reproducibility
 
 The CI workflow [`reproducible-build.yaml`](.github/workflows/reproducible-build.yaml)
 additionally builds the same commit on `ubuntu-latest` and `windows-latest` and
-compares the SHA-256 of the produced assembly *across* runners. Full byte-identity
-**across operating systems** is a stronger property and is currently tracked as
-**advisory** — the workflow reports a cross-OS hash divergence as a warning while
-that path is investigated (embedded path / SourceLink normalization differences).
-For now, verify against a build on the **same OS** as the release runner. The jobs
-that build and pack the released artifact (`validate-release`, `pack-and-validate`,
-`publish-nuget`) all run on **`windows-latest`** — so reproduce on Windows. (Only
-the ancillary `aot-consumer` and `attest-build-provenance` jobs run on Ubuntu.)
+compares the SHA-256 of the produced assembly *across* runners. A difference
+**fails** the workflow, and its log shows which outputs differ. The cross-OS
+divergence tracked in #176 came from MSBuild writing two generated source files
+with the host's line endings; `Directory.Build.targets` now normalizes them to LF
+before compilation. Until a scheduled run of that workflow has passed on the
+release commit, prefer reproducing on the **same OS** as the release runner. The
+jobs that build and pack the released artifact (`validate-release`,
+`pack-and-validate`, `publish-nuget`) run on **`windows-latest`**.
+
+## Tooling
+
+- **.NET SDK:** the release jobs install the latest 10.0.x SDK (plus the older
+  runtimes the tests need). There is no `global.json`. Use the 10.0 SDK feature
+  band that was current on the release date; the release's `release.yaml` run
+  log prints the exact SDK version in its *Setup .NET* step.
+- **Build flags:** `-c Release -p:ContinuousIntegrationBuild=true`, one target
+  framework at a time (`-f <tfm>`).
+- **Hashing:** any SHA-256 tool (`sha256sum`, `Get-FileHash`, `shasum -a 256`).
 
 ## How to verify a released version
 
@@ -56,10 +66,13 @@ sha256sum src/Wolfgang.Etl.SqlBulkCopy/bin/Release/net8.0/Wolfgang.Etl.SqlBulkCo
 
 Then compare that hash against:
 
+- the release's **`reproducible-build-manifest.json`** asset (on the GitHub
+  release page). It lists the SHA-256 of every shipped assembly, keyed by its
+  path inside the package (for example `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`);
 - the assembly extracted from the published `.nupkg`
   (`nuget install Wolfgang.Etl.SqlBulkCopy -Version X.Y.Z`, unzip, hash
-  `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`), and/or
-- the hash printed in that release's `reproducible-build.yaml` run logs.
+  `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`); and/or
+- the hash printed in that commit's `reproducible-build.yaml` run logs.
 
 A match confirms the published managed assembly is exactly what this source
 commit produces.
@@ -76,3 +89,31 @@ commit produces.
   paths and will not match.
 - Use the same major .NET SDK band the release was built with; large SDK version
   gaps can change emitted IL.
+
+## Reporting a discrepancy
+
+If your rebuild does not match the manifest, open an issue with the
+[bug report form](https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/issues/new/choose)
+and include: the release tag, the target framework, your OS and `dotnet --version`
+output, the exact build command, your hash, and the hash you compared it with
+(manifest or `.nupkg`). A mismatch is treated as a potential supply-chain
+problem until it is explained.
+
+## Publishing a third-party verification
+
+Independent verifiers are welcome to publish their results. The suggested
+procedure, following the [Reproducible Builds](https://reproducible-builds.org/)
+conventions:
+
+1. Rebuild the tagged commit as above, on infrastructure you control.
+2. Record the tag, commit SHA, OS, SDK version, target framework and the
+   SHA-256 of each assembly you rebuilt.
+3. Publish that record where it can be checked independently (a signed commit or
+   a GitHub release in your own repository, or a signed attestation such as an
+   in-toto/SLSA statement). Link it from an issue in this repository so it can
+   be referenced from the release notes.
+
+Releases also carry a GitHub build-provenance attestation (`attest-build-provenance`
+in `release.yaml`), which you can check with
+`gh attestation verify <file> --repo Chris-Wolfgang/ETL-SqlBulkCopy`. That proves
+*where* the package was built. A rebuild like the one above proves *what* was built.
