@@ -43,7 +43,11 @@ public class SqlServerFixtureTests
     [Fact]
     public void IsDockerUnavailable_when_exception_is_named_DockerUnavailableException_returns_true()
     {
-        Assert.True(SqlServerFixture.IsDockerUnavailable(new DockerUnavailableException()));
+        // The real Testcontainers type. The fixture matches it by simple type name, because
+        // its namespace (DotNet.Testcontainers.Builders) is not under Docker.DotNet.
+        var ex = new DotNet.Testcontainers.Builders.DockerUnavailableException("Docker is either not running or misconfigured.");
+
+        Assert.True(SqlServerFixture.IsDockerUnavailable(ex));
     }
 
 
@@ -61,7 +65,7 @@ public class SqlServerFixtureTests
     [Fact]
     public void IsDockerUnavailable_when_ArgumentException_names_DockerEndpointAuthConfig_returns_true()
     {
-        var ex = new ArgumentException("Docker is not installed.", "DockerEndpointAuthConfig");
+        var ex = ArgumentExceptionNaming("DockerEndpointAuthConfig", "Docker is not installed.");
 
         Assert.True(SqlServerFixture.IsDockerUnavailable(ex));
     }
@@ -71,7 +75,7 @@ public class SqlServerFixtureTests
     [Fact]
     public void IsDockerUnavailable_when_ArgumentException_names_another_parameter_returns_false()
     {
-        var ex = new ArgumentException("Bad image tag.", "image");
+        var ex = ArgumentExceptionNaming("image", "Bad image tag.");
 
         Assert.False(SqlServerFixture.IsDockerUnavailable(ex));
     }
@@ -94,9 +98,10 @@ public class SqlServerFixtureTests
 
 
 
-    // Stands in for Testcontainers' DotNet.Testcontainers.Builders.DockerUnavailableException,
-    // which the fixture matches by simple type name.
-    private sealed class DockerUnavailableException : Exception
-    {
-    }
+    // Testcontainers throws ArgumentException naming its own builder parameters
+    // (e.g. DockerEndpointAuthConfig), which are not parameters of this test. Passing
+    // the name through a parameter keeps that faithful without a literal paramName
+    // that analyzers (S3928, MA0015, NotResolvedInText) flag as unresolvable here.
+    private static ArgumentException ArgumentExceptionNaming(string paramName, string message) =>
+        new(message, paramName);
 }
