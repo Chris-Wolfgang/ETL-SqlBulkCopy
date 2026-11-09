@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794136096154,
+  "lastUpdate": 1794227954294,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1450,6 +1450,64 @@ window.BENCHMARK_DATA = {
             "value": 295320526.5,
             "unit": "ns",
             "range": "± 16473257.356076939"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "ada588240336043a8016a47db7b7e4949829b606",
+          "message": "ci(pr-benchmarks): fail the PR on a benchmark regression past a threshold (#505)\n\nThe fourth acceptance criterion of #106, deferred until the delta table had\nrun on a few PRs (#234). The delta step now also evaluates a gate per\nbenchmark and a new step fails the job when any row regresses past it:\n\n- mean time > +20 % AND at least +5 ns, or\n- allocations > +50 % AND at least +16 B.\n\nBoth limits must be exceeded: the percentages sit well above the Short job's\n~5 % run-to-run noise, and the absolute floors stop nanosecond-scale\nbenchmarks from tripping on jitter. Thresholds live in the delta step's env.\n\nThe gate runs after the comment step, so the table (now with a pass/fail\nGate column) is always posted, and it is skipped when the PR carries the\n`perf-impact-acknowledged` label. A missing regressions.txt fails closed.\n\nCloses #234\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-09T02:55:34Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/ada588240336043a8016a47db7b7e4949829b606"
+        },
+        "date": 1794227951084,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 13838924.5,
+            "unit": "ns",
+            "range": "± 1954415.0719476147"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 16014131.666666666,
+            "unit": "ns",
+            "range": "± 49785.2532617173"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 14899113.166666666,
+            "unit": "ns",
+            "range": "± 615730.0586103731"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 449329348.1666667,
+            "unit": "ns",
+            "range": "± 19121670.47553705"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 490145055.3333333,
+            "unit": "ns",
+            "range": "± 19484599.43051048"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 455532588.8333333,
+            "unit": "ns",
+            "range": "± 23114427.093956977"
           }
         ]
       }
