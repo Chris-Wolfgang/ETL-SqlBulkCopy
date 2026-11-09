@@ -179,7 +179,7 @@ public class ColumnMapTests
 
     // The getter the enum-converter test registers. The ctor rejects the column
     // before it ever reads a value, so the getter is pinned by its own test below.
-    private static object? EnumProbeGetter(object _) => UnregisteredProbeEnum.One;
+    private static object EnumProbeGetter(object _) => UnregisteredProbeEnum.One;
 
 
 

@@ -123,7 +123,6 @@ internal sealed class NestedTableMap
 
 
 
-
     private static Func<object, IEnumerable<object>> CreateValuesGetter(PropertyInfo propertyInfo)
     {
         // Compile the property accessor once via Expression.Lambda — same

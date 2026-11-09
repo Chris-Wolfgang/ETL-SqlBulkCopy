@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+#if NET5_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Wolfgang.Etl.SqlBulkCopy;
 
@@ -241,77 +244,63 @@ internal sealed class TypeMapReader : DbDataReader
     public override bool GetBoolean(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override byte GetByte(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) =>
         throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override char GetChar(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) =>
         throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override string GetDataTypeName(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override DateTime GetDateTime(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override decimal GetDecimal(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override double GetDouble(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
+#if NET5_0_OR_GREATER
+    // Match the base DbDataReader.GetFieldType return annotation (IL2093).
+    [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
     public override Type GetFieldType(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override float GetFloat(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override Guid GetGuid(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override short GetInt16(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override int GetInt32(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override long GetInt64(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override string GetString(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override int GetValues(object[] values) => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override IEnumerator GetEnumerator() => throw new NotSupportedException();
 
     /// <inheritdoc />
-
     public override bool NextResult() => false;
 
 

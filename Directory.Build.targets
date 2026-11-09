@@ -1,0 +1,51 @@
+<Project>
+
+  <!--
+    Reproducible builds across operating systems (#176).
+
+    MSBuild writes the generated AssemblyInfo.cs and the target-framework
+    AssemblyAttributes.cs with Environment.NewLine, so the same commit produces
+    CRLF files on Windows and LF files on Linux/macOS. Both files are compiled
+    into the assembly, and the portable PDB records a checksum of every source
+    document (and, with EmbedUntrackedSources, embeds these two). The PDB ID that
+    the deterministic compiler derives from that content is stamped into the DLL's
+    debug directory, so the line endings of two generated files were enough to
+    make the managed assembly differ between ubuntu-latest and windows-latest.
+
+    Every tracked source file is already LF (.gitattributes), so normalizing the
+    generated ones to LF right after they are written makes the compiler inputs
+    identical on every OS.
+  -->
+  <UsingTask TaskName="NormalizeToLf"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        foreach (var item in Files)
+        {
+            var path = item.ItemSpec;
+            if (!System.IO.File.Exists(path))
+            {
+                continue;
+            }
+
+            var text = System.IO.File.ReadAllText(path);
+            var normalized = text.Replace("\r\n", "\n");
+            if (!string.Equals(text, normalized, System.StringComparison.Ordinal))
+            {
+                System.IO.File.WriteAllText(path, normalized);
+            }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="NormalizeGeneratedSourceLineEndings"
+          BeforeTargets="CoreCompile">
+    <NormalizeToLf Files="$(GeneratedAssemblyInfoFile);$(TargetFrameworkMonikerAssemblyAttributesPath)" />
+  </Target>
+
+</Project>
