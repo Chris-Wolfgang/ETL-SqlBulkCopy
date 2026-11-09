@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -346,6 +347,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// </summary>
     /// <value>The default is <c>false</c>.</value>
     /// <remarks>
+    /// <para>
     /// Enabling validation adds per-item overhead. Validation is applied recursively
     /// to root <typeparamref name="TRecord"/> instances and to every level of
     /// nested-collection children. How a failure is handled is controlled by
@@ -354,6 +356,14 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// stops the load. Set <see cref="ValidationFailureBehavior"/> to
     /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Skip"/>
     /// to tolerate dirty data and drop only the failing items.
+    /// </para>
+    /// <para>
+    /// Validation uses the reflection-based
+    /// <see cref="System.ComponentModel.DataAnnotations.Validator"/>. A trimmed or
+    /// Native-AOT application that enables it must preserve the public properties
+    /// of <typeparamref name="TRecord"/> (and of nested child types) together with
+    /// their validation attributes, or the trimmer may remove what the validator reads.
+    /// </para>
     /// </remarks>
     public bool EnableDataValidation { get => _enableDataValidation; [Obsolete("Configure EnableDataValidation through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _enableDataValidation = value; }
 
@@ -839,6 +849,15 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw"/>
     /// (the default).
     /// </exception>
+    [UnconditionalSuppressMessage
+    (
+        "Trimming",
+        "IL2026:RequiresUnreferencedCode",
+        Justification = "Data validation is opt-in (EnableDataValidation, off by default) and is " +
+                        "documented as reflection-based: a trimmed or Native-AOT app that enables " +
+                        "it must preserve the record type's public properties and their " +
+                        "validation attributes. The default path never reaches this method."
+    )]
     private bool ValidateItem(TRecord item)
     {
         var context = new ValidationContext(item);
@@ -883,6 +902,15 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <see cref="Wolfgang.Etl.SqlBulkCopy.ValidationFailureBehavior.Throw"/>
     /// (the default).
     /// </exception>
+    [UnconditionalSuppressMessage
+    (
+        "Trimming",
+        "IL2026:RequiresUnreferencedCode",
+        Justification = "Data validation is opt-in (EnableDataValidation, off by default) and is " +
+                        "documented as reflection-based: a trimmed or Native-AOT app that enables " +
+                        "it must preserve the record type's public properties and their " +
+                        "validation attributes. The default path never reaches this method."
+    )]
     private bool ValidateNestedItem(object item, TypeMap childTypeMap)
     {
         var context = new ValidationContext(item);
