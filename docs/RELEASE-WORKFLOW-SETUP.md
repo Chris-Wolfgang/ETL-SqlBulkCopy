@@ -87,7 +87,7 @@ The workflow triggers automatically when the release is published.
    - Publishes packages to NuGet.org automatically (`--skip-duplicate`)
    - ✅ Auto-completes when the package is accepted or already present
 
-Additional jobs run alongside these: `verify-docs-build`, `aot-consumer` (a
+Additional jobs run alongside these: `verify-docs-build`, `aot-smoke` (calls `aot-smoke.yaml`; a
 release gate — `publish-nuget` depends on it), `trigger-docs` (builds and deploys
 the versioned documentation), `attest-build-provenance` (SLSA provenance
 attestation via Sigstore), and `update-release-artifacts`.
