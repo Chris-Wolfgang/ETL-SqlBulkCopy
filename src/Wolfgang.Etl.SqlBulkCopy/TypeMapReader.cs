@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+#if NET5_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Wolfgang.Etl.SqlBulkCopy;
 
@@ -267,6 +270,10 @@ internal sealed class TypeMapReader : DbDataReader
     public override double GetDouble(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
+#if NET5_0_OR_GREATER
+    // Match the base DbDataReader.GetFieldType return annotation (IL2093).
+    [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
     public override Type GetFieldType(int ordinal) => throw new NotSupportedException();
 
     /// <inheritdoc />
