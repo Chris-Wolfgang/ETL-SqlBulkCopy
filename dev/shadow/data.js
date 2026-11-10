@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794227954294,
+  "lastUpdate": 1794313141552,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1508,6 +1508,64 @@ window.BENCHMARK_DATA = {
             "value": 455532588.8333333,
             "unit": "ns",
             "range": "± 23114427.093956977"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "c618c2cdb4f001f776760f6762921ea2ed6933ff",
+          "message": "ci(protected-files): sync the guard from repo-template (fail closed, case-insensitive, nested props) (#530)\n\n* ci(protected-files): sync the guard from repo-template (fail closed, case-insensitive, nested props)\n\nVerbatim copy of repo-template main @ 57a047a. The repo-only lines were\nthe older template text with no local hardening:\n- the changed-file listing is captured and checked, so a failed,\n  empty or truncated (3000-file cap) listing fails the guard instead of\n  passing it as 'no protected files changed'\n- names are matched lowercased, so directory.build.props is caught\n- nested */Directory.Build.props|targets are protected\n- .github/requirements/* is protected\n\nRefs #41.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* ci(aot-smoke): adopt the canonical fleet AOT smoke workflow\n\nReplaces the pilot aot-smoke.yaml with the canonical fleet workflow: the job reports as\n\"AOT smoke (linux-x64)\", gains workflow_call so release.yaml can reuse it, and strips the\nMSBuild \" [<path>.csproj]\" suffix before the namespace match. Same tree as #539's\naot-smoke.yaml (02b005f + 909b30a), rebuilt as one commit on main so the change can sit at\nthe bottom of the PR stack now that ruleset 15085984 requires the new check name.\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-10T02:16:22Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/c618c2cdb4f001f776760f6762921ea2ed6933ff"
+        },
+        "date": 1794313137919,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 9298807.666666666,
+            "unit": "ns",
+            "range": "± 566170.0818714579"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 12986569.666666666,
+            "unit": "ns",
+            "range": "± 652899.0783148138"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 12326608.833333334,
+            "unit": "ns",
+            "range": "± 38244.69838204157"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 401551599,
+            "unit": "ns",
+            "range": "± 31414765.6872221"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 487772327.6666667,
+            "unit": "ns",
+            "range": "± 64110660.364514"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 428433850.8333333,
+            "unit": "ns",
+            "range": "± 97819144.32620396"
           }
         ]
       }
