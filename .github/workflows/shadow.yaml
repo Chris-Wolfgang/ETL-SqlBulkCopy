@@ -5,23 +5,28 @@ name: Shadow workloads (perf regression)
 # Replays the realistic consumer workloads in
 # samples/Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads (BenchmarkDotNet + a real
 # SQL Server via Testcontainers) against the current main HEAD, publishes the
-# results to gh-pages under dev/shadow/, and FAILS + opens an issue when a
-# tracked metric regresses beyond the alert threshold versus the accumulated
-# baseline.
+# results to gh-pages under dev/shadow/, and leaves a commit comment when a
+# tracked metric moves past the alert threshold against the previous night.
+#
+# The alert is advisory: the run does not fail on it. GitHub-hosted runners
+# swing well past the threshold from one night to the next on this workload
+# (in both directions), so a hard gate here reports runner noise, not code.
+# The chart is the signal to read; latency gating returns once the workloads
+# run on a quiet, dedicated runner. The run fails, and opens or updates the
+# single tracking issue, only when it cannot produce a result at all.
 #
 # Why nightly (not pr.yaml / release.yaml):
 #   - Each run pulls + starts a SQL Server container and runs BDN over 1k/100k
 #     row loads — minutes of runtime and heavy IO, far too slow for per-PR CI.
-#   - GitHub-hosted runners are noisy, so single measurements wobble; comparing
-#     against an accumulated nightly baseline is far more reliable than gating
+#   - GitHub-hosted runners are noisy, so single measurements wobble; a nightly
+#     series charted over weeks shows a real regression far more reliably than
 #     one noisy PR run.
 #   - A perf regression means "we merged something slow", not "the build is
 #     broken" — it belongs on a daily cadence, off the merge/release critical
 #     path. workflow_dispatch is provided for on-demand checks.
 #
-# Latency (Mean time) is the gated metric. Allocation/GC stats are captured and
-# charted (MemoryDiagnoser) but not yet auto-gated — allocation-threshold gating
-# is a tracked follow-up.
+# Latency (Mean time) is the charted and alerted metric. Allocation/GC stats are
+# captured and charted (MemoryDiagnoser) too.
 
 on:
   schedule:
@@ -103,7 +108,7 @@ jobs:
           fi
 
   # --------------------------------------------------------------------------
-  # SHADOW: run the workloads, publish the chart, gate on latency regression.
+  # SHADOW: run the workloads, publish the chart, comment on a latency alert.
   # --------------------------------------------------------------------------
   shadow:
     name: Run shadow workloads & publish
@@ -112,7 +117,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # push chart + history to gh-pages
-      issues: write # open an issue on regression
+      issues: write # open or update the tracking issue when the run errors
     env:
       SAMPLE_DIR: samples/Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads
     steps:
@@ -134,10 +139,9 @@ jobs:
       - name: Run shadow workloads
         working-directory: ${{ env.SAMPLE_DIR }}
         shell: bash
-        # --job short bounds runtime on noisy hosted runners; it is reliable for
-        # the double-digit regressions this gate targets. Testcontainers spins
-        # the SQL Server container from within the process (Docker is present on
-        # ubuntu-latest).
+        # --job short bounds runtime on noisy hosted runners. Testcontainers
+        # spins the SQL Server container from within the process (Docker is
+        # present on ubuntu-latest).
         run: dotnet run -c Release --no-build -- --filter "*" --job short --memory --exporters json
 
       - name: Locate BDN report
@@ -161,7 +165,7 @@ jobs:
           }' "${reports[@]}" > shadow-result.json
           echo "report=$SAMPLE_DIR/shadow-result.json" >> "$GITHUB_OUTPUT"
 
-      - name: Publish chart & gate on latency regression
+      - name: Publish chart & comment on latency alert
         uses: benchmark-action/github-action-benchmark@4322e5726e6334590d251fc4f92bec0efafc45dc # v1.22.2
         with:
           name: SqlBulkCopy shadow workloads
@@ -171,12 +175,13 @@ jobs:
           benchmark-data-dir-path: dev/shadow
           auto-push: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # >20% slower than the baseline best fails the run (AC: >20% latency).
+          # >20% slower than the previous night leaves a commit comment with the
+          # per-benchmark table. It does not fail the run (see the header).
           alert-threshold: '120%'
           comment-on-alert: true
-          fail-on-alert: true
+          fail-on-alert: false
 
-      - name: Open regression issue
+      - name: Open or update the tracking issue
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
@@ -191,16 +196,24 @@ jobs:
           short="${HEAD_SHA:0:7}"
           # Write the body via heredoc (dedented to column 0) so no stray leading
           # whitespace turns Markdown lines into code blocks.
-          cat > regression-body.md <<EOF
-          The nightly shadow-workload run failed — a tracked latency metric regressed past the alert threshold, or the run itself errored.
+          cat > failure-body.md <<EOF
+          The nightly shadow-workload run on \`$short\` could not produce a result (build, container start, workload or publish step errored). Latency alerts do not fail the run; this is a broken run, not a measured regression.
 
           - Commit: \`$HEAD_SHA\`
           - Run: $RUN_URL
           - Chart: https://${owner}.github.io/${repo}/dev/shadow/
-
-          Compare the flagged benchmark against the baseline in the chart, then either fix the regression or, if it is intentional, note it here and let the new baseline stand.
           EOF
-          gh issue create -R "$GITHUB_REPOSITORY" \
-            --title "Shadow-workload perf regression on $short" \
+          # One tracking issue at a time: append to the open one if it exists,
+          # otherwise open it.
+          existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open \
             --label "performance-regression" \
-            --body-file regression-body.md
+            --search "Shadow-workload nightly run failed in:title" \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" -R "$GITHUB_REPOSITORY" --body-file failure-body.md
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" \
+              --title "Shadow-workload nightly run failed" \
+              --label "performance-regression" \
+              --body-file failure-body.md
+          fi
