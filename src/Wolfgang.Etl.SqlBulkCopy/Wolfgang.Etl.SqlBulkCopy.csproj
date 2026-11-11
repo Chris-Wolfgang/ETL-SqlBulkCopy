@@ -58,9 +58,9 @@
 
   <ItemGroup>
     <PackageReference Include="Wolfgang.Etl.Abstractions" Version="0.26.1" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="11.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
@@ -70,7 +70,7 @@
        them (a per-TFM 8.0.2 pin is a NU1605 downgrade for a net9.0 consumer of the net8.0
        asset). Delete once SqlClient's own dependency is at or above it. -->
   <ItemGroup>
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
   </ItemGroup>
 
   <!-- Source generator: built alongside the runtime, packed into the same
