@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794313141552,
+  "lastUpdate": 1794397512262,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1566,6 +1566,64 @@ window.BENCHMARK_DATA = {
             "value": 428433850.8333333,
             "unit": "ns",
             "range": "± 97819144.32620396"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "76bae79103d7ab3bea189dfacde7bc18dc4b4fb3",
+          "message": "ci: never cancel a push-to-main run; only a superseded pull_request run is cancelled (#591)\n\nSync of repo-template#817 (04a3212). With cancel-in-progress on every\nevent, a merge landing while the previous merge's main run was still\ngoing cancelled that run: PR Checks run 42551932455 on 62cf00f was\ncancelled at 02:55 UTC on 2026-11-09 by ada5882's run, so 62cf00f never\ngot a complete gate result.\n\nThe eight workflows #817 changed now set\ncancel-in-progress: ${{ github.event_name == 'pull_request' }} with the\ntemplate's comment; each file's change is identical to #817's.\n\ncross-platform-differential.yaml is repo-owned (not in the template) and\nalso runs on push to main, so it gets the same setting.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-11T01:08:17Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/76bae79103d7ab3bea189dfacde7bc18dc4b4fb3"
+        },
+        "date": 1794397508731,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 12074792,
+            "unit": "ns",
+            "range": "± 461859.73679029435"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 18711377.666666668,
+            "unit": "ns",
+            "range": "± 2746988.5159207224"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 13980211.166666666,
+            "unit": "ns",
+            "range": "± 341782.9297731725"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 432460026.3333333,
+            "unit": "ns",
+            "range": "± 30006189.365437698"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 485968341.3333333,
+            "unit": "ns",
+            "range": "± 19336118.657433562"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 436021570,
+            "unit": "ns",
+            "range": "± 2265668.953884702"
           }
         ]
       }
