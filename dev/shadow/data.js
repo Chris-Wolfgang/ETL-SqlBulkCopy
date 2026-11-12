@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794397512262,
+  "lastUpdate": 1794486053343,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1624,6 +1624,64 @@ window.BENCHMARK_DATA = {
             "value": 436021570,
             "unit": "ns",
             "range": "± 2265668.953884702"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "96392c16b39cf71c9af94827b554e6baf27a4e76",
+          "message": "build: run Stryker from the unit-test project, not the solution root (#594)\n\ndotnet-stryker 5.1.0 (Dependabot #593) aborts when `project` or\n`test-projects` is set while a .sln/.slnx sits in the working directory\n(\"Test projects cannot be specified when running Stryker in solution\ncontext\", stryker-net#3807); #593's own Stryker run already fails this way.\n5.0.0 silently ignored `test-projects` in that case (stryker-net#3795), so\nthe root config only appeared to scope the run.\n\nMove stryker-config.json into tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit and\ndrop `test-projects`: from there Stryker runs in project mode, `project`\npicks the source project by file name, and the workflow already runs every\ntests/**/stryker-config.json from its own directory.\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-12T01:02:45Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/96392c16b39cf71c9af94827b554e6baf27a4e76"
+        },
+        "date": 1794486050273,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 42435450.833333336,
+            "unit": "ns",
+            "range": "± 54006323.27100331"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 12658064.833333334,
+            "unit": "ns",
+            "range": "± 135335.14320136266"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 26997084,
+            "unit": "ns",
+            "range": "± 28622581.695745632"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 352508033.8333333,
+            "unit": "ns",
+            "range": "± 20568219.887305982"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 492777389,
+            "unit": "ns",
+            "range": "± 44526667.20493564"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 655815252.6666666,
+            "unit": "ns",
+            "range": "± 193083368.18367618"
           }
         ]
       }
