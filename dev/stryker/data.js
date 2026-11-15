@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794142146342,
+  "lastUpdate": 1794749356159,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "Mutation score": [
@@ -134,6 +134,33 @@ window.BENCHMARK_DATA = {
           {
             "name": "Mutation score",
             "value": 84.54,
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "66c8d7969632c51ae1d400e3490b69c4b7b2ee72",
+          "message": "build: pin the .NET SDK to the 10.0 major in global.json (#596)\n\nUbuntu runner image 20261111.196 preinstalls SDK 11.0.100. Without a\nglobal.json the build takes the newest installed SDK, so Linux and Windows\ncan compile with different SDKs (cross-OS reproducible-build mismatch seen on\nEtl-DbClient main 07871c1). Pin the 10.0 major with latestFeature roll-forward,\nas the fleet reproducible-builds standard specifies.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-14T12:52:12Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/66c8d7969632c51ae1d400e3490b69c4b7b2ee72"
+        },
+        "date": 1794749350249,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Mutation score (tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit)",
+            "value": 84.6,
             "unit": "%"
           }
         ]
