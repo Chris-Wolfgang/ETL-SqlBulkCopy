@@ -82,7 +82,7 @@ Everything about a load is configured through `SqlBulkCopyLoaderOptions<T>`, a r
 as the second constructor argument (`(connection, options, transaction, logger)`, all three optional). It carries the
 loader's own settings — `BulkCopyOptions`, `BatchSize`, `BulkCopyTimeout`, the destination overrides, validation, the
 pre/post actions and `IsDryRun` — and the ones every loader shares (`ReportingInterval`, `MaximumItemCount`,
-`SkipItemCount`, `ErrorPolicy`). A loader constructed without a record keeps every default. The settable properties on
+`SkipItemCount`; `ErrorPolicy` is accepted but not read by this loader yet). A loader constructed without a record keeps every default. The settable properties on
 the loader are deprecated and will be removed in a later release.
 
 ---
@@ -93,9 +93,9 @@ the loader are deprecated and will be removed in a later release.
 |---------|-------------|
 | **Streaming bulk load** | Consumes `IAsyncEnumerable<T>` and writes to SQL Server via `SqlBulkCopy` |
 | **Type-driven mapping** | `[Table]` / `[Column]` / `[NotMapped]` attributes drive schema/table/column names — no manual `ColumnMappings` |
-| **Nested tables** | Recursively writes child collections to their own tables inside the same bulk-copy session |
+| **Nested tables** | Recursively writes child collections to their own tables, on the same connection and transaction (each chunk uses its own `SqlBulkCopy` instance) |
 | **Pre/post actions** | Built-in `TruncateTable` / `DeleteAllRecords`; custom-action delegates for schema-aware work |
-| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — rows written (`CurrentItemCount`), rows skipped, batch count |
+| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — items accepted (`CurrentItemCount`, counted when buffered, so it can run ahead of the server by up to one batch), items skipped, batch count |
 | **Data validation** | Opt in with `EnableDataValidation`; DataAnnotations failures throw or skip per `ValidationFailureBehavior`, with `OnValidationFailed` / `OnNestedValidationFailed` callbacks |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
 | **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |

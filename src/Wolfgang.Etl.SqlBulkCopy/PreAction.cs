@@ -12,13 +12,17 @@ public enum PreAction
 
     /// <summary>
     /// Executes <c>DELETE FROM [Schema].[Table]</c> to remove all records
-    /// from the destination table before loading.
+    /// from the destination table before loading. Only the root table is cleared;
+    /// tables written for nested collections are left untouched (use
+    /// <see cref="CustomAction"/> to clear those).
     /// </summary>
     DeleteAllRecords = 1,
 
     /// <summary>
     /// Executes <c>TRUNCATE TABLE [Schema].[Table]</c> to remove all records
-    /// and reset identity columns before loading.
+    /// and reset identity columns before loading. Only the root table is truncated;
+    /// tables written for nested collections are left untouched (use
+    /// <see cref="CustomAction"/> to clear those).
     /// </summary>
     TruncateTable = 2,
 

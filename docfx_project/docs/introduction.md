@@ -19,7 +19,8 @@ so it composes with the rest of the ETL family.
 - **Type-driven mapping** — `[Table]`, `[Column]` and `[NotMapped]` attributes
   drive the schema, table and column names.
 - **Nested tables** — child collections are recursively written to their own
-  tables inside the same bulk-copy session.
+  tables, on the same connection and transaction (each chunk uses its own
+  `SqlBulkCopy` instance).
 - **Pre/post actions** — built-in `TruncateTable` / `DeleteAllRecords`, plus
   custom-action delegates for schema-aware work.
 - **Data validation** — opt in with `EnableDataValidation`; DataAnnotations
@@ -29,8 +30,9 @@ so it composes with the rest of the ETL family.
   load and the pre/post commands.
 - **Dry run** — set `IsDryRun` to enumerate, map, validate and report with no
   SQL side effects.
-- **Progress reporting** — `IProgress<SqlBulkCopyReport>` reports rows written
-  (`CurrentItemCount`), rows skipped and batch count.
+- **Progress reporting** — `IProgress<SqlBulkCopyReport>` reports items accepted
+  (`CurrentItemCount`, counted when buffered, so it can run ahead of the server by up
+  to one batch), items skipped and batch count.
 - **Native AOT ready** — mark a record `[BulkCopyable]` to get compile-time
   source-generated accessors instead of runtime IL emission.
 - **Async-only** — a banned-symbol analyzer keeps the library free of

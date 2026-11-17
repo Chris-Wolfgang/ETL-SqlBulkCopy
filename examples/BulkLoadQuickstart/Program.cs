@@ -51,9 +51,10 @@ internal static class Program
         using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
 
-        // Progress is reported per batch as rows are written.
+        // Progress is reported on the loader's ReportingInterval timer, so the number of
+        // lines varies per run (a fast load may print none).
         var progress = new Progress<SqlBulkCopyReport>(report =>
-            Console.WriteLine($"  batch {report.BatchCount}: {report.CurrentItemCount} rows written"));
+            Console.WriteLine($"  batch {report.BatchCount}: {report.CurrentItemCount} items accepted"));
 
         var loader = new SqlBulkCopyLoader<Customer>
         (

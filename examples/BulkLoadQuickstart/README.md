@@ -33,12 +33,12 @@ export SQLBULKCOPY_SAMPLE_CONNECTION="Server=.;Database=Sandbox;Integrated Secur
 dotnet run -c Release --project examples/BulkLoadQuickstart
 ```
 
-Expected output:
+Expected output (progress lines are timer-driven, so their number and counts vary per run, and a fast load may print none):
 
 ```
 Loading customers...
-  batch 1: 10000 rows written
-  batch 2: 20000 rows written
+  batch 1: 10000 items accepted
+  batch 2: 20000 items accepted
   ...
 Done.
 ```
