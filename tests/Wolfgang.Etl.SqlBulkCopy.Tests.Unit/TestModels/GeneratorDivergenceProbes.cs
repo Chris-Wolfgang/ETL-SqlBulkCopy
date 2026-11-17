@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 
 // Probes for generator/reflection divergence (#600, #609).
 
 [BulkCopyable]
+[ExcludeFromCodeCoverage]
 public sealed class InternalPropertyProbe
 {
     public int Id { get; set; }
@@ -14,6 +16,7 @@ public sealed class InternalPropertyProbe
 
 
 
+[ExcludeFromCodeCoverage]
 public sealed class PlainInternalPropertyProbe
 {
     public int Id { get; set; }
@@ -24,6 +27,7 @@ public sealed class PlainInternalPropertyProbe
 
 
 [BulkCopyable]
+[ExcludeFromCodeCoverage]
 public sealed class DualAttributePropertyProbe
 {
     public int Id { get; set; }
@@ -36,6 +40,7 @@ public sealed class DualAttributePropertyProbe
 
 
 [BulkCopyable]
+[ExcludeFromCodeCoverage]
 public sealed class KeywordNamedPropertyProbe
 {
     public int Id { get; set; }
