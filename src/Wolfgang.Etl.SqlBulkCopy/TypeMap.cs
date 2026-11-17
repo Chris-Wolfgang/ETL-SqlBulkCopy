@@ -576,8 +576,8 @@ internal sealed class TypeMap
 
         // Enums are mapped via their underlying integral type. Only accept enums
         // whose underlying type is itself in SupportedColumnTypes — sbyte, ushort,
-        // uint, and ulong are not supported by SqlBulkCopy mapping, so rejecting
-        // them up-front gives a clearer error than failing at write time.
+        // uint, and ulong are not supported by SqlBulkCopy mapping, so a
+        // property of such an enum type is not treated as a column (it is skipped).
         if (type.IsEnum)
         {
             return SupportedColumnTypes.Contains(Enum.GetUnderlyingType(type));

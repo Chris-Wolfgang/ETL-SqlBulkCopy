@@ -19,13 +19,14 @@ namespace Wolfgang.Etl.SqlBulkCopy;
 /// Derives from <see cref="LoaderOptions"/>, so the settings every loader shares —
 /// <see cref="LoaderOptions.ReportingInterval"/>, <see cref="LoaderOptions.SkipItemCount"/>,
 /// <see cref="LoaderOptions.MaximumItemCount"/> and <see cref="LoaderOptions.ErrorPolicy"/> — are configured
-/// here as well (ADR-0009 in Wolfgang.Etl.Abstractions).
+/// here as well (ADR-0009 in Wolfgang.Etl.Abstractions). This loader does not read
+/// <see cref="LoaderOptions.ErrorPolicy"/> yet, so setting it has no effect.
 /// </para>
 /// <para>
 /// The record is generic because the validation callbacks are typed on the record being loaded. Each member
 /// except <see cref="BulkCopyOptions"/> mirrors the loader property of the same name; the constructor applies
-/// them in declaration order, so the loader's own range checks (for example <see cref="BatchSize"/> below
-/// <c>1</c>) fire at construction. <see cref="BulkCopyOptions"/> has no loader property: it configures the
+/// them in declaration order. The range checks (for example <see cref="BatchSize"/> below <c>1</c>) run in the
+/// <c>init</c> accessors, when the record is built. <see cref="BulkCopyOptions"/> has no loader property: it configures the
 /// underlying <c>SqlBulkCopy</c> and was previously the constructor's own <c>SqlBulkCopyOptions</c> parameter.
 /// </para>
 /// </remarks>
@@ -106,7 +107,9 @@ public sealed record SqlBulkCopyLoaderOptions<TRecord> : LoaderOptions
     /// <summary>
     /// Gets an optional destination table name override.
     /// When <c>null</c>, the table name is derived from the <c>[Table]</c> attribute
-    /// or the type name.
+    /// or the type name. The value is a single identifier and is bracket-escaped as such:
+    /// <c>"dbo.People"</c> targets a table literally named <c>[dbo.People]</c>. Put the schema in
+    /// <see cref="DestinationSchemaName"/>.
     /// </summary>
     public string? DestinationTableName { get; init; }
 

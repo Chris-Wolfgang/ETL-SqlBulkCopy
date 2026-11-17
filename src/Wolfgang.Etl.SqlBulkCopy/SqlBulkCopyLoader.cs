@@ -109,6 +109,36 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="connection"/> is <c>null</c>.
     /// </exception>
+    public SqlBulkCopyLoader
+    (
+        SqlConnection connection,
+        SqlBulkCopyOptions options,
+        SqlTransaction? transaction,
+        ILogger<SqlBulkCopyLoader<TRecord>>? logger = null
+    )
+        : this(connection, new SqlBulkCopyLoaderOptions<TRecord> { BulkCopyOptions = options }, transaction, logger)
+    {
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlBulkCopyLoader{TRecord}"/> class configured
+    /// through an options record (ADR-0009). This is the initialization path every other constructor
+    /// chains into.
+    /// </summary>
+    /// <param name="connection">The open <see cref="SqlConnection"/> to bulk-copy into. The caller owns its lifetime.</param>
+    /// <param name="options">
+    /// The loader's configuration, including the settings inherited from <see cref="LoaderOptions"/>. When
+    /// <see langword="null"/> — or omitted — every documented default applies.
+    /// </param>
+    /// <param name="transaction">An optional <see cref="SqlTransaction"/> the bulk copy and the pre/post actions run in.</param>
+    /// <param name="logger">An optional logger. When <see langword="null"/> — or omitted — <see cref="NullLogger.Instance"/> is used.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <see cref="SqlBulkCopyLoaderOptions{TRecord}.BatchSize"/> is below <c>1</c> or
+    /// <see cref="SqlBulkCopyLoaderOptions{TRecord}.BulkCopyTimeout"/> is negative.
+    /// </exception>
     /// <example>
     /// <code>
     /// // One transaction spanning every file: either every file lands or none
@@ -165,36 +195,6 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// }
     /// </code>
     /// </example>
-    public SqlBulkCopyLoader
-    (
-        SqlConnection connection,
-        SqlBulkCopyOptions options,
-        SqlTransaction? transaction,
-        ILogger<SqlBulkCopyLoader<TRecord>>? logger = null
-    )
-        : this(connection, new SqlBulkCopyLoaderOptions<TRecord> { BulkCopyOptions = options }, transaction, logger)
-    {
-    }
-
-
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SqlBulkCopyLoader{TRecord}"/> class configured
-    /// through an options record (ADR-0009). This is the initialization path every other constructor
-    /// chains into.
-    /// </summary>
-    /// <param name="connection">The open <see cref="SqlConnection"/> to bulk-copy into. The caller owns its lifetime.</param>
-    /// <param name="options">
-    /// The loader's configuration, including the settings inherited from <see cref="LoaderOptions"/>. When
-    /// <see langword="null"/> — or omitted — every documented default applies.
-    /// </param>
-    /// <param name="transaction">An optional <see cref="SqlTransaction"/> the bulk copy and the pre/post actions run in.</param>
-    /// <param name="logger">An optional logger. When <see langword="null"/> — or omitted — <see cref="NullLogger.Instance"/> is used.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <see cref="SqlBulkCopyLoaderOptions{TRecord}.BatchSize"/> is below <c>1</c> or
-    /// <see cref="SqlBulkCopyLoaderOptions{TRecord}.BulkCopyTimeout"/> is negative.
-    /// </exception>
     public SqlBulkCopyLoader
     (
         SqlConnection connection,
@@ -323,7 +323,9 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <summary>
     /// Gets or sets an optional destination table name override.
     /// When <c>null</c>, the table name is derived from the <c>[Table]</c> attribute
-    /// or the type name.
+    /// or the type name. The value is a single identifier and is bracket-escaped as such:
+    /// <c>"dbo.People"</c> targets a table literally named <c>[dbo.People]</c>. Put the schema in
+    /// <see cref="DestinationSchemaName"/>.
     /// </summary>
     public string? DestinationTableName { get => _destinationTableName; [Obsolete("Configure DestinationTableName through SqlBulkCopyLoaderOptions<TRecord> passed to the constructor instead. The setter will be removed in a later release.")] set => _destinationTableName = value; }
 
@@ -350,7 +352,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <para>
     /// Enabling validation adds per-item overhead. Validation is applied recursively
     /// to root <typeparamref name="TRecord"/> instances and to every level of
-    /// nested-collection children. How a failure is handled is controlled by
+    /// nested-collection children. A root item is validated before it enters its batch,
+    /// but nested children are validated while their parent batch is being written, after
+    /// the parent rows have been sent to the server; a failing child therefore does not
+    /// prevent its parents from being written (use an external transaction to make the
+    /// load all-or-nothing). How a failure is handled is controlled by
     /// <see cref="ValidationFailureBehavior"/> — the default is to throw a
     /// <see cref="SqlBulkCopyValidationException"/>, which fails loudly and
     /// stops the load. Set <see cref="ValidationFailureBehavior"/> to
@@ -1202,13 +1208,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
     /// <summary>
-    /// Copies every member of <paramref name="options"/> onto the loader's properties, in declaration
-    /// order, so the property setters' own range checks apply. A <see langword="null"/> record leaves the defaults.
+    /// Copies every member of <paramref name="options"/> onto the loader's backing fields. The values are
+    /// not re-validated here: the range checks (for example <see cref="BatchSize"/> below <c>1</c>) run in the
+    /// <c>init</c> accessors of <see cref="SqlBulkCopyLoaderOptions{TRecord}"/> when the record is built.
+    /// A <see langword="null"/> record leaves the defaults.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown by the <see cref="BatchSize"/> or <see cref="BulkCopyTimeout"/> setter when the record holds an
-    /// out-of-range value.
-    /// </exception>
     private void ApplyOptions(SqlBulkCopyLoaderOptions<TRecord>? options)
     {
         if (options is null)
