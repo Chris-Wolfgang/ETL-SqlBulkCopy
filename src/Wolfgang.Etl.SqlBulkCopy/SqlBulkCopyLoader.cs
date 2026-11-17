@@ -352,11 +352,13 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     /// <para>
     /// Enabling validation adds per-item overhead. Validation is applied recursively
     /// to root <typeparamref name="TRecord"/> instances and to every level of
-    /// nested-collection children. A root item is validated before it enters its batch,
-    /// but nested children are validated while their parent batch is being written, after
-    /// the parent rows have been sent to the server; a failing child therefore does not
-    /// prevent its parents from being written (use an external transaction to make the
-    /// load all-or-nothing). How a failure is handled is controlled by
+    /// nested-collection children. Under <see cref="ValidationFailureBehavior.Throw"/> a root
+    /// item and all of its nested children are validated before the item enters its batch, so a
+    /// failure is raised before any row of that batch is written (earlier batches are already
+    /// sent; use an external transaction to make the load all-or-nothing). This enumerates each
+    /// nested collection once more, so it must be re-enumerable. Under
+    /// <see cref="ValidationFailureBehavior.Skip"/> nested children are validated while their
+    /// parent batch is being written, so a skipped child never prevents its parent from loading. How a failure is handled is controlled by
     /// <see cref="ValidationFailureBehavior"/> — the default is to throw a
     /// <see cref="SqlBulkCopyValidationException"/>, which fails loudly and
     /// stops the load. Set <see cref="ValidationFailureBehavior"/> to
@@ -536,7 +538,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
             ThrowIfNullItem(item);
 
-            if (EnableDataValidation && !ValidateItem(item))
+            if (EnableDataValidation && !ValidateItemGraph(item, typeMap))
             {
                 continue;
             }
@@ -586,6 +588,44 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
         SqlBulkCopyLogMessages.ReachedMaximumItemCount(_logger, MaximumItemCount, exception: null);
         return true;
+    }
+
+
+
+    /// <summary>
+    /// Validates a root item and, under <see cref="ValidationFailureBehavior.Throw"/>, every
+    /// nested child beneath it, so a failure is raised before any row of the item's batch is
+    /// written. Under <see cref="ValidationFailureBehavior.Skip"/> children are filtered when
+    /// they are written instead, because a skipped child must not be sent while its parent is.
+    /// </summary>
+    private bool ValidateItemGraph(TRecord item, TypeMap typeMap)
+    {
+        if (!ValidateItem(item))
+        {
+            return false;
+        }
+
+        if (ValidationFailureBehavior == ValidationFailureBehavior.Throw)
+        {
+            ValidateNestedGraph(item, typeMap);
+        }
+
+        return true;
+    }
+
+
+
+    private void ValidateNestedGraph(object parent, TypeMap typeMap)
+    {
+        foreach (var nestedMap in typeMap.NestedTables)
+        {
+            foreach (var child in nestedMap.GetValues(parent))
+            {
+                ThrowIfNullChild(child, nestedMap);
+                ValidateNestedItem(child, nestedMap.ChildTypeMap);
+                ValidateNestedGraph(child, nestedMap.ChildTypeMap);
+            }
+        }
     }
 
 
@@ -804,7 +844,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
                 ThrowIfNullChild(child, nestedMap);
 
-                if (EnableDataValidation && !ValidateNestedItem(child, nestedMap.ChildTypeMap))
+                // Under Throw the whole graph was already validated when the root item was
+                // accepted (ValidateItemGraph); only Skip filters children at write time.
+                if (EnableDataValidation
+                    && ValidationFailureBehavior == ValidationFailureBehavior.Skip
+                    && !ValidateNestedItem(child, nestedMap.ChildTypeMap))
                 {
                     // Drop the failing child without breaking the streaming
                     // batch boundary — buffer fill rate is unaffected by
