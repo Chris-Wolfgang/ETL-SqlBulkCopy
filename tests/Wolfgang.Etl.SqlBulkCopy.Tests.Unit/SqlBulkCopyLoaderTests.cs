@@ -1190,18 +1190,13 @@ public class SqlBulkCopyLoaderTests
         var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { MaximumItemCount = 3 });
         var pulled = 0;
 
-        async IAsyncEnumerable<TestRecord> CountingSourceAsync()
+        var source = CreateTestItems(10).Select(item =>
         {
-            foreach (var item in CreateTestItems(10))
-            {
-                pulled++;
-                yield return item;
-            }
+            pulled++;
+            return item;
+        });
 
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        await sut.LoadAsync(CountingSourceAsync());
+        await sut.LoadAsync(ToAsyncEnumerableAsync(source));
 
         Assert.Equal(3, pulled);
         Assert.Equal(3, sut.CurrentItemCount);
@@ -1220,18 +1215,13 @@ public class SqlBulkCopyLoaderTests
         );
         var pulled = 0;
 
-        async IAsyncEnumerable<TestRecord> CountingSourceAsync()
+        var source = CreateTestItems(10).Select(item =>
         {
-            foreach (var item in CreateTestItems(10))
-            {
-                pulled++;
-                yield return item;
-            }
+            pulled++;
+            return item;
+        });
 
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        await sut.LoadAsync(CountingSourceAsync());
+        await sut.LoadAsync(ToAsyncEnumerableAsync(source));
 
         Assert.Equal(5, pulled);
         Assert.Equal(3, sut.CurrentItemCount);
