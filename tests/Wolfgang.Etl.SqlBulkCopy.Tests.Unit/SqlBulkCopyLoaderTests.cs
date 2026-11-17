@@ -451,6 +451,30 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
+    public async Task LoadAsync_when_a_batch_write_fails_CurrentItemCount_excludes_the_failed_batch()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory { FailOnWriteNumber = 2 };
+        var sut = new SqlBulkCopyLoader<TestRecord>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<TestRecord> { BatchSize = 3 }
+        );
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(CreateTestItems(10)))
+        );
+
+        // Batch 1 (3 items) was written; batch 2 failed, so its items must not be counted
+        // (a caller resuming with SkipItemCount would otherwise skip rows never written).
+        Assert.Equal(3, sut.CurrentItemCount);
+    }
+
+
+
+    [Fact]
     public async Task LoadAsync_increments_CurrentItemCount()
     {
         var sut = CreateSut();

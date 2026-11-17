@@ -37,8 +37,8 @@ Expected output (progress lines are timer-driven, so their number and counts var
 
 ```
 Loading customers...
-  batch 1: 10000 items accepted
-  batch 2: 20000 items accepted
+  batch 1: 10000 items written
+  batch 2: 20000 items written
   ...
 Done.
 ```

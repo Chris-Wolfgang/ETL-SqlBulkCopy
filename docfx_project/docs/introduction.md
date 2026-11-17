@@ -30,9 +30,9 @@ so it composes with the rest of the ETL family.
   load and the pre/post commands.
 - **Dry run** — set `IsDryRun` to enumerate, map, validate and report with no
   SQL side effects.
-- **Progress reporting** — `IProgress<SqlBulkCopyReport>` reports items accepted
-  (`CurrentItemCount`, counted when buffered, so it can run ahead of the server by up
-  to one batch), items skipped and batch count.
+- **Progress reporting** — `IProgress<SqlBulkCopyReport>` reports items written
+  (`CurrentItemCount`, advanced after each batch is written), items skipped and batch
+  count.
 - **Native AOT ready** — mark a record `[BulkCopyable]` to get compile-time
   source-generated accessors instead of runtime IL emission.
 - **Async-only** — a banned-symbol analyzer keeps the library free of

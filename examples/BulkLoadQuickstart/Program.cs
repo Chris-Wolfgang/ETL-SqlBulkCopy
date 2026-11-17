@@ -54,7 +54,7 @@ internal static class Program
         // Progress is reported on the loader's ReportingInterval timer, so the number of
         // lines varies per run (a fast load may print none).
         var progress = new Progress<SqlBulkCopyReport>(report =>
-            Console.WriteLine($"  batch {report.BatchCount}: {report.CurrentItemCount} items accepted"));
+            Console.WriteLine($"  batch {report.BatchCount}: {report.CurrentItemCount} items written"));
 
         var loader = new SqlBulkCopyLoader<Customer>
         (

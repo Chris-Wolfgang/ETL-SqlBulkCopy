@@ -20,6 +20,11 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 
 
 
+    /// <summary>When set, <see cref="WriteToServerAsync"/> throws it instead of writing.</summary>
+    public System.Exception? FailWith { get; set; }
+
+
+
     public IReadOnlyList<(string Source, string Destination)> ColumnMappings => _columnMappings;
 
     public IReadOnlyList<int> BatchRowCounts => _batchRowCounts;
@@ -35,6 +40,11 @@ internal sealed class FakeSqlBulkCopyWrapper : ISqlBulkCopyWrapper
 
     public async Task WriteToServerAsync(DbDataReader reader, CancellationToken cancellationToken)
     {
+        if (FailWith is not null)
+        {
+            throw FailWith;
+        }
+
         var rowCount = 0;
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
