@@ -1183,6 +1183,102 @@ public class SqlBulkCopyLoaderTests
 
 
 
+    [Fact]
+    public async Task LoadAsync_when_MaximumItemCount_reached_does_not_pull_another_item_from_source()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut(factory, new SqlBulkCopyLoaderOptions<TestRecord> { MaximumItemCount = 3 });
+        var pulled = 0;
+
+        async IAsyncEnumerable<TestRecord> CountingSourceAsync()
+        {
+            foreach (var item in CreateTestItems(10))
+            {
+                pulled++;
+                yield return item;
+            }
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        await sut.LoadAsync(CountingSourceAsync());
+
+        Assert.Equal(3, pulled);
+        Assert.Equal(3, sut.CurrentItemCount);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_MaximumItemCount_reached_with_SkipItemCount_pulls_exactly_skip_plus_maximum()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut
+        (
+            factory,
+            new SqlBulkCopyLoaderOptions<TestRecord> { SkipItemCount = 2, MaximumItemCount = 3 }
+        );
+        var pulled = 0;
+
+        async IAsyncEnumerable<TestRecord> CountingSourceAsync()
+        {
+            foreach (var item in CreateTestItems(10))
+            {
+                pulled++;
+                yield return item;
+            }
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        await sut.LoadAsync(CountingSourceAsync());
+
+        Assert.Equal(5, pulled);
+        Assert.Equal(3, sut.CurrentItemCount);
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_source_contains_null_root_item_throws_InvalidOperationException()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = CreateSut(factory);
+        var items = new TestRecord[] { null! };
+
+        await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_nested_collection_contains_null_element_throws_naming_the_property()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = new SqlBulkCopyLoader<ParentRecord>(factory, new ManualProgressTimer(), logger: null);
+        var items = new[]
+        {
+            new ParentRecord
+            {
+                ParentId = 1,
+                Name = "P",
+                Children = new List<ChildRecord> { null! }
+            }
+        };
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        Assert.Contains("Children", ex.Message);
+    }
+
+
+
     // --- SkipItemCount tests ---
 
     [Fact]

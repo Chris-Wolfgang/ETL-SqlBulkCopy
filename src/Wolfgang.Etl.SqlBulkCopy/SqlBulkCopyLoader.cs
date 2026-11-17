@@ -524,19 +524,17 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         {
             token.ThrowIfCancellationRequested();
 
-            if (skipCounter < SkipItemCount)
+            if (TrySkipItem(ref skipCounter))
             {
-                skipCounter++;
-                IncrementCurrentSkippedItemCount();
-                SqlBulkCopyLogMessages.SkippedItem(_logger, skipCounter, SkipItemCount, exception: null);
                 continue;
             }
 
-            if (CurrentItemCount >= MaximumItemCount)
+            if (HasReachedMaximumItemCount())
             {
-                SqlBulkCopyLogMessages.ReachedMaximumItemCount(_logger, MaximumItemCount, exception: null);
                 break;
             }
+
+            ThrowIfNullItem(item);
 
             if (EnableDataValidation && !ValidateItem(item))
             {
@@ -551,9 +549,70 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
                 await WriteBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
                 batch.Clear();
             }
+
+            // Stop at the limit instead of pulling one more item to discard (#602).
+            if (HasReachedMaximumItemCount())
+            {
+                break;
+            }
         }
 
         await FinalizeLoadAsync(batch, typeMap, factory, token).ConfigureAwait(false);
+    }
+
+
+
+    private bool TrySkipItem(ref int skipCounter)
+    {
+        if (skipCounter >= SkipItemCount)
+        {
+            return false;
+        }
+
+        skipCounter++;
+        IncrementCurrentSkippedItemCount();
+        SqlBulkCopyLogMessages.SkippedItem(_logger, skipCounter, SkipItemCount, exception: null);
+        return true;
+    }
+
+
+
+    private bool HasReachedMaximumItemCount()
+    {
+        if (CurrentItemCount < MaximumItemCount)
+        {
+            return false;
+        }
+
+        SqlBulkCopyLogMessages.ReachedMaximumItemCount(_logger, MaximumItemCount, exception: null);
+        return true;
+    }
+
+
+
+    private static void ThrowIfNullItem(TRecord? item)
+    {
+        if (item is null)
+        {
+            throw new InvalidOperationException
+            (
+                $"The source produced a null item of type '{typeof(TRecord).Name}'. Null items cannot be loaded."
+            );
+        }
+    }
+
+
+
+    private static void ThrowIfNullChild(object? child, NestedTableMap nestedMap)
+    {
+        if (child is null)
+        {
+            throw new InvalidOperationException
+            (
+                $"The nested collection property '{nestedMap.PropertyName}' contains a null element. "
+                + "Null elements cannot be loaded."
+            );
+        }
     }
 
 
@@ -742,6 +801,8 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             foreach (var child in nestedMap.GetValues(parent))
             {
                 token.ThrowIfCancellationRequested();
+
+                ThrowIfNullChild(child, nestedMap);
 
                 if (EnableDataValidation && !ValidateNestedItem(child, nestedMap.ChildTypeMap))
                 {
