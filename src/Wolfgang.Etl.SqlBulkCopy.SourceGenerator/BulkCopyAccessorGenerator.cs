@@ -244,7 +244,9 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
                 || HasAttribute(type, NotMappedAttributeFullName)
                 || type.IsGenericType
                 || !IsAccessibleToGeneratedCode(type)
-                || InheritsMappedProperty(type))
+                || InheritsMappedProperty(type)
+                // NotMapped + Column is an error the reflection path reports; fall back to it (#600).
+                || type.GetMembers().OfType<IPropertySymbol>().Any(HasConflictingMappingAttributes))
             {
                 return false;
             }
@@ -371,8 +373,25 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
     /// </summary>
     private static bool IsMappableProperty(IPropertySymbol property)
     {
+        // Public only: the reflection path (TypeMap) reads public instance properties,
+        // so a marked type must not gain a column for an internal one (#600).
         return IsReadableInstanceProperty(property)
+               && property.DeclaredAccessibility == Accessibility.Public
                && !HasAttribute(property, NotMappedAttributeFullName);
+    }
+
+
+
+    /// <summary>
+    /// Returns <c>true</c> for a public instance property carrying both <c>[NotMapped]</c>
+    /// and <c>[Column]</c>, a configuration error the reflection path reports by throwing.
+    /// </summary>
+    private static bool HasConflictingMappingAttributes(IPropertySymbol property)
+    {
+        return !property.IsStatic
+               && property.DeclaredAccessibility == Accessibility.Public
+               && HasAttribute(property, NotMappedAttributeFullName)
+               && HasAttribute(property, ColumnAttributeFullName);
     }
 
 
@@ -725,7 +744,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         {
             builder.AppendLine
             (
-                $"        internal static object? Get_{property}(object instance) => (({typeFullyQualified})instance).{property};"
+                $"        internal static object? Get_{property}(object instance) => (({typeFullyQualified})instance).@{property};"
             );
         }
     }

@@ -1,6 +1,10 @@
 // ReSharper disable once RedundantUsingDirective -- probe types
 // (NonPublicGetterProbe, NonPublicNestedGetterProbe, BulkCopyableFixture,
 // BulkCopyableEnumFixture) referenced below live in TestModels namespace.
+using System;
+// ReSharper disable once RedundantUsingDirective -- required on older TFMs
+// (net5.0/net6.0) that lack implicit global usings; InspectCode is TFM-blind.
+using System.Linq;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
 // ReSharper disable once RedundantUsingDirective -- required on older TFMs
 // (net5.0/net6.0) that lack xunit's global usings; InspectCode is TFM-blind.
@@ -26,6 +30,51 @@ namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 public class GeneratorAccessibilityTests
 {
 #if NET5_0_OR_GREATER
+    [Fact]
+    public void Internal_property_is_not_a_column_in_the_generated_descriptor()
+    {
+        var generated = TypeMap.Create(typeof(InternalPropertyProbe));
+        var reflection = TypeMap.Create(typeof(PlainInternalPropertyProbe));
+
+        Assert.Equal
+        (
+            reflection.Columns.Select(c => c.PropertyName),
+            generated.Columns.Select(c => c.PropertyName)
+        );
+        Assert.Equal("Id", Assert.Single(generated.Columns).PropertyName);
+    }
+
+
+
+    [Fact]
+    public void Property_with_NotMapped_and_Column_still_throws_on_a_BulkCopyable_type()
+    {
+        Assert.False(GeneratedTypeMapRegistry.TryGet(typeof(DualAttributePropertyProbe), out _));
+
+        Assert.Throws<InvalidOperationException>
+        (
+            () => TypeMap.Create(typeof(DualAttributePropertyProbe))
+        );
+    }
+
+
+
+    [Fact]
+    public void Keyword_named_property_gets_a_generated_getter()
+    {
+        var registered = GeneratedAccessorRegistry.TryGetGetter
+        (
+            typeof(KeywordNamedPropertyProbe),
+            "class",
+            out var getter
+        );
+
+        Assert.True(registered);
+        Assert.Equal("x", getter(new KeywordNamedPropertyProbe { @class = "x" }));
+    }
+
+
+
     [Fact]
     public void Type_with_a_non_public_getter_does_not_get_a_generated_descriptor()
     {
