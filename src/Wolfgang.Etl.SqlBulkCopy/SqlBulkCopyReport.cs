@@ -14,7 +14,7 @@ public record SqlBulkCopyReport : Report
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlBulkCopyReport"/> class.
     /// </summary>
-    /// <param name="currentItemCount">The number of items loaded so far.</param>
+    /// <param name="currentItemCount">The number of items written to the server so far (advanced after each batch is written).</param>
     /// <param name="currentSkippedItemCount">The number of items skipped so far.</param>
     /// <param name="batchCount">The number of batches written so far.</param>
     public SqlBulkCopyReport

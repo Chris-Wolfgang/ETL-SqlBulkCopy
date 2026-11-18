@@ -56,7 +56,9 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     private int _bulkCopyTimeout = 30;
     private int _batchCount;
 
-
+    // Items accepted into a batch (written or still buffered) in the current load. Drives the
+    // MaximumItemCount limit; CurrentItemCount advances only after each batch is written.
+    private int _acceptedItemCount;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlBulkCopyLoader{TRecord}"/> class.
@@ -518,6 +520,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         }
 
         Volatile.Write(ref _batchCount, 0); // paired with Volatile.Read in CreateProgressReport
+        _acceptedItemCount = 0;
         var skipCounter = 0;
         var batch = new List<TRecord>(_batchSize);
         var factory = _wrapperFactory!; // every constructor sets this
@@ -544,12 +547,11 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             }
 
             batch.Add(item);
-            IncrementCurrentItemCount();
+            _acceptedItemCount++;
 
             if (batch.Count >= _batchSize)
             {
-                await WriteBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
-                batch.Clear();
+                await WriteAndCountBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
             }
 
             // Stop at the limit instead of pulling one more item to discard (#602).
@@ -579,9 +581,30 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
 
 
 
+    /// <summary>
+    /// Writes <paramref name="batch"/>, then counts its items and clears it. Counting only after the
+    /// write succeeds keeps <c>CurrentItemCount</c> equal to the rows actually sent, so a caller that
+    /// resumes with <c>SkipItemCount</c> after a failed batch does not skip rows that were never written.
+    /// </summary>
+    private async Task WriteAndCountBatchAsync
+    (
+        List<TRecord> batch,
+        TypeMap typeMap,
+        ISqlBulkCopyWrapperFactory factory,
+        CancellationToken token
+    )
+    {
+        await WriteBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
+        IncrementCurrentItemCount(batch.Count);
+        batch.Clear();
+    }
+
+
+
     private bool HasReachedMaximumItemCount()
     {
-        if (CurrentItemCount < MaximumItemCount)
+        // Compares the accepted (buffered) count, not CurrentItemCount, which only advances after a write.
+        if (_acceptedItemCount < MaximumItemCount)
         {
             return false;
         }
@@ -667,7 +690,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
     {
         if (batch.Count > 0)
         {
-            await WriteBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
+            await WriteAndCountBatchAsync(batch, typeMap, factory, token).ConfigureAwait(false);
         }
 
         if (!IsDryRun)
@@ -979,7 +1002,7 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
             return true;
         }
 
-        var position = (CurrentItemCount + CurrentSkippedItemCount).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var position = (_acceptedItemCount + CurrentSkippedItemCount).ToString(System.Globalization.CultureInfo.InvariantCulture);
         SqlBulkCopyLogMessages.ValidationFailed(_logger, position, results.Count, exception: null);
 
         // Run the consumer's hook before deciding throw vs. skip so a single

@@ -95,7 +95,7 @@ the loader are deprecated and will be removed in a later release.
 | **Type-driven mapping** | `[Table]` / `[Column]` / `[NotMapped]` attributes drive schema/table/column names — no manual `ColumnMappings` |
 | **Nested tables** | Recursively writes child collections to their own tables, on the same connection and transaction (each chunk uses its own `SqlBulkCopy` instance) |
 | **Pre/post actions** | Built-in `TruncateTable` / `DeleteAllRecords`; custom-action delegates for schema-aware work |
-| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — items accepted (`CurrentItemCount`, counted when buffered, so it can run ahead of the server by up to one batch), items skipped, batch count |
+| **Progress reporting** | `IProgress<SqlBulkCopyReport>` — items written (`CurrentItemCount`, advanced after each batch is written), items skipped, batch count |
 | **Data validation** | Opt in with `EnableDataValidation`; DataAnnotations failures throw or skip per `ValidationFailureBehavior`, with `OnValidationFailed` / `OnNestedValidationFailed` callbacks |
 | **Transactions** | Optional `SqlTransaction` participates in the bulk load and pre/post commands |
 | **Dry run** | Set `IsDryRun = true` on `SqlBulkCopyLoaderOptions<T>` to run the full pipeline — enumerate, map, validate, report — with **no** SQL side effects (skips pre/post actions and the bulk insert) |
