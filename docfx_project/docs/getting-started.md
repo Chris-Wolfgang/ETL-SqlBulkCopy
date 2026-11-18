@@ -123,11 +123,28 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 - **`InvalidOperationException` about a missing connection** — `PreAction` /
   `PostAction` values that issue SQL need a loader constructed with a
   `SqlConnection`.
-- **Column not loaded** — check the property has a getter and is not marked
-  `[NotMapped]`; the column name comes from `[Column]` when present, otherwise
-  the property name.
+- **Column not loaded** — check the property has a public getter, is not marked
+  `[NotMapped]`, and has a [supported type](#supported-property-types); the column
+  name comes from `[Column]` when present, otherwise the property name. A public
+  property of any other type is **silently skipped** (no error, no log entry), so
+  the load succeeds without that column's data.
 - **Native AOT falls back to reflection** — mark the record `[BulkCopyable]` so
   the bundled source generator emits accessors at compile time.
+
+## Supported property types
+
+A public, readable, non-`[NotMapped]` property becomes a column when its type is one of:
+
+`bool`, `byte`, `char`, `short`, `int`, `long`, `float`, `double`, `decimal`, `string`,
+`byte[]`, `Guid`, `DateTime`, `DateTimeOffset`, `TimeSpan`, `DateOnly` and `TimeOnly`
+(the last two on .NET 6 and later), their `Nullable<T>` forms, and an enum whose
+underlying type is one of the integral types above (`byte`, `short`, `int`, `long`).
+
+A property that is an `IEnumerable` of a class (other than `string` / `byte[]`) becomes a
+nested child table. Everything else is skipped without an error, including `sbyte`,
+`ushort`, `uint`, `ulong`, enums backed by those, `char[]`, a single complex-object
+property, and collections whose element type is a struct or an interface. Mark such a
+property `[NotMapped]` to make the omission explicit.
 
 ## Additional Resources
 
