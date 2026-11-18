@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794486053343,
+  "lastUpdate": 1795005978097,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1682,6 +1682,64 @@ window.BENCHMARK_DATA = {
             "value": 655815252.6666666,
             "unit": "ns",
             "range": "± 193083368.18367618"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "15209b1cfdbb9a3b20a2e79703ee87b446170cec",
+          "message": "docs: list supported property types and state that others are skipped silently (#619)\n\nRefs #601\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-18T02:24:18Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/15209b1cfdbb9a3b20a2e79703ee87b446170cec"
+        },
+        "date": 1795005974477,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 38777830.666666664,
+            "unit": "ns",
+            "range": "± 50147065.635451466"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 13191869.666666666,
+            "unit": "ns",
+            "range": "± 165002.8201708484"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 13250214.166666666,
+            "unit": "ns",
+            "range": "± 348497.7333360051"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 1307326241,
+            "unit": "ns",
+            "range": "± 144870630.8735744"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 466485052.8333333,
+            "unit": "ns",
+            "range": "± 110611056.34398532"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 348991458.6666667,
+            "unit": "ns",
+            "range": "± 11922994.438375007"
           }
         ]
       }
