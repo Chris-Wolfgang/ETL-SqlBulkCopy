@@ -677,6 +677,124 @@ public class SqlBulkCopyLoaderTests
 
 
     [Fact]
+    public async Task LoadAsync_when_validation_enabled_and_Throw_rejects_invalid_child_before_any_parent_is_written()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
+            {
+                EnableDataValidation = true
+            }
+        );
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children = [new ValidatableChild { Id = 10, Name = "ok", Quantity = 5 }]
+            },
+            new ParentWithValidatableChildren
+            {
+                Id = 2,
+                Children = [new ValidatableChild { Id = 20, Name = "", Quantity = 5 }] // Required fails
+            }
+        };
+
+        await Assert.ThrowsAsync<SqlBulkCopyValidationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        // Both parents share one batch, so nothing may have been sent when the child fails.
+        Assert.Equal(0, factory.CreatedWrappers.Sum(w => w.BatchRowCounts.Sum()));
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_and_Throw_rejects_invalid_grandchild_before_any_write()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
+            {
+                EnableDataValidation = true
+            }
+        );
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children =
+                [
+                    new ValidatableChild
+                    {
+                        Id = 10,
+                        Name = "ok",
+                        Quantity = 5,
+                        Grandchildren = [new ValidatableGrandchild { Id = 100, Label = "" }] // Required fails
+                    }
+                ]
+            }
+        };
+
+        await Assert.ThrowsAsync<SqlBulkCopyValidationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        Assert.Equal(0, factory.CreatedWrappers.Sum(w => w.BatchRowCounts.Sum()));
+    }
+
+
+
+    [Fact]
+    public async Task LoadAsync_when_validation_enabled_and_Throw_rejects_null_child_before_any_write()
+    {
+        var factory = new FakeSqlBulkCopyWrapperFactory();
+        var sut = new SqlBulkCopyLoader<ParentWithValidatableChildren>
+        (
+            factory,
+            new ManualProgressTimer(),
+            logger: null,
+            options: new SqlBulkCopyLoaderOptions<ParentWithValidatableChildren>
+            {
+                EnableDataValidation = true
+            }
+        );
+
+        var items = new[]
+        {
+            new ParentWithValidatableChildren
+            {
+                Id = 1,
+                Children = [null!]
+            }
+        };
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>
+        (
+            () => sut.LoadAsync(ToAsyncEnumerableAsync(items))
+        );
+
+        Assert.Contains("Children", ex.Message, StringComparison.Ordinal);
+        Assert.Equal(0, factory.CreatedWrappers.Sum(w => w.BatchRowCounts.Sum()));
+    }
+
+
+
+    [Fact]
     public async Task LoadAsync_when_validation_disabled_does_not_skip_invalid_nested_children()
     {
         // Sanity: with EnableDataValidation = false, invalid children are
