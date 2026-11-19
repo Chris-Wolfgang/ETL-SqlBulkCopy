@@ -9,9 +9,6 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsPublishable>true</IsPublishable>
-    <!-- Not a test project: it is published and run by aot-smoke.yaml. The test stages in pr.yaml
-         fail a project under tests/ that neither references Microsoft.NET.Test.Sdk nor opts out. -->
-    <IsTestProject>false</IsTestProject>
 
     <!-- The whole point: publish this consumer with Native AOT and verify it
          compiles warning-free and runs. Trimming + AOT analyzers on so any
