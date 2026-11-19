@@ -1,14 +1,12 @@
-// ReSharper disable once RedundantUsingDirective -- probe types
-// (NonPublicGetterProbe, NonPublicNestedGetterProbe, BulkCopyableFixture,
-// BulkCopyableEnumFixture) referenced below live in TestModels namespace.
+// Every test in this file is NET5_0_OR_GREATER-only (see the #if around the class
+// body), so the usings are conditional too. Unconditional usings read as redundant
+// on the .NET Framework TFMs, and InspectCode analyzes the first TFM (net462).
+#if NET5_0_OR_GREATER
 using System;
-// ReSharper disable once RedundantUsingDirective -- required on older TFMs
-// (net5.0/net6.0) that lack implicit global usings; InspectCode is TFM-blind.
 using System.Linq;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
-// ReSharper disable once RedundantUsingDirective -- required on older TFMs
-// (net5.0/net6.0) that lack xunit's global usings; InspectCode is TFM-blind.
 using Xunit;
+#endif
 
 namespace Wolfgang.Etl.SqlBulkCopy.Tests.Unit;
 
