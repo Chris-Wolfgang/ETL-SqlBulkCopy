@@ -19,6 +19,7 @@ public class MutationHardeningTests5
         Assert.Equal("sales", map.SchemaName);
         Assert.True(map.IsMappedToTable);
         Assert.Equal("[sales].[Gadgets]", map.QualifiedTableName);
+        Assert.Equal(7, map.Columns[0].GetValue(new GeneratedSchemaProbe { Id = 7 }));
     }
 
 
@@ -30,6 +31,7 @@ public class MutationHardeningTests5
 
         Assert.Equal("archive", map.SchemaName);
         Assert.Equal("[archive].[Gadgets]", map.QualifiedTableName);
+        Assert.Equal(8, map.Columns[0].GetValue(new GeneratedSchemaOverrideProbe { Id = 8 }));
     }
 
 
@@ -41,5 +43,6 @@ public class MutationHardeningTests5
 
         Assert.Equal("ops", map.SchemaName);
         Assert.Equal("[ops].[Gizmos]", map.QualifiedTableName);
+        Assert.Equal(9, map.Columns[0].GetValue(new ReflectedSchemaProbe { Id = 9 }));
     }
 }
