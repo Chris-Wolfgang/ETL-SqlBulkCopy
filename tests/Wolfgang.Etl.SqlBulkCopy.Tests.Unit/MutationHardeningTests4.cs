@@ -265,7 +265,10 @@ public class MutationHardeningTests4
         il.Emit(OpCodes.Ret);
         property.SetSetMethod(setter);
 
-        return type.CreateType()!.GetProperty("SetOnly")!;
+        var created = type.CreateType();
+        Assert.NotNull(created);
+
+        return created.GetProperty("SetOnly")!;
     }
 
 
