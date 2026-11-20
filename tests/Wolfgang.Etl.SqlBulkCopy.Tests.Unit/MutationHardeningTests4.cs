@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes;
 using Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels;
@@ -236,9 +237,35 @@ public class MutationHardeningTests4
 
     // --- Guard clauses: exact parameter and message ---
 
-    private static PropertyInfo GetGuardSampleProperty(string name)
+    // A property with only a setter cannot be written in C# without tripping analyzers, so the
+    // fixture type is emitted at run time. The indexer comes from a BCL type.
+    private static PropertyInfo CreateSetOnlyProperty()
     {
-        return typeof(GuardSample).GetProperty(name, BindingFlags.Public | BindingFlags.Instance)!;
+        var assembly = AssemblyBuilder.DefineDynamicAssembly
+        (
+            new AssemblyName("SetOnlyFixture"),
+            AssemblyBuilderAccess.Run
+        );
+        var type = assembly
+            .DefineDynamicModule("SetOnlyFixture")
+            .DefineType("SetOnlySample", TypeAttributes.Public);
+        var field = type.DefineField("_value", typeof(string), FieldAttributes.Private);
+        var property = type.DefineProperty("SetOnly", PropertyAttributes.None, typeof(string), null);
+        var setter = type.DefineMethod
+        (
+            "set_SetOnly",
+            MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
+            null,
+            new[] { typeof(string) }
+        );
+        var il = setter.GetILGenerator();
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldarg_1);
+        il.Emit(OpCodes.Stfld, field);
+        il.Emit(OpCodes.Ret);
+        property.SetSetMethod(setter);
+
+        return type.CreateType()!.GetProperty("SetOnly")!;
     }
 
 
@@ -248,7 +275,7 @@ public class MutationHardeningTests4
     {
         var ex = Assert.Throws<ArgumentException>
         (
-            () => ReflectionHelpers.CompilePropertyGetter(GetGuardSampleProperty(nameof(GuardSample.SetOnly)))
+            () => ReflectionHelpers.CompilePropertyGetter(CreateSetOnlyProperty())
         );
 
         Assert.Equal("propertyInfo", ex.ParamName);
@@ -262,7 +289,7 @@ public class MutationHardeningTests4
     {
         var ex = Assert.Throws<ArgumentException>
         (
-            () => ReflectionHelpers.CompilePropertyGetter(GetGuardSampleProperty("Item"))
+            () => ReflectionHelpers.CompilePropertyGetter(typeof(List<int>).GetProperty("Item")!)
         );
 
         Assert.Equal("propertyInfo", ex.ParamName);
@@ -281,18 +308,5 @@ public class MutationHardeningTests4
 
         Assert.Equal("enumType", ex.ParamName);
         Assert.Contains("'Int32' is not an enum", ex.Message, StringComparison.Ordinal);
-    }
-
-
-
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    private sealed class GuardSample
-    {
-        public string this[int i] => i.ToString(System.Globalization.CultureInfo.InvariantCulture);
-
-        public string SetOnly
-        {
-            set { _ = value; }
-        }
     }
 }
