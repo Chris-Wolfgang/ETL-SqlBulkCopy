@@ -16,7 +16,7 @@ licences on every PR that touches a `.csproj`, plus weekly.
 | Package | Version | License |
 |---------|---------|---------|
 | [Microsoft.Bcl.AsyncInterfaces](https://www.nuget.org/packages/Microsoft.Bcl.AsyncInterfaces/) | 10.0.13 | [MIT](https://licenses.nuget.org/MIT) |
-| [Microsoft.Data.SqlClient](https://www.nuget.org/packages/Microsoft.Data.SqlClient/) | 7.1.1 | [MIT](https://licenses.nuget.org/MIT) |
+| [Microsoft.Data.SqlClient](https://www.nuget.org/packages/Microsoft.Data.SqlClient/) | 7.1.2 | [MIT](https://licenses.nuget.org/MIT) |
 | [Microsoft.Extensions.Logging.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions/) | 10.0.13 | [MIT](https://licenses.nuget.org/MIT) |
 | [System.ComponentModel.Annotations](https://www.nuget.org/packages/System.ComponentModel.Annotations/) | 5.0.0 | [MIT](https://licenses.nuget.org/MIT) |
 
