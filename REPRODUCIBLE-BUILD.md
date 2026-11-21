@@ -26,15 +26,18 @@ rebuilt on the **same OS and SDK band** the release was built with.
 ### Cross-OS reproducibility
 
 The CI workflow [`reproducible-build.yaml`](.github/workflows/reproducible-build.yaml)
-additionally builds the same commit on `ubuntu-latest` and `windows-latest` and
-compares the SHA-256 of the produced assembly *across* runners. A difference
-**fails** the workflow, and its log shows which outputs differ. The cross-OS
-divergence tracked in #176 came from MSBuild writing two generated source files
-with the host's line endings; `Directory.Build.targets` now normalizes them to LF
-before compilation. Until a scheduled run of that workflow has passed on the
-release commit, prefer reproducing on the **same OS** as the release runner. The
-jobs that build and pack the released artifact (`validate-release`,
-`pack-and-validate`, `publish-nuget`) run on **`windows-latest`**.
+(the canonical repo-template copy) runs on every pull request to `main` and on
+demand. Its **`Reproducible build`** job packs the commit twice on `ubuntu-latest`,
+with a full `git clean` in between, and **fails** unless every `.dll`/`.pdb` per
+TFM and every `.nupkg`/`.snupkg` entry is byte-identical. The **`Reproducible build
+(Windows report)`** job packs once on `windows-latest` and prints the cross-OS
+diff in its job summary; it reports and never gates. The cross-OS divergence
+tracked in #176 came from MSBuild writing two generated source files with the
+host's line endings; `Directory.Build.targets` now normalizes them to LF before
+compilation. Until that report shows identical hashes for the release commit,
+prefer reproducing on the **same OS** as the release runner. The jobs that build
+and pack the released artifact (`validate-release`, `pack-and-validate`,
+`publish-nuget`) run on **`windows-latest`**.
 
 ## Tooling
 
@@ -82,7 +85,8 @@ Then compare that hash against:
 - the assembly extracted from the published `.nupkg`
   (`nuget install Wolfgang.Etl.SqlBulkCopy -Version X.Y.Z`, unzip, hash
   `lib/net8.0/Wolfgang.Etl.SqlBulkCopy.dll`); and/or
-- the hash printed in that commit's `reproducible-build.yaml` run logs.
+- the hashes in the `repro-manifest-ubuntu` artifact and the job summaries of that
+  commit's `reproducible-build.yaml` run.
 
 A match confirms the published managed assembly is exactly what this source
 commit produces.
