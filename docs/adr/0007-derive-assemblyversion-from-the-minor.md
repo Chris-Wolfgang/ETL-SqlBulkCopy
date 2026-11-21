@@ -14,7 +14,7 @@ behavioural reason. Keeping it in step by hand also relied on each
 release-prep PR remembering to edit it.
 
 Before 1.0, SemVer puts breaking changes in the minor position. The ETL family
-adopted a shared policy for this (ADR-0011 in ETL-Abstractions).
+adopted a shared policy for this ([ADR-0015 in ETL-Abstractions](https://github.com/Chris-Wolfgang/ETL-Abstractions/blob/main/docs/adr/0015-assemblyversion-policy-for-the-etl-family.md)).
 
 ## Decision
 

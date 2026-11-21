@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Version>0.9.0</Version>
-    <!-- AssemblyVersion is derived from <Version> as 0.{Minor}.0.0 (ADR-0011 in
+    <!-- AssemblyVersion is derived from <Version> as 0.{Minor}.0.0 (ADR-0015 in
          ETL-Abstractions): the minor is SemVer's breaking position pre-1.0 and
          AssemblyVersion is bind-time identity on .NET Framework, so it must move
          with every minor. Deriving it means a release-prep PR cannot forget it,
