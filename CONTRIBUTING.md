@@ -61,9 +61,14 @@ You can contribute in several ways:
      of every test project. Stage 1 also runs the Docker-backed integration tests and enforces the
      line-coverage gates: `CODECOV_MINIMUM` for `src/` and `CODECOV_TEST_MINIMUM` for the test
      assemblies, both set at the top of `pr.yaml`. A framework on which zero tests ran fails the stage.
+   - **Stage 4: Linux ARM64 Tests** (`ubuntu-24.04-arm`) and **Stage 5: Windows ARM64 Tests**
+     (`windows-11-arm`) — the same test projects on ARM64, net6.0 and later, in parallel with
+     Stages 1-3. With macOS (already ARM64) that makes five legs: linux-x64 (netcoreapp3.1 and
+     net5.0+), linux-arm64, windows-x64 (every TFM), windows-arm64 and macos-arm64 (each net6.0
+     and later). .NET Framework runs only on Windows x64.
    - **Security Scan (DevSkim)** and **Security Scan (CodeQL)** (`codeql.yaml`).
-   - **Publish & run Native AOT consumer** (`aot-smoke.yaml`) — publishes a small consumer with
-     Native AOT and runs it.
+   - **AOT smoke (linux-x64)** and **AOT smoke (linux-arm64)** (`aot-smoke.yaml`) — publish a small
+     consumer with Native AOT and run it on each architecture.
    - **actionlint** and **zizmor** (`actions-audit.yaml`) on the workflow files themselves, plus
      Semgrep (`semgrep.yaml`).
    - License audit and SBOM generation for the dependency closure (`license-audit.yaml`, `sbom.yaml`).
