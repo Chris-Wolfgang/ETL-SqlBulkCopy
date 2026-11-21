@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1795221339221,
+  "lastUpdate": 1795289498709,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -3672,6 +3672,78 @@ window.BENCHMARK_DATA = {
             "value": 11359.75033569336,
             "unit": "ns",
             "range": "± 113.5131951503592"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c4f4eb3df03da6fd20bff3005c805758b0339990",
+          "message": "docs: cite ETL-Abstractions ADR-0015 for the AssemblyVersion policy (#636)\n\nThe csproj comment and ADR-0007 cited \"ADR-0011 in ETL-Abstractions\", which\nis the test-doubles packaging decision. The family AssemblyVersion policy is\nrecorded as ADR-0015 (ETL-Abstractions#989, merged 2026-11-18).\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-21T14:25:26-05:00",
+          "tree_id": "390f77c881b8466f5ada32107f3d046e4d150eb9",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/c4f4eb3df03da6fd20bff3005c805758b0339990"
+        },
+        "date": 1795289495860,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 80762.2587076823,
+            "unit": "ns",
+            "range": "± 2736.982380210977"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 7605234.78125,
+            "unit": "ns",
+            "range": "± 11973.573402088357"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 8.926212216416994,
+            "unit": "ns",
+            "range": "± 0.6239746722096516"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.6572946111361185,
+            "unit": "ns",
+            "range": "± 0.0018847770553352917"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 13.39168494939804,
+            "unit": "ns",
+            "range": "± 0.10434145044776721"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 17.687131732702255,
+            "unit": "ns",
+            "range": "± 0.8022799699358989"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 2.7658043230573335,
+            "unit": "ns",
+            "range": "± 0.04128200382065397"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 11172.59823099772,
+            "unit": "ns",
+            "range": "± 41.83832363287713"
           }
         ]
       }
