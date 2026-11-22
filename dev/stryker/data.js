@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794749356159,
+  "lastUpdate": 1795356235572,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "Mutation score": [
@@ -161,6 +161,33 @@ window.BENCHMARK_DATA = {
           {
             "name": "Mutation score (tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit)",
             "value": 84.6,
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "284b16aa7b0679de93ca8f7969d255250e499ab7",
+          "message": "chore(template): sync eight stale template copies of manual scripts and docs (#642)\n\nEach of these files in this repo was an older, unmodified copy of the\nrepo-template file (its blob appears in the template's history), so this\ntakes the template's current version (repo-template main 5cf307b):\ndocs/DOCFX-VERSION-PICKER.md, docs/STACKED-PRS.md,\nscripts/Fix-BranchRuleset.ps1, scripts/Setup-Labels.ps1,\nscripts/pin-actions.ps1, scripts/restack.ps1,\nscripts/templates/maintenance-parent-body.md, scripts/upgrade.ps1.\nNone of them is called by a workflow or by build-pr.ps1.\n\nRefs #41\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-21T20:52:59Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/284b16aa7b0679de93ca8f7969d255250e499ab7"
+        },
+        "date": 1795356229751,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Mutation score (tests/Wolfgang.Etl.SqlBulkCopy.Tests.Unit)",
+            "value": 88.75,
             "unit": "%"
           }
         ]
