@@ -23,6 +23,38 @@ so it can be one day earlier than the GitHub release, which is timestamped in UT
 ### Security
 
 
+## [0.10.0] - 2026-11-23
+
+### Added
+
+- The package now declares itself trim- and Native-AOT-compatible on net8.0 and later (`IsAotCompatible`/`IsTrimmable`), and the `SqlBulkCopyLoader` XML doc examples use the options-based constructor. (#487)
+- Add `EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader`, a sink terminator for the `EtlPipeline` fluent chain, so any source (`.From(...)`, a CSV/JSON/XML extractor, ...) can end in a SQL Server bulk insert: `EtlPipeline.Create().From(records).SqlBulkCopyLoader(connection, options).RunAsync()`. (#509)
+
+### Fixed
+
+- `CurrentItemCount` now advances only after a batch has been written to the server (it previously counted items as they were buffered). A progress report can no longer run ahead of the server, and after a failed batch the count excludes that batch, so resuming with `SkipItemCount` does not skip rows that were never written. `MaximumItemCount` still limits accepted items. (#618)
+- The source generator now emits `[ExcludeFromCodeCoverage]` on each generated `BulkCopyAccessors_*` type. Coverage tools were instrumenting the generated thunks like hand-written code, both here and in consumer assemblies that mark a type `[BulkCopyable]`. (#400)
+- The `[BulkCopyable]` generator now maps only public properties (matching the reflection path), falls back to reflection for a property with both `[NotMapped]` and `[Column]` so the error is reported, and compiles for keyword-named properties. (#611)
+- The loader now stops pulling from the source as soon as `MaximumItemCount` is reached, and a null root item or null nested-collection element throws a clear `InvalidOperationException` instead of a `NullReferenceException` inside `SqlBulkCopy`. (#610)
+- The package now depends on `System.Security.Cryptography.Pkcs` 9.0.21 instead of the vulnerable 8.0.1/9.0.18 that `Microsoft.Data.SqlClient` brings in (CVE-2026-84008, CVE-2026-70162). (#480)
+- `TypeMapReader.GetFieldType` now carries the same `[return: DynamicallyAccessedMembers(PublicFields | PublicProperties)]` annotation as the `DbDataReader` member it overrides (net5.0 and later), clearing the IL2093 trim warning. No behaviour change. (#575)
+- With `EnableDataValidation` and the default `ValidationFailureBehavior.Throw`, a nested child (at any depth) that fails validation now throws before any row of its parent's batch is written, instead of after the parent rows were sent. `Skip` is unchanged. (#617)
+- The opt-in data-validation path (`EnableDataValidation`) now states its trimming requirement: it uses the reflection-based DataAnnotations `Validator`, so a trimmed or Native-AOT app that enables it must preserve the record type's public properties and validation attributes. The IL2026 trim warnings on the two validation helpers are suppressed with that justification. No behaviour change. (#576)
+
+### Documentation
+
+- Corrected XML docs, README and sample text that no longer matched the code (validation order, progress semantics, table override, pre-action scope). (#612)
+
+### Internal
+
+- The AssemblyVersion comment now cites ETL-Abstractions ADR-0015, the ADR that records the policy. (#636)
+- `PackageValidationBaselineVersion` advances to 0.9.0 now that the package is on the NuGet CDN, so the next release validates its API surface against what actually shipped. (#395)
+- Dependencies refreshed: Wolfgang.Etl.Abstractions 0.26.1, Microsoft.Bcl.AsyncInterfaces and Microsoft.Extensions.Logging.Abstractions 10.0.13; the package now requires Abstractions 0.26.1 or later. (#490)
+- Dependencies refreshed: Wolfgang.Etl.Abstractions 0.28.0 (tests use Wolfgang.Etl.TestKit and TestKit.Xunit 0.28.0); the package now requires Abstractions 0.28.0 or later. (#629)
+- Bump `Microsoft.Data.SqlClient` to 7.1.2. (#634)
+- The Semgrep SQL-injection waiver for `SqlConnectionCommandExecutor` (which runs the caller's own pre/post-load statement by design) now lives in the Semgrep workflow configuration instead of an inline `nosemgrep` marker. (#502)
+- `TypeMap` resolves table and schema overrides with `??`: `TypeMap.Create` already normalizes empty and whitespace overrides to null, so the second whitespace check in each resolver was unreachable. No behaviour change. (#510)
+
 ## [0.9.0] - 2026-09-22
 
 ### Added
@@ -451,7 +483,8 @@ Initial release.
 - `SqlBulkCopyValidationException` for column-map / type-map validation failures.
 - Async-only I/O — banned-symbol analyzer enforces `WriteToServerAsync` / `ExecuteNonQueryAsync`; no sync fallbacks.
 
-[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/compare/v0.7.0...v0.7.2

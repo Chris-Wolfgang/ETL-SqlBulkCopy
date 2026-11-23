@@ -187,3 +187,5 @@ virtual Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.Equals(Wolfgang.Etl.Sq
 virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.<Clone>$() -> Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters!
 virtual Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters.Equals(Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters? other) -> bool
 virtual Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport.Equals(Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport? other) -> bool
+Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions
+static Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader<TRecord>(this Wolfgang.Etl.Abstractions.IEtlPipeline<TRecord>! pipeline, Microsoft.Data.SqlClient.SqlConnection! connection, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>? options = null, Microsoft.Data.SqlClient.SqlTransaction? transaction = null, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>!>? logger = null) -> Wolfgang.Etl.Abstractions.IEtlPipelineSink!
