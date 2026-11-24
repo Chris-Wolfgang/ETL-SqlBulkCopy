@@ -15,7 +15,8 @@ record is marked accordingly.
 
 | ADR | Title | Status |
 |-----|-------|--------|
-| [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Accepted |
+| [0000](0000-record-architecture-decisions.md) | Record architecture decisions | Accepted |
+| [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Superseded by [0000](0000-record-architecture-decisions.md) |
 | [0002](0002-isolate-sqlbulkcopy-sdk-behind-wrapper-interfaces.md) | Isolate the SqlBulkCopy SDK behind wrapper interfaces | Accepted |
 | [0003](0003-enforce-async-only-io-via-banned-symbols.md) | Enforce async-only I/O via BannedSymbols.txt | Accepted |
 | [0004](0004-compiled-property-getters-and-native-aot.md) | Compile property getters with expression trees | Superseded by [0006](0006-source-generated-property-accessors.md) (0.5.0) |

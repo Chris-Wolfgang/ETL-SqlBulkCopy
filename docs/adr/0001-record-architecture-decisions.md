@@ -1,6 +1,6 @@
 # 0001. Record architecture decisions
 
-- **Status:** Accepted
+- **Status:** Superseded by [0000](0000-record-architecture-decisions.md)
 - **Date:** 2026-07-10
 
 ## Context
