@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/new/v0.9.0/apiSpec/new?filename=Wolfgang_Etl_SqlBulkCopy_PreAction.md&amp;value=---%0Auid%3A%20Wolfgang.Etl.SqlBulkCopy.PreAction%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/new/v0.10.0/apiSpec/new?filename=Wolfgang_Etl_SqlBulkCopy_PreAction.md&amp;value=---%0Auid%3A%20Wolfgang.Etl.SqlBulkCopy.PreAction%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -76,11 +76,11 @@
 
 
   <h1 id="Wolfgang_Etl_SqlBulkCopy_PreAction" data-uid="Wolfgang.Etl.SqlBulkCopy.PreAction" class="text-break">
-Enum PreAction  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.9.0/src/Wolfgang.Etl.SqlBulkCopy/PreAction.cs/#L6"><i class="bi bi-code-slash"></i></a>
+Enum PreAction  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/src/Wolfgang.Etl.SqlBulkCopy/PreAction.cs/#L6"><i class="bi bi-code-slash"></i></a>
   </h1>
 
   <div class="facts text-secondary">
-    <dl><dt>Namespace</dt><dd><a class="xref" href="Wolfgang.html">Wolfgang</a>.<a class="xref" href="Wolfgang.Etl.html">Etl</a>.<a class="xref" href="Wolfgang.Etl.SqlBulkCopy.html">SqlBulkCopy</a></dd></dl>
+    <dl><dt>Namespace</dt><dd><span class="xref">Wolfgang</span>.<span class="xref">Etl</span>.<a class="xref" href="Wolfgang.Etl.SqlBulkCopy.html">SqlBulkCopy</a></dd></dl>
   <dl><dt>Assembly</dt><dd>Wolfgang.Etl.SqlBulkCopy.dll</dd></dl>
   </div>
 
@@ -111,7 +111,9 @@ delegate before loading.</p>
     <dt id="Wolfgang_Etl_SqlBulkCopy_PreAction_DeleteAllRecords"><code>DeleteAllRecords = 1</code></dt>
   
   <dd><p>Executes <code>DELETE FROM [Schema].[Table]</code> to remove all records
-from the destination table before loading.</p>
+from the destination table before loading. Only the root table is cleared;
+tables written for nested collections are left untouched (use
+<a class="xref" href="Wolfgang.Etl.SqlBulkCopy.PreAction.html#Wolfgang_Etl_SqlBulkCopy_PreAction_CustomAction">CustomAction</a> to clear those).</p>
 </dd>
     <dt id="Wolfgang_Etl_SqlBulkCopy_PreAction_None"><code>None = 0</code></dt>
   
@@ -120,7 +122,9 @@ from the destination table before loading.</p>
     <dt id="Wolfgang_Etl_SqlBulkCopy_PreAction_TruncateTable"><code>TruncateTable = 2</code></dt>
   
   <dd><p>Executes <code>TRUNCATE TABLE [Schema].[Table]</code> to remove all records
-and reset identity columns before loading.</p>
+and reset identity columns before loading. Only the root table is truncated;
+tables written for nested collections are left untouched (use
+<a class="xref" href="Wolfgang.Etl.SqlBulkCopy.PreAction.html#Wolfgang_Etl_SqlBulkCopy_PreAction_CustomAction">CustomAction</a> to clear those).</p>
 </dd>
   </dl>
 
@@ -129,7 +133,7 @@ and reset identity columns before loading.</p>
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.9.0/src/Wolfgang.Etl.SqlBulkCopy/PreAction.cs/#L6" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/src/Wolfgang.Etl.SqlBulkCopy/PreAction.cs/#L6" class="edit-link">Edit this page</a>
         </div>
 
 

@@ -1,4 +1,5 @@
 {
+  "docfx_version": "2.81.0+ba844df625370a6bd7c1ecab0d0ec4d1d9128ac4",
   "source_base_path": "D:/a/ETL-SqlBulkCopy/ETL-SqlBulkCopy/docfx_project",
   "xrefmap": "xrefmap.yml",
   "files": [
@@ -47,6 +48,20 @@
       "IsMRef": true,
       "Title": "Wolfgang.Etl.SqlBulkCopy.ColumnMap",
       "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.ColumnMap.yml\" sourcestartlinenumber=\"1\">Maps a single property on a .NET type to a column in a SQL Server table.</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions",
+      "Summary": "<p sourcefile=\"api/Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.yml\" sourcestartlinenumber=\"1\">Class-named SQL Server sink terminator for the fluent <xref href=\"Wolfgang.Etl.Abstractions.EtlPipeline\" data-throw-if-not-resolved=\"false\"></xref> chain. The\nterminator constructs a <xref href=\"Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader%60%601(Wolfgang.Etl.Abstractions.IEtlPipeline%7b%60%600%7d%2cMicrosoft.Data.SqlClient.SqlConnection%2cWolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions%7b%60%600%7d%2cMicrosoft.Data.SqlClient.SqlTransaction%2cMicrosoft.Extensions.Logging.ILogger%7bWolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader%7b%60%600%7d%7d)\" data-throw-if-not-resolved=\"false\"></xref> and terminates the pipeline,\nso any source package can flow straight into a bulk insert.</p>\n"
     },
     {
       "type": "ManagedReference",

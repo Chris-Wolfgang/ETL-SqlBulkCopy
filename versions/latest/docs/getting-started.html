@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.9.0/docfx_project/docs/getting-started.md/#L1">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/docfx_project/docs/getting-started.md/#L1">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -174,12 +174,25 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 <li><strong><code>InvalidOperationException</code> about a missing connection</strong> — <code>PreAction</code> /
 <code>PostAction</code> values that issue SQL need a loader constructed with a
 <code>SqlConnection</code>.</li>
-<li><strong>Column not loaded</strong> — check the property has a getter and is not marked
-<code>[NotMapped]</code>; the column name comes from <code>[Column]</code> when present, otherwise
-the property name.</li>
+<li><strong>Column not loaded</strong> — check the property has a public getter, is not marked
+<code>[NotMapped]</code>, and has a <a href="#supported-property-types">supported type</a>; the column
+name comes from <code>[Column]</code> when present, otherwise the property name. A public
+property of any other type is <strong>silently skipped</strong> (no error, no log entry), so
+the load succeeds without that column's data.</li>
 <li><strong>Native AOT falls back to reflection</strong> — mark the record <code>[BulkCopyable]</code> so
 the bundled source generator emits accessors at compile time.</li>
 </ul>
+<h2 id="supported-property-types">Supported property types</h2>
+<p>A public, readable, non-<code>[NotMapped]</code> property becomes a column when its type is one of:</p>
+<p><code>bool</code>, <code>byte</code>, <code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>decimal</code>, <code>string</code>,
+<code>byte[]</code>, <code>Guid</code>, <code>DateTime</code>, <code>DateTimeOffset</code>, <code>TimeSpan</code>, <code>DateOnly</code> and <code>TimeOnly</code>
+(the last two on .NET 6 and later), their <code>Nullable&lt;T&gt;</code> forms, and an enum whose
+underlying type is one of the integral types above (<code>byte</code>, <code>short</code>, <code>int</code>, <code>long</code>).</p>
+<p>A property that is an <code>IEnumerable</code> of a class (other than <code>string</code> / <code>byte[]</code>) becomes a
+nested child table. Everything else is skipped without an error, including <code>sbyte</code>,
+<code>ushort</code>, <code>uint</code>, <code>ulong</code>, enums backed by those, <code>char[]</code>, a single complex-object
+property, and collections whose element type is a struct or an interface. Mark such a
+property <code>[NotMapped]</code> to make the omission explicit.</p>
 <h2 id="additional-resources">Additional Resources</h2>
 <ul>
 <li><a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy">GitHub Repository</a></li>
@@ -190,7 +203,7 @@ the bundled source generator emits accessors at compile time.</li>
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.9.0/docfx_project/docs/getting-started.md/#L1" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/docfx_project/docs/getting-started.md/#L1" class="edit-link">Edit this page</a>
         </div>
 
         <div class="next-article d-print-none border-top" id="nextArticle"></div>

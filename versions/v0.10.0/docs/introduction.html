@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Introduction | Wolfgang.Etl.SqlBulkCopy Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Introduction | Wolfgang.Etl.SqlBulkCopy Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.svg">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/docfx_project/docs/introduction.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Wolfgang.Etl.SqlBulkCopy">
+            Wolfgang.Etl.SqlBulkCopy
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="introduction">Introduction</h1>
+
+<p>Welcome to Wolfgang.Etl.SqlBulkCopy!</p>
+<h2 id="overview">Overview</h2>
+<p>A loader that uses SqlBulkCopy for fast inserts into a Microsoft SQL database.</p>
+<p>It consumes an <code>IAsyncEnumerable&lt;TRecord&gt;</code> and streams it to SQL Server through
+<code>SqlBulkCopy</code>, deriving the schema, table and column mapping from the record type
+itself — so there is no manual <code>ColumnMappings</code> wiring to keep in sync. It is
+built on <a href="https://github.com/Chris-Wolfgang/ETL-Abstractions">Wolfgang.Etl.Abstractions</a>,
+so it composes with the rest of the ETL family.</p>
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li><strong>Streaming bulk load</strong> — consumes <code>IAsyncEnumerable&lt;TRecord&gt;</code> and writes in
+configurable batches, so memory stays flat regardless of source size.</li>
+<li><strong>Type-driven mapping</strong> — <code>[Table]</code>, <code>[Column]</code> and <code>[NotMapped]</code> attributes
+drive the schema, table and column names.</li>
+<li><strong>Nested tables</strong> — child collections are recursively written to their own
+tables, on the same connection and transaction (each chunk uses its own
+<code>SqlBulkCopy</code> instance).</li>
+<li><strong>Pre/post actions</strong> — built-in <code>TruncateTable</code> / <code>DeleteAllRecords</code>, plus
+custom-action delegates for schema-aware work.</li>
+<li><strong>Data validation</strong> — opt in with <code>EnableDataValidation</code>; DataAnnotations
+failures either throw or skip per <code>ValidationFailureBehavior</code>, with
+<code>OnValidationFailed</code> / <code>OnNestedValidationFailed</code> callbacks.</li>
+<li><strong>Transactions</strong> — an optional <code>SqlTransaction</code> participates in both the bulk
+load and the pre/post commands.</li>
+<li><strong>Dry run</strong> — set <code>IsDryRun</code> to enumerate, map, validate and report with no
+SQL side effects.</li>
+<li><strong>Progress reporting</strong> — <code>IProgress&lt;SqlBulkCopyReport&gt;</code> reports items written
+(<code>CurrentItemCount</code>, advanced after each batch is written), items skipped and batch
+count.</li>
+<li><strong>Native AOT ready</strong> — mark a record <code>[BulkCopyable]</code> to get compile-time
+source-generated accessors instead of runtime IL emission.</li>
+<li><strong>Async-only</strong> — a banned-symbol analyzer keeps the library free of
+synchronous fallbacks.</li>
+</ul>
+<h2 id="getting-help">Getting Help</h2>
+<p>If you need help with Wolfgang.Etl.SqlBulkCopy, please:</p>
+<ul>
+<li>Check the <a href="getting-started.html">Getting Started</a> guide</li>
+<li>Review the <a href="../api/index.html">API Reference</a></li>
+<li>Visit the <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy">GitHub repository</a></li>
+<li>Open an issue on <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/issues">GitHub Issues</a></li>
+</ul>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/docfx_project/docs/introduction.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Made with DocFX <script>(function(){var r='/';if(window.location.hostname.endsWith('.github.io')){var s=window.location.pathname.split('/').filter(Boolean);if(s.length)r='/'+s[0]+'/';}var t=document.createElement('script');t.src=r+'public/version-picker.js';t.async=true;document.head.appendChild(t);})();</script>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

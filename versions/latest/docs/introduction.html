@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.9.0/docfx_project/docs/introduction.md/#L1">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/docfx_project/docs/introduction.md/#L1">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -88,7 +88,8 @@ configurable batches, so memory stays flat regardless of source size.</li>
 <li><strong>Type-driven mapping</strong> — <code>[Table]</code>, <code>[Column]</code> and <code>[NotMapped]</code> attributes
 drive the schema, table and column names.</li>
 <li><strong>Nested tables</strong> — child collections are recursively written to their own
-tables inside the same bulk-copy session.</li>
+tables, on the same connection and transaction (each chunk uses its own
+<code>SqlBulkCopy</code> instance).</li>
 <li><strong>Pre/post actions</strong> — built-in <code>TruncateTable</code> / <code>DeleteAllRecords</code>, plus
 custom-action delegates for schema-aware work.</li>
 <li><strong>Data validation</strong> — opt in with <code>EnableDataValidation</code>; DataAnnotations
@@ -98,8 +99,9 @@ failures either throw or skip per <code>ValidationFailureBehavior</code>, with
 load and the pre/post commands.</li>
 <li><strong>Dry run</strong> — set <code>IsDryRun</code> to enumerate, map, validate and report with no
 SQL side effects.</li>
-<li><strong>Progress reporting</strong> — <code>IProgress&lt;SqlBulkCopyReport&gt;</code> reports rows written
-(<code>CurrentItemCount</code>), rows skipped and batch count.</li>
+<li><strong>Progress reporting</strong> — <code>IProgress&lt;SqlBulkCopyReport&gt;</code> reports items written
+(<code>CurrentItemCount</code>, advanced after each batch is written), items skipped and batch
+count.</li>
 <li><strong>Native AOT ready</strong> — mark a record <code>[BulkCopyable]</code> to get compile-time
 source-generated accessors instead of runtime IL emission.</li>
 <li><strong>Async-only</strong> — a banned-symbol analyzer keeps the library free of
@@ -117,7 +119,7 @@ synchronous fallbacks.</li>
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.9.0/docfx_project/docs/introduction.md/#L1" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/blob/v0.10.0/docfx_project/docs/introduction.md/#L1" class="edit-link">Edit this page</a>
         </div>
 
         <div class="next-article d-print-none border-top" id="nextArticle"></div>

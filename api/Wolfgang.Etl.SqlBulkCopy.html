@@ -95,6 +95,13 @@ load, so the bulk-copy hot path reads values without emitting IL at runtime.</p>
 </dd>
     </dl>
     <dl class="jumplist">
+      <dt><a class="xref" href="Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.html">EtlPipelineSqlBulkCopyExtensions</a></dt>
+      <dd><p>Class-named SQL Server sink terminator for the fluent <span class="xref">Wolfgang.Etl.Abstractions.EtlPipeline</span> chain. The
+terminator constructs a <a class="xref" href="Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.html#Wolfgang_Etl_SqlBulkCopy_EtlPipelineSqlBulkCopyExtensions_SqlBulkCopyLoader__1_Wolfgang_Etl_Abstractions_IEtlPipeline___0__Microsoft_Data_SqlClient_SqlConnection_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions___0__Microsoft_Data_SqlClient_SqlTransaction_Microsoft_Extensions_Logging_ILogger_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader___0___">SqlBulkCopyLoader&lt;TRecord&gt;(IEtlPipeline&lt;TRecord&gt;, SqlConnection, SqlBulkCopyLoaderOptions&lt;TRecord&gt;?, SqlTransaction?, ILogger&lt;SqlBulkCopyLoader&lt;TRecord&gt;&gt;?)</a> and terminates the pipeline,
+so any source package can flow straight into a bulk insert.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
       <dt><a class="xref" href="Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters.html">PostLoadActionParameters</a></dt>
       <dd><p>Parameters passed to the <a class="xref" href="Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader-1.html#Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader_1_PostLoadCustomAction">PostLoadCustomAction</a> delegate.</p>
 </dd>

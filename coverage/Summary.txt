@@ -1,74 +1,156 @@
 Summary
-  Generated on: 9/23/2026 - 1:54:33 AM
-  Coverage date: 9/23/2026 - 1:54:29 AM - 9/23/2026 - 1:54:30 AM
-  Parser: MultiReport (2x Cobertura)
-  Assemblies: 2
-  Classes: 50
-  Files: 48
-  Line coverage: 98.7%
-  Covered lines: 3748
-  Uncovered lines: 46
-  Coverable lines: 3794
-  Total lines: 9841
-  Branch coverage: 87.1% (412 of 473)
-  Covered branches: 412
-  Total branches: 473
-  Method coverage: 99.4% (542 of 545)
-  Full method coverage: 97.7% (533 of 545)
-  Covered methods: 542
-  Fully covered methods: 533
-  Total methods: 545
+  Generated on: 11/24/2026 - 1:29:51 AM
+  Coverage date: 11/24/2026 - 1:29:46 AM - 11/24/2026 - 1:29:49 AM
+  Parser: MultiReport (6x Cobertura)
+  Assemblies: 7
+  Classes: 122
+  Files: 109
+  Line coverage: 94.3%
+  Covered lines: 4894
+  Uncovered lines: 294
+  Coverable lines: 5188
+  Total lines: 13887
+  Branch coverage: 84.7% (521 of 615)
+  Covered branches: 521
+  Total branches: 615
+  Method coverage: 98.5% (817 of 829)
+  Full method coverage: 96.6% (801 of 829)
+  Covered methods: 817
+  Fully covered methods: 801
+  Total methods: 829
 
-Wolfgang.Etl.SqlBulkCopy                                                       96.8%
-  Wolfgang.Etl.SqlBulkCopy.ColumnMap                                           94.7%
-  Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry                            100%
-  Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor                            100%
-  Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor                       100%
-  Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor                              100%
-  Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry                             100%
-  Wolfgang.Etl.SqlBulkCopy.NestedTableMap                                       100%
-  Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters                             100%
-  Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters                              100%
-  Wolfgang.Etl.SqlBulkCopy.ReflectionHelpers                                    100%
-  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<T>                                90.7%
-  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<T>                          100%
-  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLogMessages                               100%
-  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport                                    100%
-  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException                       100%
-  Wolfgang.Etl.SqlBulkCopy.TypeMap                                              100%
-  Wolfgang.Etl.SqlBulkCopy.TypeMapReader                                        100%
+Wolfgang.Etl.SqlBulkCopy                                                              96.9%
+  Wolfgang.Etl.SqlBulkCopy.ColumnMap                                                  94.7%
+  Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions                            100%
+  Wolfgang.Etl.SqlBulkCopy.GeneratedAccessorRegistry                                   100%
+  Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor                                   100%
+  Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor                              100%
+  Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor                                     100%
+  Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry                                    100%
+  Wolfgang.Etl.SqlBulkCopy.NestedTableMap                                              100%
+  Wolfgang.Etl.SqlBulkCopy.PostLoadActionParameters                                    100%
+  Wolfgang.Etl.SqlBulkCopy.PreLoadActionParameters                                     100%
+  Wolfgang.Etl.SqlBulkCopy.ReflectionHelpers                                           100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<T>                                       91.7%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<T>                                 100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLogMessages                                      100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyReport                                           100%
+  Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyValidationException                              100%
+  Wolfgang.Etl.SqlBulkCopy.TypeMap                                                     100%
+  Wolfgang.Etl.SqlBulkCopy.TypeMapReader                                               100%
 
-Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                            99.5%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.AllocationTests                           100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.BoundaryCoverageTests                    90.9%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.BulkCopyAccessorConformanceTests          100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.BulkCopyAccessorGeneratorTests            100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ColumnMapTests                             99%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.CultureInvarianceTests                    100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.DescriptorConformanceTests                100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapper              100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapperFactory       100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlCommandExecutor              100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.RecordingLogger                     100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.GeneratedAccessorRegistryTests            100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.GeneratedTypeMapRegistryTests             100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.GeneratorAccessibilityTests               100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.LoaderMutationHardeningTests              100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.LoaderMutationHardeningTests2             100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.LoggerObservableMutationHardeningTests    100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NestedTableMapTests                       100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PostLoadActionParametersTests             100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PreLoadActionParametersTests              100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.RecordingLoggerTests                      100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ReflectionHelpersTests                     98%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SliceListTests                            100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderContractTests            100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderOptionsRecordTests      98.1%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderSupportsDryRunTests      100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderTests                   99.5%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyValidationExceptionTests       100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapMutationHardeningTests             100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapMutationHardeningTests2            100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapReaderCellCachingTests             100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapReaderTests                        100%
-  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapTests                              100%
+Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency                                             100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.ConcurrentProbe                           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Concurrency.TypeMapCacheConcurrencyTests              100%
+
+Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz                                                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz.FuzzRecord                                       100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Fuzz.MappingFuzz                                      100%
+
+Wolfgang.Etl.SqlBulkCopy.Tests.Integration                                              26%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.AsyncEnumerableHelpers             0%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.SqlServerFixture                64.5%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.Fixtures.TestSchema                         0%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.LoaderIntegrationTests                   10.3%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.PostActionIntegrationTests                9.7%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.PreActionIntegrationTests                 7.5%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.SqlBulkCopyWrapperTests                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.SqlServerFixtureTests                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TestModels.WidgetRecord                     0%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Integration.TransactionIntegrationTests               8.4%
+
+Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots                                               100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Snapshots.MessageSnapshotTests                        100%
+
+Wolfgang.Etl.SqlBulkCopy.Tests.SourceLink                                              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.SourceLink.SourceLinkPdbTests                         100%
+
+Wolfgang.Etl.SqlBulkCopy.Tests.Unit                                                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.AllocationTests                                  100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.BoundaryCoverageTests                            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.BulkCopyAccessorConformanceTests                 100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.BulkCopyAccessorGeneratorTests                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ColumnMapTests                                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.CultureInvarianceTests                           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.DescriptorConformanceTests                       100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.EtlPipelineSqlBulkCopyExtensionsTests            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapper                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlBulkCopyWrapperFactory              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.FakeSqlCommandExecutor                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.Fakes.RecordingLogger                            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.GeneratedAccessorRegistryTests                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.GeneratedTypeMapRegistryTests                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.GeneratorAccessibilityTests                      100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.LoaderMutationHardeningTests                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.LoaderMutationHardeningTests2                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.LoggerObservableMutationHardeningTests           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.MutationHardeningTests4                          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.MutationHardeningTests5                          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.NestedTableMapTests                              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PostLoadActionParametersTests                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.PreLoadActionParametersTests                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.RecordingLoggerTests                             100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.ReflectionHelpersTests                           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SliceListTests                                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderContractTests                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderDisposableTests                 100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderIdempotentTests                 100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderOptionsRecordTests              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderSupportsDryRunTests             100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyLoaderTests                           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.SqlBulkCopyValidationExceptionTests              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModelMemberTests                             100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.BulkCopyableAttributedFixture         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.BulkCopyableChildFixture              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.BulkCopyableEnumFixture               100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.BulkCopyableFixture                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.BulkCopyableParentFixture             100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ChildRecord                           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.CircularNode                          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.DuplicateColumnRecord                 100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.EnumRecord                            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.GeneratedAccessorProbeRecord          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.GeneratedSchemaOverrideProbe          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.GeneratedSchemaProbe                  100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.GetterCountingRecord                  100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.GrandchildRecord                      100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.GrandparentRecord                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.InheritedGetterBaseProbe              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.InheritedGetterDerivedProbe           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.IntermediateRecord                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.InvalidDualAttributeRecord            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.InvalidPropertyDualAttributeRecord    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.MangleProbe_A.B                       100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.MangleProbe.A_B                       100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.MultiUnderlyingEnumRecord             100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NoMappablePropertiesRecord            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NonPublicGetterProbe                  100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NonPublicNestedChild                  100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NonPublicNestedGetterProbe            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NotMappedChild                        100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NotMappedTypeRecord                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NotMappedWithChildrenRecord           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.NullablePropertiesRecord              100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ParentRecord                          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ParentWithArrayChildren               100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ParentWithIEnumerableChildren         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ParentWithNotMappedChildren           100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ParentWithNullChildren                100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ParentWithValidatableChildren         100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.PlainAttributedFixture                100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.PlainChildFixture                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.PlainEnumFixture                      100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.PlainFixture                          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.PlainParentFixture                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ReflectedSchemaProbe                  100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.SimpleRecord                          100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.TestRecord                            100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.UnsupportedEnumRecord                 100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ValidatableChild                      100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ValidatableGrandchild                 100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TestModels.ValidatableRecord                     100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapMutationHardeningTests                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapMutationHardeningTests2                   100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapReaderCellCachingTests                    100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapReaderTests                               100%
+  Wolfgang.Etl.SqlBulkCopy.Tests.Unit.TypeMapTests                                     100%

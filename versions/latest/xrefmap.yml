@@ -84,6 +84,28 @@ references:
   isSpec: "True"
   fullName: Wolfgang.Etl.SqlBulkCopy.ColumnMap.PropertyName
   nameWithType: ColumnMap.PropertyName
+- uid: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions
+  name: EtlPipelineSqlBulkCopyExtensions
+  href: api/Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.html
+  commentId: T:Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions
+  fullName: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions
+  nameWithType: EtlPipelineSqlBulkCopyExtensions
+- uid: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader*
+  name: SqlBulkCopyLoader
+  href: api/Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.html#Wolfgang_Etl_SqlBulkCopy_EtlPipelineSqlBulkCopyExtensions_SqlBulkCopyLoader_
+  commentId: Overload:Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader
+  isSpec: "True"
+  fullName: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader
+  nameWithType: EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader
+- uid: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader``1(Wolfgang.Etl.Abstractions.IEtlPipeline{``0},Microsoft.Data.SqlClient.SqlConnection,Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions{``0},Microsoft.Data.SqlClient.SqlTransaction,Microsoft.Extensions.Logging.ILogger{Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader{``0}})
+  name: SqlBulkCopyLoader<TRecord>(IEtlPipeline<TRecord>, SqlConnection, SqlBulkCopyLoaderOptions<TRecord>?, SqlTransaction?, ILogger<SqlBulkCopyLoader<TRecord>>?)
+  href: api/Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.html#Wolfgang_Etl_SqlBulkCopy_EtlPipelineSqlBulkCopyExtensions_SqlBulkCopyLoader__1_Wolfgang_Etl_Abstractions_IEtlPipeline___0__Microsoft_Data_SqlClient_SqlConnection_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoaderOptions___0__Microsoft_Data_SqlClient_SqlTransaction_Microsoft_Extensions_Logging_ILogger_Wolfgang_Etl_SqlBulkCopy_SqlBulkCopyLoader___0___
+  commentId: M:Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader``1(Wolfgang.Etl.Abstractions.IEtlPipeline{``0},Microsoft.Data.SqlClient.SqlConnection,Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions{``0},Microsoft.Data.SqlClient.SqlTransaction,Microsoft.Extensions.Logging.ILogger{Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader{``0}})
+  name.vb: SqlBulkCopyLoader(Of TRecord)(IEtlPipeline(Of TRecord), SqlConnection, SqlBulkCopyLoaderOptions(Of TRecord), SqlTransaction, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
+  fullName: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader<TRecord>(Wolfgang.Etl.Abstractions.IEtlPipeline<TRecord>, Microsoft.Data.SqlClient.SqlConnection, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions<TRecord>?, Microsoft.Data.SqlClient.SqlTransaction?, Microsoft.Extensions.Logging.ILogger<Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader<TRecord>>?)
+  fullName.vb: Wolfgang.Etl.SqlBulkCopy.EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader(Of TRecord)(Wolfgang.Etl.Abstractions.IEtlPipeline(Of TRecord), Microsoft.Data.SqlClient.SqlConnection, Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoaderOptions(Of TRecord), Microsoft.Data.SqlClient.SqlTransaction, Microsoft.Extensions.Logging.ILogger(Of Wolfgang.Etl.SqlBulkCopy.SqlBulkCopyLoader(Of TRecord)))
+  nameWithType: EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader<TRecord>(IEtlPipeline<TRecord>, SqlConnection, SqlBulkCopyLoaderOptions<TRecord>?, SqlTransaction?, ILogger<SqlBulkCopyLoader<TRecord>>?)
+  nameWithType.vb: EtlPipelineSqlBulkCopyExtensions.SqlBulkCopyLoader(Of TRecord)(IEtlPipeline(Of TRecord), SqlConnection, SqlBulkCopyLoaderOptions(Of TRecord), SqlTransaction, ILogger(Of SqlBulkCopyLoader(Of TRecord)))
 - uid: Wolfgang.Etl.SqlBulkCopy.PostAction
   name: PostAction
   href: api/Wolfgang.Etl.SqlBulkCopy.PostAction.html
