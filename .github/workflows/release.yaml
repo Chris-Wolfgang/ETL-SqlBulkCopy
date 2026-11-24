@@ -117,6 +117,31 @@ jobs:
             Write-Host "Testing project: $($testProj.Name)" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
 
+            # Projects that set <RequiresLinuxContainers>true</RequiresLinuxContainers> are skipped
+            # here, as on pr.yaml's Windows and macOS stages: this job runs on a Windows runner, which
+            # cannot run the Linux containers those suites start, so every test would be Skipped and
+            # the assembly would report near-0% coverage against the 95% gate. pr.yaml Stage 1 (Linux,
+            # Docker) runs and coverage-gates them. Skipped here, they produce no coverage file, so
+            # the gate below has no row for them. The marker decides, not the project name. A failed
+            # evaluation fails the step, and so does any value other than true, false or empty.
+            $rlcOut = @(dotnet msbuild $testProj.FullName -noLogo "-getProperty:RequiresLinuxContainers" 2>&1)
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "::error file=$($testProj.FullName)::MSBuild evaluation of RequiresLinuxContainers failed for $($testProj.Name)"
+              $rlcOut | ForEach-Object { Write-Host $_ }
+              exit 1
+            }
+            $rlcLines = @($rlcOut | ForEach-Object { "$_".Trim() } | Where-Object { $_ })
+            $rlc = if ($rlcLines.Count -gt 0) { ($rlcLines[-1] -replace '^RequiresLinuxContainers\s*[=:]\s*', '').Trim().ToLowerInvariant() } else { '' }
+            if ($rlc -eq 'true') {
+              Write-Host "::notice file=$($testProj.FullName)::RequiresLinuxContainers=true: skipped in the release build (Windows cannot run Linux containers); it runs and is coverage-gated in pr.yaml Stage 1."
+              Write-Host ""
+              continue
+            }
+            if ($rlc -ne '' -and $rlc -ne 'false') {
+              Write-Host "::error file=$($testProj.FullName)::RequiresLinuxContainers must be true or false, not '$rlc'"
+              exit 1
+            }
+
             # Parse the project file to extract target frameworks
             try {
               [xml]$projectXml = Get-Content $testProj.FullName
