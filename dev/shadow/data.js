@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1795320750590,
+  "lastUpdate": 1795493595947,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1856,6 +1856,64 @@ window.BENCHMARK_DATA = {
             "value": 444548611,
             "unit": "ns",
             "range": "± 3162678.9693709034"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "1656dedf069b54032ab00d8a37df07213f1709e3",
+          "message": "ci(release): skip RequiresLinuxContainers test projects in the Windows release build (#652)\n\nThe release build runs on windows-latest, which cannot run the Linux containers the Integration suite needs. Every test skipped and the Integration assembly reported 25.7% against the 95% gate, failing the v0.10.0 release run. Skip projects that set RequiresLinuxContainers=true, as pr.yaml does on its Windows/macOS/arm64 stages; pr.yaml Stage 1 (Linux, Docker) keeps running and gating them.\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-24T01:18:17Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/1656dedf069b54032ab00d8a37df07213f1709e3"
+        },
+        "date": 1795493592050,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 10385588,
+            "unit": "ns",
+            "range": "± 1323746.8695218887"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 58967956.666666664,
+            "unit": "ns",
+            "range": "± 26322030.558217682"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 11645582.666666666,
+            "unit": "ns",
+            "range": "± 729607.0653662377"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 635663147.1666666,
+            "unit": "ns",
+            "range": "± 213506025.0413173"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 406671725.6666667,
+            "unit": "ns",
+            "range": "± 30279436.226806078"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 355811851,
+            "unit": "ns",
+            "range": "± 20801938.389006853"
           }
         ]
       }
