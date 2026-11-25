@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1795493595947,
+  "lastUpdate": 1795579949876,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "SqlBulkCopy shadow workloads": [
@@ -1914,6 +1914,64 @@ window.BENCHMARK_DATA = {
             "value": 355811851,
             "unit": "ns",
             "range": "± 20801938.389006853"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang",
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "fe32c556df6c5791f81d411ad329758caddd740a",
+          "message": "fix(deps): override wcmatch to >=11.2 (GHSA-53pm-wgxf-c6qf) (#653)\n\nsemgrep pins wcmatch~=8.3, which carries GHSA-53pm-wgxf-c6qf (polynomial-time ReDoS, fixed in 11.2), and Dependabot cannot resolve a bump past that pin. Add an override like the existing opentelemetry ones and regenerate semgrep.txt with the command in its header: wcmatch 8.5.2 -> 12.0.4, plus bracex 3.0.1 -> 3.2.4 which it requires. Same approach as ETL-Abstractions#1020.\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-24T18:04:31Z",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/fe32c556df6c5791f81d411ad329758caddd740a"
+        },
+        "date": 1795579946557,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 1000)",
+            "value": 6476657,
+            "unit": "ns",
+            "range": "± 489786.7241034612"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 1000)",
+            "value": 9469142.666666666,
+            "unit": "ns",
+            "range": "± 719503.3271155411"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 1000)",
+            "value": 8029776.666666667,
+            "unit": "ns",
+            "range": "± 303297.8420007853"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadFlat(RecordCount: 100000)",
+            "value": 366137065.3333333,
+            "unit": "ns",
+            "range": "± 59627507.563869335"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithValidation(RecordCount: 100000)",
+            "value": 265043323.16666666,
+            "unit": "ns",
+            "range": "± 2623475.0268928297"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.ShadowWorkloads.BulkLoadShadowWorkloads.LoadWithTruncatePreAction(RecordCount: 100000)",
+            "value": 304095535.6666667,
+            "unit": "ns",
+            "range": "± 79524200.76258783"
           }
         ]
       }
