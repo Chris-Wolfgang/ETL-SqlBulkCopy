@@ -29,11 +29,36 @@ public sealed class GeneratedTypeDescriptor
         IReadOnlyList<GeneratedColumnDescriptor> columns,
         IReadOnlyList<GeneratedNestedTableDescriptor> nestedTables
     )
+        : this(schemaName, tableName, columns, nestedTables, Array.Empty<string>())
+    {
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new <see cref="GeneratedTypeDescriptor"/> that also names the
+    /// properties the generator skipped because their type is not supported. Intended
+    /// to be called only by generated code.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="tableName"/>, <paramref name="columns"/>,
+    /// <paramref name="nestedTables"/> or <paramref name="skippedPropertyNames"/> is
+    /// <see langword="null"/>.
+    /// </exception>
+    public GeneratedTypeDescriptor
+    (
+        string? schemaName,
+        string tableName,
+        IReadOnlyList<GeneratedColumnDescriptor> columns,
+        IReadOnlyList<GeneratedNestedTableDescriptor> nestedTables,
+        IReadOnlyList<string> skippedPropertyNames
+    )
     {
         SchemaName = schemaName;
         TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
         Columns = columns ?? throw new ArgumentNullException(nameof(columns));
         NestedTables = nestedTables ?? throw new ArgumentNullException(nameof(nestedTables));
+        SkippedPropertyNames = skippedPropertyNames ?? throw new ArgumentNullException(nameof(skippedPropertyNames));
     }
 
 
@@ -55,4 +80,13 @@ public sealed class GeneratedTypeDescriptor
 
     /// <summary>Gets the nested collection-to-table mappings.</summary>
     public IReadOnlyList<GeneratedNestedTableDescriptor> NestedTables { get; }
+
+
+
+    /// <summary>
+    /// Gets the names of the public readable, non-<c>[NotMapped]</c> properties that map to
+    /// neither a column nor a nested table because their type is not supported. Empty when
+    /// every such property maps.
+    /// </summary>
+    public IReadOnlyList<string> SkippedPropertyNames { get; }
 }

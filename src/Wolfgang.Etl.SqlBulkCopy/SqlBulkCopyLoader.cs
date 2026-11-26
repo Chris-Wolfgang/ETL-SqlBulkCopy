@@ -732,8 +732,40 @@ public sealed class SqlBulkCopyLoader<TRecord> : LoaderBase<TRecord, SqlBulkCopy
         );
 
         ValidateActionConfiguration(typeMap);
+        LogSkippedProperties(typeMap, new HashSet<Type>());
 
         return typeMap;
+    }
+
+
+
+    /// <summary>
+    /// Logs one warning per record type in the map graph (root and nested children) that
+    /// has properties skipped because their type is not supported (#601). Each type is
+    /// reported once per load even when it appears under several nested properties.
+    /// </summary>
+    private void LogSkippedProperties(TypeMap typeMap, HashSet<Type> reported)
+    {
+        if (!reported.Add(typeMap.RecordType))
+        {
+            return;
+        }
+
+        if (typeMap.SkippedPropertyNames.Count > 0)
+        {
+            SqlBulkCopyLogMessages.UnsupportedPropertiesSkipped
+            (
+                _logger,
+                typeMap.RecordType.Name,
+                string.Join(", ", typeMap.SkippedPropertyNames),
+                exception: null
+            );
+        }
+
+        foreach (var nested in typeMap.NestedTables)
+        {
+            LogSkippedProperties(nested.ChildTypeMap, reported);
+        }
     }
 
 

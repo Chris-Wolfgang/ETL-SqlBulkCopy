@@ -108,6 +108,16 @@ internal static class SqlBulkCopyLogMessages
 
 
 
+    private static readonly Action<ILogger, string, string, Exception?> UnsupportedPropertiesSkippedMessage =
+        LoggerMessage.Define<string, string>
+        (
+            LogLevel.Warning,
+            new EventId(107, nameof(UnsupportedPropertiesSkipped)),
+            "Type '{RecordType}' has properties that are not loaded because their type is not a supported column type: {PropertyNames}. Mark them [NotMapped] to exclude them explicitly."
+        );
+
+
+
     internal static void StartingOperation(ILogger logger, string operationName, Exception? exception) =>
         StartingOperationMessage(logger, operationName, exception);
 
@@ -137,4 +147,7 @@ internal static class SqlBulkCopyLogMessages
 
     internal static void ExecutingPostAction(ILogger logger, string postAction, Exception? exception) =>
         ExecutingPostActionMessage(logger, postAction, exception);
+
+    internal static void UnsupportedPropertiesSkipped(ILogger logger, string recordType, string propertyNames, Exception? exception) =>
+        UnsupportedPropertiesSkippedMessage(logger, recordType, propertyNames, exception);
 }
