@@ -27,6 +27,8 @@
     Dependabot listings, which use SECURITY_ALERTS_TOKEN when set (fine-grained PAT: Secret scanning alerts
     read + Dependabot alerts read + Metadata read). GITHUB_TOKEN cannot read secret-scanning alerts even with
     security-events: read; Dependabot readability varies by account, so both are routed through the PAT.
+    Issue writes (create, close, reopen, comment) that fail with a 5xx or a dropped connection are retried
+    twice before they count as failed; any other failure counts at once.
     Exit code is 1 if any issue create/close/comment failed, so a broken run is visible.
 .PARAMETER Repository
     owner/name. Defaults to GITHUB_REPOSITORY.
@@ -67,14 +69,14 @@ function Invoke-Api
     # Returns @{ ok; data; status } — never throws on HTTP errors so callers can degrade per alert kind.
     param([string]$Path, [string]$Method = 'GET', [switch]$Paginate, [string]$Token)
 
-    $args = @('api', '-X', $Method, '-H', 'Accept: application/vnd.github+json', '-H', 'X-GitHub-Api-Version: 2022-11-28')
-    if ($Paginate) { $args += @('--paginate', '--slurp') }
-    $args += $Path
+    $ghArgs = @('api', '-X', $Method, '-H', 'Accept: application/vnd.github+json', '-H', 'X-GitHub-Api-Version: 2022-11-28')
+    if ($Paginate) { $ghArgs += @('--paginate', '--slurp') }
+    $ghArgs += $Path
     # Keep stdout (JSON) and stderr (gh diagnostics) apart: merging them can poison ConvertFrom-Json
     # even on a successful call. With 2>&1, stderr lines arrive as ErrorRecord objects.
     $saved = $env:GH_TOKEN
     if ($Token) { $env:GH_TOKEN = $Token }
-    try { $raw = & gh @args 2>&1 } finally { if ($Token) { $env:GH_TOKEN = $saved } }
+    try { $raw = & gh @ghArgs 2>&1 } finally { if ($Token) { $env:GH_TOKEN = $saved } }
     $ok = $LASTEXITCODE -eq 0
     $stdout = ($raw | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] } | Out-String)
     $stderr = ($raw | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] } | ForEach-Object { $_.ToString() } | Out-String)
@@ -86,6 +88,29 @@ function Invoke-Api
         if ($Paginate) { $data = @($data | ForEach-Object { @($_) }) }   # --slurp gives one array per page; flatten
     }
     return @{ ok = $ok; status = $status; data = $data }
+}
+
+
+
+function Invoke-GhWrite
+{
+    # Runs one gh write (issue create/close/reopen/comment) and retries it when the failure looks
+    # transient: a 5xx from GitHub or a dropped connection. Anything else is not repeated, so a bad
+    # request fails once. Returns @{ ok; out } with the last attempt's combined output.
+    param([string[]]$GhArgs, [int]$Attempts = 3)
+
+    $out = ''
+    for ($attempt = 1; $attempt -le $Attempts; $attempt++)
+    {
+        $out = (& gh @GhArgs 2>&1 | Out-String).Trim()
+        if ($LASTEXITCODE -eq 0) { return @{ ok = $true; out = $out } }
+        $transient = $out -match 'HTTP 5\d\d|status code: 5\d\d|Gateway Timeout|Bad Gateway|Service Unavailable|error connecting|connection reset|unexpected EOF|timed out'
+        if (-not $transient -or $attempt -eq $Attempts) { return @{ ok = $false; out = $out } }
+        $delay = 5 * $attempt
+        Write-Host "transient gh failure (attempt $attempt of $Attempts), retrying in ${delay}s: $(($out -split "`n")[0])"
+        Start-Sleep -Seconds $delay
+    }
+    return @{ ok = $false; out = $out }
 }
 
 
@@ -237,8 +262,9 @@ $(if ($Bypass) { "**Push protection was bypassed** for this secret. Review who b
 _Opened automatically by the security-alerts workflow. It closes when the alert is closed and reopens if the alert comes back._
 "@
     if ($DryRun) { Write-Host "DRY-RUN create: $title"; return $null }
-    $url = & gh issue create -R $Repository --title $title --body $body --label $label 2>&1
-    if ($LASTEXITCODE -ne 0) { Write-Warning "create failed for ${title}: $url"; $script:failures++; return $null }
+    $r = Invoke-GhWrite @('issue', 'create', '-R', $Repository, '--title', $title, '--body', $body, '--label', $label)
+    if (-not $r.ok) { Write-Warning "create failed for ${title}: $($r.out)"; $script:failures++; return $null }
+    $url = $r.out
     Write-Host "opened: $url  [$title]"
     return ($url | Select-String -Pattern '/issues/(\d+)' | ForEach-Object { [int]$_.Matches[0].Groups[1].Value })
 }
@@ -250,8 +276,8 @@ function Close-AlertIssue
     param([pscustomobject]$Issue, [string]$Reason)
 
     if ($DryRun) { Write-Host "DRY-RUN close #$($Issue.number): $Reason"; return }
-    $out = & gh issue close $Issue.number -R $Repository --comment "Closing: $Reason" 2>&1
-    if ($LASTEXITCODE -ne 0) { Write-Warning "close of #$($Issue.number) failed: $out"; $script:failures++; return }
+    $r = Invoke-GhWrite @('issue', 'close', "$($Issue.number)", '-R', $Repository, '--comment', "Closing: $Reason")
+    if (-not $r.ok) { Write-Warning "close of #$($Issue.number) failed: $($r.out)"; $script:failures++; return }
     Write-Host "closed #$($Issue.number): $Reason"
 }
 
@@ -271,13 +297,13 @@ function Test-ClosedByWorkflow
 
 
 
-function Reopen-AlertIssue
+function Restore-AlertIssue
 {
     param([pscustomobject]$Issue, [string]$Reason)
 
     if ($DryRun) { Write-Host "DRY-RUN reopen #$($Issue.number): $Reason"; return }
-    $out = & gh issue reopen $Issue.number -R $Repository --comment "Reopening: $Reason" 2>&1
-    if ($LASTEXITCODE -ne 0) { Write-Warning "reopen of #$($Issue.number) failed: $out"; $script:failures++; return }
+    $r = Invoke-GhWrite @('issue', 'reopen', "$($Issue.number)", '-R', $Repository, '--comment', "Reopening: $Reason")
+    if (-not $r.ok) { Write-Warning "reopen of #$($Issue.number) failed: $($r.out)"; $script:failures++; return }
     Write-Host "reopened #$($Issue.number): $Reason"
 }
 
@@ -321,8 +347,8 @@ if ($RequestAutofix)
         $issue = $tracked["code-scanning#$n"]
         if ($issue -and -not $DryRun)
         {
-            $out = & gh issue comment $issue.number -R $Repository --body $result 2>&1
-            if ($LASTEXITCODE -ne 0) { Write-Warning "comment on #$($issue.number) failed: $out"; $autofixFailures++ }
+            $r = Invoke-GhWrite @('issue', 'comment', "$($issue.number)", '-R', $Repository, '--body', $result)
+            if (-not $r.ok) { Write-Warning "comment on #$($issue.number) failed: $($r.out)"; $autofixFailures++ }
         }
     }
     if ($autofixFailures -gt 0) { Write-Host "done with $autofixFailures failure(s)"; exit 1 }
@@ -363,7 +389,7 @@ foreach ($a in $allOpen)
         # issue a maintainer closed by hand stays closed.
         if (Test-ClosedByWorkflow $tracked[$marker])
         {
-            Reopen-AlertIssue $tracked[$marker] "alert $marker is open again"
+            Restore-AlertIssue $tracked[$marker] "alert $marker is open again"
         }
         else
         {
@@ -420,8 +446,8 @@ _Updated weekly by the security-alerts workflow._
             if ($DryRun) { Write-Host "DRY-RUN comment on summary #$($summaryIssue.number)" }
             else
             {
-                $out = & gh issue comment $summaryIssue.number -R $Repository --body $text 2>&1
-                if ($LASTEXITCODE -ne 0) { Write-Warning "summary comment failed: $out"; $script:failures++ } else { Write-Host "updated summary #$($summaryIssue.number)" }
+                $r = Invoke-GhWrite @('issue', 'comment', "$($summaryIssue.number)", '-R', $Repository, '--body', $text)
+                if (-not $r.ok) { Write-Warning "summary comment failed: $($r.out)"; $script:failures++ } else { Write-Host "updated summary #$($summaryIssue.number)" }
             }
         }
         else
@@ -430,8 +456,8 @@ _Updated weekly by the security-alerts workflow._
             if ($DryRun) { Write-Host "DRY-RUN create summary: $title" }
             else
             {
-                $u = & gh issue create -R $Repository --title $title --body $text --label $label 2>&1
-                if ($LASTEXITCODE -ne 0) { Write-Warning "summary create failed: $u"; $script:failures++ } else { Write-Host "opened summary: $u" }
+                $r = Invoke-GhWrite @('issue', 'create', '-R', $Repository, '--title', $title, '--body', $text, '--label', $label)
+                if (-not $r.ok) { Write-Warning "summary create failed: $($r.out)"; $script:failures++ } else { Write-Host "opened summary: $($r.out)" }
             }
         }
     }
