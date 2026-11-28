@@ -167,6 +167,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
 
         var columns = new List<string>();
         var nested = new List<string>();
+        var skipped = new List<string>();
         var ordinal = 0;
 
         foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
@@ -194,22 +195,14 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
             var effective = UnwrapNullable(property.Type);
             if (!IsSupportedColumnType(effective))
             {
+                // Same rule as TypeMap.FindSkippedPropertyNames: a mappable property that is
+                // neither a nested table nor a supported column is reported, not dropped
+                // silently (#601).
+                skipped.Add(property.Name);
                 continue;
             }
 
-            columns.Add
-            (
-                string.Join
-                (
-                    FieldSeparator.ToString(),
-                    property.Name,
-                    GetColumnName(property) ?? property.Name,
-                    effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                    IsNullableProperty(property) ? "1" : "0",
-                    ordinal.ToString(CultureInfo.InvariantCulture)
-                )
-            );
-
+            columns.Add(EncodeColumn(property, effective, ordinal));
             ordinal++;
         }
 
@@ -217,7 +210,23 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         var header = string.Join(HeaderSeparator.ToString(), schema ?? string.Empty, table);
         return header
             + GroupSeparator + string.Join(ColumnSeparator.ToString(), columns)
-            + GroupSeparator + string.Join(ColumnSeparator.ToString(), nested);
+            + GroupSeparator + string.Join(ColumnSeparator.ToString(), nested)
+            + GroupSeparator + string.Join(ColumnSeparator.ToString(), skipped);
+    }
+
+
+
+    private static string EncodeColumn(IPropertySymbol property, ITypeSymbol effective, int ordinal)
+    {
+        return string.Join
+        (
+            FieldSeparator.ToString(),
+            property.Name,
+            GetColumnName(property) ?? property.Name,
+            effective.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            IsNullableProperty(property) ? "1" : "0",
+            ordinal.ToString(CultureInfo.InvariantCulture)
+        );
     }
 
 
@@ -816,6 +825,7 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
         var schemaLiteral = header[0].Length == 0 ? "null" : $"\"{Escape(header[0])}\"";
         var columns = groups[1].Length == 0 ? System.Array.Empty<string>() : groups[1].Split(ColumnSeparator);
         var nested = groups[2].Length == 0 ? System.Array.Empty<string>() : groups[2].Split(ColumnSeparator);
+        var skipped = groups[3].Length == 0 ? System.Array.Empty<string>() : groups[3].Split(ColumnSeparator);
 
         builder.AppendLine();
         builder.AppendLine($"            global::Wolfgang.Etl.SqlBulkCopy.GeneratedTypeMapRegistry.Register(typeof({model.FullyQualifiedName}), new global::Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor");
@@ -848,6 +858,30 @@ public sealed class BulkCopyAccessorGenerator : IIncrementalGenerator
             (
                 $"                    new global::Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor(\"{Escape(fields[0])}\", typeof({fields[1]})),"
             );
+        }
+
+        AppendSkippedPropertyNames(builder, skipped);
+    }
+
+
+
+    private static void AppendSkippedPropertyNames(StringBuilder builder, string[] skipped)
+    {
+        if (skipped.Length == 0)
+        {
+            // The four-argument constructor keeps the output for a fully mapped type
+            // unchanged from earlier versions.
+            builder.AppendLine("                }));");
+            return;
+        }
+
+        builder.AppendLine("                },");
+        builder.AppendLine("                new string[]");
+        builder.AppendLine("                {");
+
+        foreach (var name in skipped)
+        {
+            builder.AppendLine($"                    \"{Escape(name)}\",");
         }
 
         builder.AppendLine("                }));");
