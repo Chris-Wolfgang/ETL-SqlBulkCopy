@@ -126,8 +126,9 @@ await loader.LoadAsync(ReadSourceAsync(), CancellationToken.None);
 - **Column not loaded** — check the property has a public getter, is not marked
   `[NotMapped]`, and has a [supported type](#supported-property-types); the column
   name comes from `[Column]` when present, otherwise the property name. A public
-  property of any other type is **silently skipped** (no error, no log entry), so
-  the load succeeds without that column's data.
+  property of any other type is skipped: the load succeeds without that column's
+  data, and the loader logs one warning (event id 107) per record type naming the
+  skipped properties.
 - **Native AOT falls back to reflection** — mark the record `[BulkCopyable]` so
   the bundled source generator emits accessors at compile time.
 
@@ -143,8 +144,11 @@ underlying type is one of the integral types above (`byte`, `short`, `int`, `lon
 A property that is an `IEnumerable` of a class (other than `string` / `byte[]`) becomes a
 nested child table. Everything else is skipped without an error, including `sbyte`,
 `ushort`, `uint`, `ulong`, enums backed by those, `char[]`, a single complex-object
-property, and collections whose element type is a struct or an interface. Mark such a
-property `[NotMapped]` to make the omission explicit.
+property, and collections whose element type is a struct or an interface. Each load
+logs one warning (event id 107) per record type that has such properties, naming them,
+on both the reflection and the `[BulkCopyable]` paths. Mark such a property
+`[NotMapped]` to make the omission explicit and silence the warning. A later breaking
+release will reject these properties when the map is built.
 
 ## Additional Resources
 
