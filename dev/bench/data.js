@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1795541364109,
+  "lastUpdate": 1795828775877,
   "repoUrl": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy",
   "entries": {
     "BenchmarkDotNet": [
@@ -3888,6 +3888,78 @@ window.BENCHMARK_DATA = {
             "value": 10839.821528116861,
             "unit": "ns",
             "range": "± 82.81343389437508"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f70f86bef3fd906dc35e3c885f8cd372b0b9a713",
+          "message": "feat: warn when properties are skipped for an unsupported type (#601) (#657)\n\n* feat: warn when properties are skipped for an unsupported type (#601)\n\nTypeMap now records the public readable, non-[NotMapped] properties that map\nto neither a column nor a nested table, on the reflection path and (through a\nnew GeneratedTypeDescriptor.SkippedPropertyNames) on the [BulkCopyable] path.\nSqlBulkCopyLoader logs one warning (event id 107) per record type in the map\ngraph naming them. Behaviour is otherwise unchanged; the load still succeeds.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* test: make SkippedPropertyTests' System.Linq using conditional like its use\n\nInspectCode flagged it as redundant (code-scanning #1298): the only Linq call\nsits under NET5_0_OR_GREATER.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-27T20:15:27-05:00",
+          "tree_id": "134f8c8b0031aee6eb12ba551275bc1268d4e85d",
+          "url": "https://github.com/Chris-Wolfgang/ETL-SqlBulkCopy/commit/f70f86bef3fd906dc35e3c885f8cd372b0b9a713"
+        },
+        "date": 1795828772898,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 1000)",
+            "value": 61352.68123372396,
+            "unit": "ns",
+            "range": "± 311.79419605906907"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.LoaderBenchmarks.LoadAsync(RecordCount: 100000)",
+            "value": 6009934.830729167,
+            "unit": "ns",
+            "range": "± 30308.540153107748"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Reference",
+            "value": 6.290373946229617,
+            "unit": "ns",
+            "range": "± 0.048621038639795534"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Reference",
+            "value": 0.5262851044535637,
+            "unit": "ns",
+            "range": "± 0.0029346278431035566"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Reflection_Value_Boxed",
+            "value": 11.581958666443825,
+            "unit": "ns",
+            "range": "± 0.0938563515412109"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.PropertyGetterBenchmarks.Compiled_Value_Boxed",
+            "value": 5.473284348845482,
+            "unit": "ns",
+            "range": "± 0.0159239079614398"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.FullSpan_FastPath(Size: 10000)",
+            "value": 1.3660105541348457,
+            "unit": "ns",
+            "range": "± 0.03569036005333305"
+          },
+          {
+            "name": "Wolfgang.Etl.SqlBulkCopy.Benchmarks.SliceListBenchmarks.PartialSlice_Copy(Size: 10000)",
+            "value": 9053.468149820963,
+            "unit": "ns",
+            "range": "± 31.449605422373875"
           }
         ]
       }
