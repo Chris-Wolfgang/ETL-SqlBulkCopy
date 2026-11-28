@@ -61,13 +61,17 @@ internal sealed class TypeMap
 
     private TypeMap
     (
+        Type recordType,
         string? schemaName,
         string tableName,
         IReadOnlyList<ColumnMap> columns,
         IReadOnlyList<NestedTableMap> nestedTables,
-        bool isMappedToTable
+        bool isMappedToTable,
+        IReadOnlyList<string> skippedPropertyNames
     )
     {
+        RecordType = recordType;
+        SkippedPropertyNames = skippedPropertyNames;
         SchemaName = schemaName;
         TableName = tableName;
         Columns = columns;
@@ -96,6 +100,23 @@ internal sealed class TypeMap
             ? $"[{EscapeIdentifier(schemaName)}].[{EscapeIdentifier(tableName)}]"
             : $"[{EscapeIdentifier(tableName)}]";
     }
+
+
+
+    /// <summary>
+    /// Gets the record type this map describes.
+    /// </summary>
+    public Type RecordType { get; }
+
+
+
+    /// <summary>
+    /// Gets the names of the public readable, non-<c>[NotMapped]</c> properties that map to
+    /// neither a column nor a nested table because their type is not supported (#601).
+    /// The loader logs one warning per record type naming them; the map is still built.
+    /// Empty for a type marked <see cref="NotMappedAttribute"/>, whose properties are never columns.
+    /// </summary>
+    public IReadOnlyList<string> SkippedPropertyNames { get; }
 
 
 
@@ -262,7 +283,16 @@ internal sealed class TypeMap
             nestedTables[i] = new NestedTableMap(type, nested.PropertyName, Create(nested.ChildType));
         }
 
-        return new TypeMap(schema, table, columns, nestedTables, isMappedToTable: true);
+        return new TypeMap
+        (
+            type,
+            schema,
+            table,
+            columns,
+            nestedTables,
+            isMappedToTable: true,
+            descriptor.SkippedPropertyNames
+        );
     }
 
 
@@ -342,6 +372,10 @@ internal sealed class TypeMap
 
         var nestedTables = BuildNestedTableMaps(properties, typesInProgress);
 
+        var skippedPropertyNames = isMapped
+            ? FindSkippedPropertyNames(properties, columns, nestedTables)
+            : Array.Empty<string>();
+
         if (isMapped && columns.Length == 0 && nestedTables.Length == 0)
         {
             throw new InvalidOperationException
@@ -354,12 +388,52 @@ internal sealed class TypeMap
 
         return new TypeMap
         (
+            type,
             resolvedNames.Schema,
             resolvedNames.Table,
             columns,
             nestedTables,
-            isMapped
+            isMapped,
+            skippedPropertyNames
         );
+    }
+
+
+
+    /// <summary>
+    /// Returns the public readable, non-<c>[NotMapped]</c> properties that became neither a
+    /// column nor a nested table: their type is not a supported column type and not a
+    /// collection of a mappable class. The generator applies the same rule when it
+    /// emits <see cref="GeneratedTypeDescriptor.SkippedPropertyNames"/>.
+    /// </summary>
+    private static string[] FindSkippedPropertyNames
+    (
+        PropertyInfo[] properties,
+        ColumnMap[] columns,
+        NestedTableMap[] nestedTables
+    )
+    {
+        var mapped = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var column in columns)
+        {
+            mapped.Add(column.PropertyName);
+        }
+
+        foreach (var nested in nestedTables)
+        {
+            mapped.Add(nested.PropertyName);
+        }
+
+        return properties
+            .Where
+            (
+                p => IsReadableInstanceProperty(p)
+                     && p.GetCustomAttribute<NotMappedAttribute>(inherit: false) is null
+                     && !mapped.Contains(p.Name)
+            )
+            .Select(p => p.Name)
+            .ToArray();
     }
 
 
