@@ -125,6 +125,8 @@ This library targets:
 
 See the [NuGet package page](https://www.nuget.org/packages/Wolfgang.Etl.SqlBulkCopy/) for the authoritative per-TFM compatibility matrix.
 
+**Test matrix.** Every pull request runs the test suite on five legs (`.github/workflows/pr.yaml`): Linux x64, Linux ARM64 (`ubuntu-24.04-arm`), Windows x64, Windows ARM64 (`windows-11-arm`) and macOS ARM64. Each leg runs the test target frameworks that runtime supports there. Windows x64 runs every one, .NET Framework 4.6.2-4.8.1 included. Linux x64 runs .NET Core 3.1 and .NET 5.0 and later. The ARM64 and macOS legs run .NET 6.0 and later. The Docker-backed integration tests run on Linux x64 only. A Native AOT smoke app is also published and run on linux-x64 and linux-arm64 (`aot-smoke.yaml`).
+
 ## ⚡ Native AOT & trimming
 
 By default the per-row hot path compiles a property getter at runtime with

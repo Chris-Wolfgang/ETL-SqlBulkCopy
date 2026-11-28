@@ -1,1 +1,3 @@
 #nullable enable
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.GeneratedTypeDescriptor(string? schemaName, string! tableName, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedColumnDescriptor!>! columns, System.Collections.Generic.IReadOnlyList<Wolfgang.Etl.SqlBulkCopy.GeneratedNestedTableDescriptor!>! nestedTables, System.Collections.Generic.IReadOnlyList<string!>! skippedPropertyNames) -> void
+Wolfgang.Etl.SqlBulkCopy.GeneratedTypeDescriptor.SkippedPropertyNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
